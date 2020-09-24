@@ -1,0 +1,495 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    package="app.zingo.mysolite">
+
+    <uses-permission android:name="android.permission.INTERNET" /> <!-- Network call and base permission -->
+    <!-- Camera Permission -->
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+
+    <uses-feature
+        android:name="android.hardware.camera"
+        android:required="true" /> <!-- Storage Permission -->
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" /> <!-- save images taken from in-app camera -->
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" /> <!-- Location Permission -->
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+
+    <uses-feature android:name="android.hardware.location.gps" /> <!-- Required API 21 or higher -->
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.hardware.camera.autofocus" />
+    <uses-permission android:name="com.google.android.gms.permission.ACTIVITY_RECOGNITION" />
+
+    <supports-screens
+        android:anyDensity="true"
+        android:largeScreens="true"
+        android:normalScreens="true"
+        android:resizeable="true"
+        android:smallScreens="true"
+        android:xlargeScreens="true" />
+
+    <application
+        android:name="androidx.multidex.MultiDexApplication"
+        android:allowBackup="false"
+        android:extractNativeLibs="false"
+        android:hardwareAccelerated="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:largeHeap="true"
+        android:networkSecurityConfig="@xml/network_security_config"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/AppTheme"
+        tools:ignore="GoogleAppIndexingWarning,UnusedAttribute"
+        tools:replace="android:allowBackup,android:icon">
+        <activity android:name=".UiTestActivty"></activity>
+        <activity android:name=".ui.NewAdminDesigns.UpdateRetailer" />
+        <activity android:name=".ui.NewAdminDesigns.RetailerCreation" />
+        <activity android:name=".ui.NewAdminDesigns.RetailerListScreen" />
+        <activity
+            android:name=".ui.NewAdminDesigns.BookingScreen"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity android:name=".ui.NewAdminDesigns.CartScreen" />
+        <activity
+            android:name=".ui.NewAdminDesigns.SubCategoryDetailScreen"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
+        <activity
+            android:name=".ui.NewAdminDesigns.CategoryDetailScreen"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
+        <activity
+            android:name=".ui.NewAdminDesigns.RetailerHomeScreen"
+            android:label=""
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity android:name=".ui.NewAdminDesigns.ShowAllMeetings" />
+        <activity android:name=".ui.NewAdminDesigns.StockOrderDetailsScreen" />
+        <activity android:name=".ui.Plan.PlanHundred" />
+        <activity android:name=".ui.NewAdminDesigns.PriceUpdateListScreen" />
+        <activity android:name=".ui.NewAdminDesigns.StockOrdersScreen" />
+        <activity android:name=".ui.NewAdminDesigns.StockItemScreen" />
+        <activity android:name=".ui.NewAdminDesigns.StockSubCategoryScreen" />
+        <activity android:name=".ui.NewAdminDesigns.BrandScreen" />
+        <activity android:name=".ui.NewAdminDesigns.StockCategoryScreen" />
+        <activity android:name=".ui.NewAdminDesigns.StockOptionsListScreen" />
+        <activity android:name=".ui.NewAdminDesigns.StockOptionsScreen" />
+        <activity
+            android:name=".ui.landing.SplashScreen"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".ui.landing.PermissionRequestScreen"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity android:name=".ui.Common.FakeActivityScreen" />
+        <activity android:name=".ui.newemployeedesign.UpdateWeekOff" />
+        <activity android:name=".ui.newemployeedesign.WeekOffDashBoard" />
+        <activity
+            android:name=".ui.newemployeedesign.ApplyWeekOff"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
+        <activity
+            android:name=".ui.newemployeedesign.WeekOffApply"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
+        <activity android:name=".ui.NewAdminDesigns.ShiftScreenList" />
+        <activity android:name=".ui.NewAdminDesigns.UpdateOrderScreen" />
+        <activity android:name=".ui.Admin.EmployeeOrderMapScreen" />
+        <activity
+            android:name=".ui.Admin.CreateOrderScreen"/>
+        <activity
+            android:name=".ui.NewAdminDesigns.DailyOrdersForEmployeeActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity android:name=".ui.Employee.OrdersListScreen" />
+
+        <uses-library
+            android:name="org.apache.http.legacy"
+            android:required="false" />
+
+        <activity
+            android:name=".ui.landing.PhoneVerificationScreen"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar" />
+
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyCCOdiugQwNAGmBpMdloo6Iu4Rb1i5RwEs" />
+        <meta-data
+            android:name="com.google.android.gms.version"
+            android:value="@integer/google_play_services_version" />
+        <meta-data
+            android:name="com.razorpay.ApiKey"
+            android:value="rzp_live_tTRIgCc7PPKNq0" />
+        <!--
+            <meta-data
+            android:name="com.google.android.maps.v2.API_KEY"
+            android:value="AIzaSyD7wKDeCjNaLc8OjxHhYFVieOsL9lXhFZQ" />
+        -->
+        <activity
+            android:name=".ui.Company.CreateCompany"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".ui.Company.CreateFounderScreen"
+            android:configChanges="keyboardHidden|orientation|keyboard"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.Login.LoginScreen"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".ui.Admin.DashBoardAdmin"
+            android:label=""
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity android:name=".ui.Company.OrganizationDetailScree" />
+        <activity android:name=".ui.Employee.EmployeeListScreen" />
+        <activity android:name=".ui.Employee.CreateEmployeeScreen" />
+
+        <receiver android:name=".Service.OnNotificationClickBroadcastReceiver" />
+        <receiver android:name=".Service.OnGPSNotificationClick" />
+        <receiver android:name=".AlarmManager.LunchBreakAlarm" />
+        <receiver android:name=".AlarmManager.TeaBreakAlarm" />
+
+        <service android:name=".AlarmManager.AlarmNotificationService" />
+        <service android:name=".AlarmManager.AlarmSoundService" />
+        <service android:name=".FireBase.MyFirebaseInstanceIDService">
+            <intent-filter>
+                <action android:name="com.google.firebase.INSTANCE_ID_EVENT" />
+            </intent-filter>
+        </service>
+        <service
+            android:name=".Service.LocationForegroundService"
+            android:enabled="true"
+            android:exported="true" />
+        <service
+            android:name=".Service.ReportDownloadingDataService"
+            android:enabled="true"
+            android:exported="true" />
+        <service
+            android:name=".Service.DetectedActivitiesIntentService"
+            android:exported="false" />
+        <service
+            android:name=".Service.CheckInAlarmReceiverService"
+            android:exported="false" />
+        <service android:name=".Service.BackgroundDetectedActivitiesService" />
+        <service
+            android:name=".utils.TrackGPS"
+            android:enabled="true" />
+        <service
+            android:name=".Service.LocationAndDataServiceWithTimer"
+            android:enabled="true" />
+        <service
+            android:name=".Service.SendEmailToAll"
+            android:enabled="true" />
+        <service
+            android:name=".Service.PriceUpdatingService"
+            android:enabled="true" />
+        <service
+            android:name=".Service.LocationTrackEmplService"
+            android:enabled="true"
+            android:exported="true" />
+        <service
+            android:name=".FireBase.MyFirebaseMessagingService"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
+        <service
+            android:name=".Service.LocationListenerService"
+            android:enabled="true" />
+        <service
+            android:name=".Service.LocaitionPassWithConditionServices"
+            android:enabled="true" />
+
+        <activity android:name=".AlarmManager.AlertDialogActivity" />
+        <activity
+            android:name=".ui.Employee.DashBoardEmployee"
+            android:label=""
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity android:name=".ui.Admin.DepartmentEmployeeListScreen" />
+        <activity
+            android:name=".ui.Admin.EmployeesDashBoard"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
+        <activity
+            android:name=".ui.Common.EmployeeMeetingMap"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
+        <activity android:name=".ui.Employee.MapsActivity" />
+        <activity android:name=".ui.Common.ChangePasswordScreen" />
+        <activity
+            android:name=".ui.Employee.EmployeeMeetingHost"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
+        <activity
+            android:name=".ui.Common.EmployeeMeetingList"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
+        <activity
+            android:name=".ui.Employee.AttendanceScreen"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
+        <activity
+            android:name=".ui.Employee.WorkedDaysListScreen"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
+        <activity
+            android:name=".ui.Employee.LeaveTakenDays"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
+        <activity
+            android:name=".ui.Employee.LeaveManagementHost"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
+        <activity
+            android:name=".ui.Employee.ApplyLeaveScreen"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
+        <activity android:name=".ui.Admin.CreatePaySlip" />
+        <activity android:name=".ui.Admin.LoginDetailsHost" />
+        <activity android:name=".ui.Admin.EmployeeLoginList" />
+        <activity android:name=".ui.Admin.EmployeeLoginMapView" />
+
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="@string/file_provider_authority"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_provider_path" />
+        </provider>
+
+        <activity android:name=".ui.Admin.LeaveApprovalScreen" />
+        <activity android:name=".ui.Admin.EmployeeLiveMappingScreen" />
+        <activity
+            android:name=".ui.LandingScreen"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppThemeNoAction">
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data
+                    android:host="kronyapp.com"
+                    android:pathPattern="/checkout.php"
+                    android:scheme="http" />
+            </intent-filter>
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data
+                    android:host="kronyapp.com"
+                    android:pathPattern="/checkout.php"
+                    android:scheme="https" />
+            </intent-filter>
+
+            <meta-data
+                android:name="default-url"
+                android:value="https://kronyapp.com/checkout.php" />
+        </activity>
+        <activity
+            android:name=".ui.ContactUsScreen"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
+        <activity
+            android:name=".ui.SupportScreen"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
+        <activity
+            android:name=".ui.GetStartedScreen"
+            android:configChanges="keyboardHidden|orientation|keyboard"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.Admin.TaskManagementHost"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
+        <activity
+            android:name=".ui.Admin.CreateTaskScreen"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
+        <activity
+            android:name=".ui.Admin.TaskListScreen"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
+        <activity
+            android:name=".ui.NewAdminDesigns.AdminNewMainScreen"
+            android:configChanges="orientation|screenSize"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:windowSoftInputMode="adjustPan" />
+        <activity
+            android:name=".ui.NewAdminDesigns.DailyTargetsForEmployeeActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".ui.SignUpOptioins"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".ui.EmployeeSignUp"
+            android:configChanges="keyboardHidden|orientation|keyboard"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.newemployeedesign.EmployeeNewMainScreen"
+            android:configChanges="orientation|screenSize"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:windowSoftInputMode="adjustPan" />
+
+        <service
+            android:name=".AlarmManager.InvokeAlarmService"
+            android:label="Word service"
+            android:permission="android.permission.BIND_JOB_SERVICE" />
+
+        <receiver android:name=".AlarmManager.CheckOutAlarm" />
+
+        <activity android:name=".ui.NewAdminDesigns.EmployeeUpdateListScreen" />
+        <activity android:name=".ui.NewAdminDesigns.EmployeeEditScreen" />
+        <activity android:name=".ui.NewAdminDesigns.LeaveEmployeeListScreen" />
+        <activity android:name=".ui.NewAdminDesigns.UpdateLeaveScreen" />
+        <activity android:name=".ui.NewAdminDesigns.DepartmentLilstScreen" />
+        <activity
+            android:name=".ui.PlanMainHostScreen"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".ui.BasicPlanScreen"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".ui.AdvancePlanScreen"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity android:name=".FireBase.EmailVerificationTesting" />
+        <activity android:name=".ui.newemployeedesign.ExpenseManageHost" />
+        <activity
+            android:name=".ui.newemployeedesign.CreateExpensesScreen"
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
+        <activity
+            android:name=".ui.Common.PlanExpireScreen"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".ui.newemployeedesign.ExpensesListScreen"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
+        <activity
+            android:name=".ui.newemployeedesign.ExpenseListScreen"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
+        <activity android:name=".ui.NewAdminDesigns.EmployeeExpenseList" />
+        <activity android:name=".ui.NewAdminDesigns.PendingTasks" />
+        <activity
+            android:name=".ui.Reseller.ResellerSignUpScree"
+            android:configChanges="keyboardHidden|orientation|keyboard"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.landing.InternalServerErrorScreen"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".ui.Reseller.ResellerMainActivity"
+            android:configChanges="orientation|screenSize"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:windowSoftInputMode="adjustPan" />
+        <activity
+            android:name=".ui.Reseller.ResellerDashBoard"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".ui.Reseller.ResellerOrganizationList"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".ui.Reseller.ResellerPaymentListScreen"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".ui.Reseller.ResellerProfileScreen"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity android:name=".ui.Reseller.ChangePasswordReseller" />
+        <activity
+            android:name=".ui.Common.DigitalSignature"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity android:name=".ui.newemployeedesign.MeetingAddWithSignScreen" />
+        <activity android:name=".ui.NewAdminDesigns.LoginMapScreenAdmin" />
+        <activity android:name=".ui.Common.ReportManagementScreen" />
+        <activity
+            android:name=".ui.Login.ForgotPhoneVerfi"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity android:name=".ui.Common.ForgotPasswordScreen" />
+        <activity android:name=".ui.Common.ForgotResellPwd" />
+        <activity android:name=".ui.NewAdminDesigns.TeamMembersList" />
+        <activity
+            android:name=".ui.Common.GeneralNotificationScreen"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity android:name=".ui.Admin.EmployeeTaskMapScreen" />
+        <activity
+            android:name=".ui.NewAdminDesigns.ReportTaskListScreen"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".ui.NewAdminDesigns.ReportExpenseList"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".ui.NewAdminDesigns.ReportVisitsListScreen"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity android:name=".ui.Company.OrganizationEditScreen" />
+        <activity
+            android:name=".ui.newemployeedesign.MeetingDetailList"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity android:name=".ui.Company.WorkingDaysScreen" />
+        <activity android:name=".ui.newemployeedesign.ViewPaySlipScreen" />
+        <activity android:name=".ui.Common.InvokeService" />
+        <activity android:name=".ui.Common.CustomerCreation" />
+        <activity android:name=".ui.NewAdminDesigns.PlanSubscribtionScreen" />
+        <activity android:name=".ui.newemployeedesign.BreakPurpose" />
+        <activity android:name=".ui.NewAdminDesigns.PresentEmployeeListScreen" />
+        <activity
+            android:name=".ui.NewAdminDesigns.TaskAdminViewActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity android:name=".ui.NewAdminDesigns.UpdateTaskScreen" />
+        <activity
+            android:name=".ui.NewAdminDesigns.ExpensesListAdmin"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity android:name=".ui.NewAdminDesigns.EmployeeDashBoardAdminView" />
+        <activity android:name=".ui.NewAdminDesigns.CheckInMapScreen" />
+        <activity android:name=".ui.GooglePlaceMapActivity" />
+        <activity android:name=".ui.Common.NotificationShowActivity" />
+        <activity android:name=".ui.Common.LocationSharingEmplActivity" />
+        <activity android:name=".ui.NewAdminDesigns.LeaveDashBoardAdminScreen" />
+        <activity android:name=".ui.Common.LeaveListScreen" />
+        <activity android:name=".ui.NewAdminDesigns.ExpenseDashBoardAdmin" />
+        <activity
+            android:name=".ui.Common.ImageFullScreenActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity android:name=".ui.Common.ExpensesListAdmin" />
+        <activity android:name=".ui.NewAdminDesigns.UpdateExpenseScreen" />
+        <activity android:name=".ui.Common.AllEmployeeLiveLocation" />
+        <activity android:name=".ui.NewAdminDesigns.MeetingMapScreen" />
+        <activity
+            android:name=".ui.NewAdminDesigns.QrCodePrintScreen"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".ui.newemployeedesign.ScannedQrScreen"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity android:name=".ui.newemployeedesign.EmployeeQrCodeGenerate" />
+        <activity android:name=".ui.NewAdminDesigns.AdminQrTabScreen" />
+        <activity
+            android:name=".ui.NewAdminDesigns.AdminScanEmployee"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity android:name=".ui.NewAdminDesigns.OrganizationProfileScreen" />
+        <activity android:name=".ui.Common.HolidayListActivityScreen" />
+        <activity android:name=".ui.Common.BranchListScreen" />
+        <activity android:name=".ui.Common.CreateBranchesScreen" />
+        <activity android:name=".ui.Common.BreakTimeListScreen" />
+        <activity android:name=".ui.NewAdminDesigns.BranchOptionScreen" />
+        <activity android:name=".ui.NewAdminDesigns.BranchInfoScreen" />
+        <activity android:name=".ui.NewAdminDesigns.BranchEditScreen" />
+        <activity android:name=".ui.Common.CustomerList" />
+        <activity android:name=".ui.FAQScreen" />
+        <activity android:name=".ui.FAQ.FAQFragment" />
+        <activity
+            android:name=".ui.Plan.PlanDesignActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity android:name=".ui.Plan.BasicPlanSubscription" />
+        <activity android:name=".ui.Plan.AdvancePlanSubscription" />
+        <activity android:name="com.airpay.airpaysdk_simplifiedotp.AirpayActivity" />
+        <activity android:name=".ui.Common.ReportBulkdataScreen" />
+        <activity android:name=".ui.Common.ReportBulkDataDisplayScreen" />
+        <activity android:name=".ui.Common.VisitingCard" />
+        <activity android:name=".ui.Common.CustomerMapViewScreen" />
+        <activity android:name=".ui.NewAdminDesigns.CalenderDashBoardActivity" />
+    </application>
+
+</manifest>

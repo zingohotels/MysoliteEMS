@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:descendantFocusability="beforeDescendants"
+    android:focusableInTouchMode="true"
+    tools:context="app.zingo.mysolite.ui.LandingScreen">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@+id/linear_below">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/linear_top"
+            android:orientation="vertical">
+
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="300dp"
+                android:background="#80000000">
+
+                <ImageView
+                    android:id="@+id/landing_top_image"
+                    android:layout_width="match_parent"
+                    android:layout_height="300dp"
+                    android:background="@drawable/working_employee"
+                    android:contentDescription="@string/todo" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_gravity="center|bottom"
+                    android:background="#80000000">
+
+                    <TextView
+                        android:id="@+id/landing_signin"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"
+                        android:text="@string/sign_in"
+                        android:textColor="@color/colorPrimary"
+                        android:textSize="20sp"
+                        android:layout_gravity="center"
+                        android:gravity="center"
+                        style="@style/BB_BottomBarItem_Fixed.TitleAppearance"
+                        android:padding="16dp"/>
+
+                    <TextView
+                        android:id="@+id/landing_support"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:gravity="center"
+                        android:text="@string/support"
+                        android:textColor="#fff"
+                        style="@style/BB_BottomBarItem_Fixed.TitleAppearance"
+                        android:textSize="20sp"
+                        android:padding="16dp"/>
+                </LinearLayout>
+
+                <ImageView
+                    android:id="@+id/landing_app_logo"
+                    android:layout_width="100dp"
+                    android:layout_height="100dp"
+                    android:background="@drawable/ems_ems"
+                    android:layout_gravity="center|top"
+                    android:visibility="gone"
+                    android:layout_marginTop="60dp"
+                    android:contentDescription="@string/todo" />
+            </FrameLayout>
+
+
+            <app.zingo.mysolite.Custom.MyEditText
+                android:id="@+id/landing_email"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="20dp"
+                android:layout_marginTop="20dp"
+                android:layout_marginRight="20dp"
+                android:layout_marginBottom="10dp"
+                android:background="#f0f0f4"
+                style="@style/BB_BottomBarItem_Fixed.TitleAppearance"
+                android:drawableStart="@drawable/email"
+                android:drawablePadding="16dp"
+                android:hint="@string/e_mail_user_name"
+                android:inputType="textEmailAddress"
+                android:padding="12dp"
+                android:textSize="14sp"
+                android:textColor="#000" />
+
+            <app.zingo.mysolite.Custom.MyEditText
+                android:id="@+id/landing_password"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/password"
+                android:inputType="textPassword"
+                android:background="#f0f0f4"
+                android:textColor="#000"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="20dp"
+                android:layout_marginLeft="20dp"
+                android:layout_marginRight="20dp"
+                android:padding="12dp"
+                android:textSize="14sp"
+                android:drawablePadding="16dp"
+                style="@style/BB_BottomBarItem_Fixed.TitleAppearance"
+                android:drawableStart="@drawable/lock"/>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <CheckBox
+                    android:id="@+id/show_hide_password"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/show_password"
+                    android:textColor="#000000"
+                    style="@style/BB_BottomBarItem_Fixed.TitleAppearance"
+                    android:textSize="14sp"/>
+
+                <TextView
+                    android:id="@+id/forgot_pwd"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:text="@string/forgot_password"
+                    android:textColor="@color/colorPrimary"
+                    android:textSize="14sp"
+                    android:layout_gravity="center"
+                    android:gravity="center"
+                    style="@style/BB_BottomBarItem_Fixed.TitleAppearance"
+                    android:layout_marginEnd="3dp"/>
+
+            </LinearLayout>
+
+            <app.zingo.mysolite.Custom.MyRegulerText
+                android:id="@+id/buttonsignin"
+                android:layout_width="250dp"
+                android:layout_height="wrap_content"
+                android:background="@drawable/not_enabled_button"
+                android:layout_marginBottom="5dp"
+                android:layout_gravity="center"
+                android:textAlignment="center"
+                android:padding="14dp"
+                android:visibility="visible"
+                android:text="@string/sign_in"
+                android:enabled="false"
+                android:textSize="16sp"
+                style="@style/BB_BottomBarItem_Fixed.TitleAppearance"
+                android:textColor="#fff"/>
+
+            <CheckBox
+                android:id="@+id/reseller_sign_in_check"
+                android:layout_width="wrap_content"
+                android:layout_height="0dp"
+                android:visibility="visible"
+                android:layout_weight="1"
+                android:checked="false"
+                android:layout_marginTop="5dp"
+                android:text="@string/sign_in_as_reseller"
+                android:textColor="#000000"
+                style="@style/BB_BottomBarItem_Fixed.TitleAppearance"
+                android:textSize="14sp" />
+
+        </LinearLayout>
+
+    </ScrollView>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:id="@+id/linear_below"
+        android:visibility="visible"
+        android:orientation="horizontal">
+
+        <app.zingo.mysolite.Custom.MyRegulerText
+            android:id="@+id/button_get_started"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:background="@drawable/started_button"
+            android:layout_margin="5dp"
+            android:textAlignment="center"
+            android:gravity="center"
+            android:layout_weight="1"
+            android:padding="5dp"
+            android:text="@string/get_started"
+            android:textSize="22sp"
+            android:textColor="@color/colorPrimary" />
+
+        <app.zingo.mysolite.Custom.MyRegulerText
+            android:id="@+id/button_contact_us"
+            android:layout_weight="1"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:visibility="gone"
+            android:background="@drawable/button_primary_dark"
+            android:layout_margin="5dp"
+            android:textAlignment="center"
+            android:gravity="center"
+            android:padding="5dp"
+            android:text="@string/contact_us"
+            android:textSize="22sp"
+            android:textColor="@color/white"/>
+
+    </LinearLayout>
+
+</RelativeLayout>

@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "963551985759",
+    "firebase_url": "https://mysoliteems.firebaseio.com",
+    "project_id": "mysoliteems",
+    "storage_bucket": "mysoliteems.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:963551985759:android:d69bbec2111d6fd6",
+        "android_client_info": {
+          "package_name": "app.zingo.mysolite"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "963551985759-9pkg2bft962ofbdicttsng28s4e88e6e.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "app.zingo.mysolite",
+            "certificate_hash": "04a54e6d3ecb51654ea1a5ecd54e6866a0e2d6f1"
+          }
+        },
+        {
+          "client_id": "963551985759-0pjvqd635mhj06gdd4rgjipf40sfjk0g.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCDcEufgWbedcuQKzVffZ2_xF8pxGPF-_I"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "963551985759-0pjvqd635mhj06gdd4rgjipf40sfjk0g.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

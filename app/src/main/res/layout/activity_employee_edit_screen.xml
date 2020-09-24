@@ -1,0 +1,542 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:id="@+id/rootView"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    >
+
+
+    <androidx.core.widget.NestedScrollView
+        android:background="#FFFFFFFF"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+
+        android:layout_alignParentBottom="true">
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+            android:orientation="vertical">
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/activity_large_margin"
+                android:layout_marginTop="20.0dip"
+                android:textColor="@color/grey_charcoal"
+                android:layout_marginRight="@dimen/activity_large_margin"
+                android:text="* Fields are Mandatory"/>
+
+
+            <Switch
+                android:id="@+id/admin_switch"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:checked="false"
+                android:text="Admin"
+                android:layout_marginLeft="@dimen/activity_large_margin"
+                android:layout_marginTop="20.0dip"
+                android:layout_marginRight="@dimen/activity_large_margin"
+                android:textOff="No"
+                android:textOn="Yes"/>
+
+            <Switch
+                android:id="@+id/active_employee"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:checked="false"
+                android:text="Active/Approve"
+                android:layout_marginLeft="@dimen/activity_large_margin"
+                android:layout_marginTop="20.0dip"
+                android:layout_marginRight="@dimen/activity_large_margin"
+                android:textOff="No"
+                android:textOn="Yes"/>
+
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/nameInputLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/activity_large_margin"
+                android:layout_marginTop="20.0dip"
+                android:layout_marginRight="@dimen/activity_large_margin"
+                android:hint="Employee Name*"
+
+                >
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/name"
+                    style="@style/fp_editText"
+                    android:inputType="text"
+                    android:maxLength="50" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <RadioGroup
+                android:layout_width="match_parent"
+                android:layout_height="30dp"
+                android:layout_gravity="center"
+                android:layout_marginLeft="10dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginRight="10dp"
+                android:gravity="center"
+                android:orientation="horizontal">
+
+                <RadioButton
+                    android:id="@+id/founder_male"
+                    android:layout_width="70dp"
+                    android:layout_height="match_parent"
+                    android:background="@drawable/radio_btn_selector"
+                    android:button="@drawable/editext_border"
+                    android:gravity="center"
+                    android:text="Male"
+                    android:textColor="@drawable/rbtn_textcolor_selector"
+                    android:textSize="16sp" />
+
+                <RadioButton
+                    android:id="@+id/founder_female"
+                    android:layout_width="70dp"
+                    android:layout_height="match_parent"
+                    android:background="@drawable/radio_btn_selector"
+                    android:button="@drawable/editext_border"
+                    android:gravity="center"
+
+                    android:text="Female"
+                    android:textColor="@drawable/rbtn_textcolor_selector"
+                    android:textSize="16sp" />
+
+                <RadioButton
+                    android:id="@+id/founder_other"
+                    android:layout_width="70dp"
+                    android:layout_height="match_parent"
+                    android:background="@drawable/radio_btn_selector"
+                    android:button="@drawable/editext_border"
+                    android:gravity="center"
+                    android:text="Other"
+                    android:textColor="@drawable/rbtn_textcolor_selector"
+                    android:textSize="16sp"
+
+                    />
+            </RadioGroup>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <app.zingo.mysolite.Custom.MyEditText
+                    android:id="@+id/dob"
+                    android:layout_width="match_parent"
+                    android:layout_height="35dp"
+                    android:layout_marginLeft="@dimen/activity_large_margin"
+                    android:layout_marginTop="20.0dip"
+                    android:layout_marginRight="@dimen/activity_large_margin"
+                    android:background="@drawable/employee_test_back"
+                    android:hint="DOB *"
+                    android:layout_weight="1"
+                    android:inputType="date"
+                    android:singleLine="true"
+                    android:textColor="#000"
+                    android:textColorHint="#000"
+                    />
+
+                <app.zingo.mysolite.Custom.MyEditText
+                    android:id="@+id/doj"
+                    android:layout_width="match_parent"
+                    android:inputType="date"
+                    android:layout_height="35dp"
+                    android:layout_marginLeft="@dimen/activity_large_margin"
+                    android:layout_marginTop="20.0dip"
+                    android:layout_marginRight="@dimen/activity_large_margin"
+                    android:background="@drawable/employee_test_back"
+                    android:hint="DOJ *"
+                    android:layout_weight="1"
+                    android:singleLine="true"
+                    android:textColor="#000"
+                    android:textColorHint="#000"
+                    />
+
+                <!--    <android.support.design.widget.TextInputLayout
+                        android:id="@+id/cityInputLayout"
+                        android:layout_width="match_parent"
+                        android:layout_weight="1"
+                        android:textColorHint="@color/colorPrimary"
+
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="@dimen/activity_large_margin"
+                        android:layout_marginTop="20.0dip"
+                        android:layout_marginRight="@dimen/activity_large_margin"
+                        android:hint="City"
+                        >
+                        <android.support.design.widget.TextInputEditText
+                            android:id="@+id/city"
+                            android:maxLength="50"
+                            android:textColor="@color/colorPrimary"
+                            android:focusableInTouchMode="false"
+                            android:inputType="text"
+                            style="@style/fp_editText" />
+                    </android.support.design.widget.TextInputLayout>-->
+
+                <!--        <android.support.design.widget.TextInputLayout
+                            android:id="@+id/stateInputLayout"
+                            android:layout_width="match_parent"
+                            android:layout_weight="1"
+                            android:textColorHint="@color/colorPrimary"
+                            android:layout_height="wrap_content"
+                            android:layout_marginLeft="@dimen/activity_large_margin"
+                            android:layout_marginTop="20.0dip"
+                            android:layout_marginRight="@dimen/activity_large_margin"
+                            android:hint="State"
+
+                            >
+                            <android.support.design.widget.TextInputEditText
+                                android:id="@+id/state"
+                                android:maxLength="50"
+                                android:inputType="text"
+                                android:textColor="@color/colorPrimary"
+                                style="@style/fp_editText" />
+                        </android.support.design.widget.TextInputLayout>-->
+
+            </LinearLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/emailInputLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/activity_large_margin"
+                android:layout_marginTop="20.0dip"
+                android:layout_marginRight="@dimen/activity_large_margin"
+                android:hint="Primary/Organization Email Id *"
+
+                >
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/email"
+                    style="@style/fp_editText"
+                    android:inputType="textEmailAddress"
+                    android:maxLength="80" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/semailInputLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/activity_large_margin"
+                android:layout_marginTop="20.0dip"
+                android:layout_marginRight="@dimen/activity_large_margin"
+                android:baselineAligned="false"
+
+                android:hint="Alternate Email Id(Optional)">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/semail"
+                    style="@style/fp_editText"
+                    android:inputType="textEmailAddress"
+                    android:maxLength="80" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/mobileInputLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/activity_large_margin"
+                android:layout_marginTop="20.0dip"
+                android:layout_marginRight="@dimen/activity_large_margin"
+                android:hint="Mobile Number *"
+
+                >
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/mobile"
+                    style="@style/fp_editText"
+                    android:inputType="number"
+                    android:maxLength="15" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/activity_large_margin"
+                android:layout_marginTop="20.0dip"
+                android:layout_marginRight="@dimen/activity_large_margin"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginLeft="10dp"
+                    android:layout_weight="2"
+                    android:text="Department"
+                    android:textColor="#000000" />
+
+                <Spinner
+                    android:id="@+id/android_material_design_spinner"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/spinner_background" />
+
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginLeft="@dimen/activity_large_margin"
+                android:layout_marginTop="20.0dip"
+                android:layout_marginRight="@dimen/activity_large_margin"
+                >
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="To report"
+                    android:layout_weight="2"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginLeft="10dp"
+                    android:textColor="#000000"/>
+                <Spinner
+                    android:id="@+id/managers_list"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/spinner_background"/>
+
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginLeft="@dimen/activity_large_margin"
+                android:layout_marginTop="20.0dip"
+                android:layout_marginRight="@dimen/activity_large_margin"
+                >
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Shift "
+                    android:layout_weight="2"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginLeft="10dp"
+                    android:textColor="#000000"/>
+                <Spinner
+                    android:id="@+id/shift_list"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/spinner_background"/>
+
+
+            </LinearLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/designationInputLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/activity_large_margin"
+                android:layout_marginTop="20.0dip"
+                android:layout_marginRight="@dimen/activity_large_margin"
+                android:hint="Designation *"
+
+                >
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/designation"
+                    style="@style/fp_editText"
+                    android:inputType="text"
+                    android:maxLength="50" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/salaryInputLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/activity_large_margin"
+                android:layout_marginTop="20.0dip"
+                android:layout_marginRight="@dimen/activity_large_margin"
+                android:hint="Salary *"
+
+                >
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/salary"
+                    style="@style/fp_editText"
+                    android:inputType="numberDecimal"
+                    android:maxLength="50" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/passwordInputLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/activity_large_margin"
+                android:layout_marginTop="20.0dip"
+                app:passwordToggleEnabled="true"
+                android:layout_marginRight="@dimen/activity_large_margin"
+                android:hint="Password *"
+
+                >
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/password"
+                    android:maxLength="50"
+                    android:inputType="textPassword"
+                    style="@style/fp_editText" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/confirmpwdInputLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/activity_large_margin"
+                android:layout_marginTop="20.0dip"
+                app:passwordToggleEnabled="true"
+                android:layout_marginRight="@dimen/activity_large_margin"
+                android:hint="Confirm Password *"
+
+                >
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/confirmpwd"
+                    android:maxLength="50"
+                    android:inputType="textPassword"
+                    style="@style/fp_editText" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="@dimen/activity_large_margin"
+                    android:layout_marginTop="20.0dip"
+                    android:layout_marginRight="@dimen/activity_large_margin"
+                    android:text="Address(Optional)" />
+
+                <EditText
+                    android:id="@+id/address"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="start"
+                    android:layout_marginLeft="@dimen/activity_large_margin"
+                    android:layout_marginTop="5dp"
+                    android:layout_marginRight="@dimen/activity_large_margin"
+                    android:background="@drawable/spinner_background"
+                    android:gravity="start"
+                    android:keepScreenOn="true"
+                    android:lines="5"
+                    android:overScrollMode="always"
+                    android:scrollbarAlwaysDrawVerticalTrack="true"
+                    android:scrollbarStyle="insideInset"
+                    android:scrollbars="vertical" />
+
+
+            </LinearLayout>
+
+
+            <CheckBox
+                android:id="@+id/location_condition"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Check-in Location"
+                android:checked="true"
+                android:textColor="#000000"
+                android:textSize="14sp" />
+            <CheckBox
+                android:id="@+id/time_condition"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Check-in Time"
+                android:checked="true"
+                android:textColor="#000000"
+                android:textSize="14sp" />
+            <CheckBox
+                android:id="@+id/week_condition"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Custom Week-Off"
+                android:checked="false"
+                android:textColor="#000000"
+                android:textSize="14sp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/week_lay"
+                android:visibility="gone"
+                android:orientation="vertical">
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/weekInputLayout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="@dimen/activity_large_margin"
+                    android:layout_marginTop="20.0dip"
+                    android:layout_marginRight="@dimen/activity_large_margin"
+                    android:hint="N0 of Week-Off in Month"
+
+                    >
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/week_off"
+                        style="@style/fp_editText"
+                        android:inputType="number"
+                        android:maxLength="2" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="@dimen/activity_large_margin"
+                    android:layout_marginTop="10.0dip"
+                    android:layout_marginRight="@dimen/activity_large_margin"
+                    android:orientation="horizontal">
+
+                    <LinearLayout
+                        android:id="@+id/container_week_off"
+
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+                    </LinearLayout>
+                </LinearLayout>
+
+
+            </LinearLayout>
+
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/createFounder"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/activity_large_margin"
+                android:layout_marginTop="20.0dip"
+                android:layout_marginRight="@dimen/activity_large_margin"
+                android:layout_marginBottom="20.0dip"
+                android:background="@drawable/selector_button_app"
+                android:text="Update Employee"
+                android:textAllCaps="false"
+                android:textColor="@color/white"
+                android:textSize="@dimen/regularFont"
+
+                />
+
+
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+
+</RelativeLayout>

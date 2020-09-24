@@ -1,0 +1,47 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:layout_gravity="center_vertical">
+
+    <app.zingo.mysolite.Library.RippleEffect.RippleBackground
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:layout_width="70dp"
+        android:layout_height="70dp"
+        android:layout_marginTop="100dp"
+        android:id="@+id/content"
+        app:rb_color="@color/error_stroke_color"
+        app:rb_radius="3dp"
+        app:rb_rippleAmount="6"
+        app:rb_duration="3000"
+        app:rb_scale="6">
+        <ImageView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_centerInParent="true"
+            android:id="@+id/centerImage"/>
+
+       <!-- <ImageView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:id="@+id/foundDevice"
+            android:layout_above="@id/centerImage"
+            android:layout_marginBottom="32dp"
+            android:layout_toLeftOf="@id/centerImage"
+            android:layout_marginRight="6dp"
+            android:src="@drawable/phone"
+            android:visibility="visible"/>
+        -->
+    </app.zingo.mysolite.Library.RippleEffect.RippleBackground>
+
+    <ImageView
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:id="@+id/foundDevice"
+        android:layout_marginTop="50dp"
+        android:src="@drawable/phone"
+        android:visibility="invisible"/>
+
+</RelativeLayout>
