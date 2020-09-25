@@ -95,13 +95,10 @@ public class CreateExpensesScreen extends AppCompatActivity {
             mUploadImages = findViewById(R.id.image_layout);
 
             Bundle bundle = getIntent().getExtras();
-
             if(bundle!=null){
-
                 employeeId = bundle.getInt("EmployeeId");
                 managerId = bundle.getInt("ManagerId");
             }
-
 
             mTo.setOnClickListener(new View.OnClickListener() {
                 @Override

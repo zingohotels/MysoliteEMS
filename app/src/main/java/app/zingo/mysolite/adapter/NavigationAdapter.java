@@ -92,39 +92,33 @@ public class NavigationAdapter extends RecyclerView.Adapter< NavigationAdapter.V
                             employees.putExtra("OrganizationId", PreferenceHandler.getInstance(context).getBranchId());
                             ((Activity)context).startActivity(employees);
                             break;
-
                             //"Stock Categories","Stock SubCategories","Stock Brands","Stock Items"
                         case "Stock Categories":
                             Intent stocklist = new Intent(context, StockOptionsListScreen.class);
                             stocklist.putExtra ( "Type","Stock Categories" );
                             ((Activity)context).startActivity(stocklist);
                             break;
-
                         case "Stock SubCategories":
                             Intent stocksublist = new Intent(context, StockOptionsListScreen.class);
                             stocksublist.putExtra ( "Type","Stock SubCategories" );
                             ((Activity)context).startActivity(stocksublist);
                             break;
-
                         case "Stock Brands(Retailer's Home Image)":
                             Intent stockbrandlist = new Intent(context, StockOptionsListScreen.class);
                             stockbrandlist.putExtra ( "Type","Stock Brands" );
                             ((Activity)context).startActivity(stockbrandlist);
                             break;
-
                         case "Stock Items":
                             Intent stockitemlist = new Intent(context, StockOptionsListScreen.class);
                             stockitemlist.putExtra ( "Type","Stock Items" );
                             ((Activity)context).startActivity(stockitemlist);
                             break;
-
                         case "Stock Orders":
                             Intent stockorderslist = new Intent(context, StockOptionsListScreen.class);
                             stockorderslist.putExtra ( "Type","Stock Orders" );
                             ((Activity)context).startActivity(stockorderslist);
                             break;
-
-                            case "Price Update":
+                        case "Price Update":
                             Intent priceUpdate = new Intent(context, PriceUpdateListScreen.class);
                             priceUpdate.putExtra ( "Type","Price Update" );
                             ((Activity)context).startActivity(priceUpdate);

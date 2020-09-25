@@ -1,5 +1,4 @@
 package app.zingo.mysolite.ui.Company;
-
 import android.Manifest;
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -54,21 +53,17 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class OrganizationDetailScree extends AppCompatActivity {
-
     TextView mName,mAbout,mAddress,mBuild,mWebsite,mDepartmentCount;
     RecyclerView mDepartmentList;
     LinearLayout mDepartmentLay,mDepartmentMain;
     CardView mDepartmentCard;
     AppCompatButton mAddDepartment;
     CheckBox locationTrack;
-
     Organization organization;
-
     //maps related
     private GoogleMap mMap;
     MapView mapView;
     Marker marker;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

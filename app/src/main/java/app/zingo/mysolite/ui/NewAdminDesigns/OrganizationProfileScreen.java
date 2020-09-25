@@ -1,5 +1,6 @@
 package app.zingo.mysolite.ui.NewAdminDesigns;
 
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.DefaultItemAnimator;
@@ -9,6 +10,7 @@ import android.view.MenuItem;
 
 import java.util.ArrayList;
 
+import app.zingo.mysolite.FireBase.SharedPrefManager;
 import app.zingo.mysolite.adapter.NavigationAdapter;
 import app.zingo.mysolite.model.Navigation_Model;
 import app.zingo.mysolite.utils.PreferenceHandler;

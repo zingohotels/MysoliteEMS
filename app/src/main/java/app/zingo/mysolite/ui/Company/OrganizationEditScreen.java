@@ -521,39 +521,20 @@ public class OrganizationEditScreen extends AppCompatActivity {
     }
 
     public void updateOrg(final Organization organization) {
-
-
-
-
         OrganizationApi apiService = Util.getClient().create(OrganizationApi.class);
-
         Call<Organization> call = apiService.updateOrganization(organization.getOrganizationId(),organization);
-
         call.enqueue(new Callback<Organization>() {
             @Override
             public void onResponse(Call<Organization> call, Response<Organization> response) {
-//                List<RouteDTO.Routes> list = new ArrayList<RouteDTO.Routes>();
-                try
-                {
-
-
+                try {
                     int statusCode = response.code();
                     if (statusCode == 200 || statusCode == 201|| statusCode == 204) {
-
-
-
                         OrganizationEditScreen.this.finish();
-
-
-
                     }else {
                         Toast.makeText( OrganizationEditScreen.this, "Failed Due to "+response.message(), Toast.LENGTH_SHORT).show();
                     }
                 }
-                catch (Exception ex)
-                {
-
-
+                catch (Exception ex) {
                     ex.printStackTrace();
                 }
 //                callGetStartEnd();
@@ -561,8 +542,6 @@ public class OrganizationEditScreen extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<Organization> call, Throwable t) {
-
-
                 Toast.makeText( OrganizationEditScreen.this , "Failed due to Bad Internet Connection" , Toast.LENGTH_SHORT ).show( );
                 Log.e("TAG", t.toString());
             }
@@ -574,7 +553,7 @@ public class OrganizationEditScreen extends AppCompatActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-//        super.onActivityResult(requestCode, resultCode, data);
+        super.onActivityResult(requestCode, resultCode, data);
         try{
 
             if(resultCode == RESULT_OK){
