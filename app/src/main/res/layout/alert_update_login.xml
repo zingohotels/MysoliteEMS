@@ -5,12 +5,12 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:padding="10dp"
-    android:focusableInTouchMode="true"
-    >
+    android:focusableInTouchMode="true">
 
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
+
         <androidx.cardview.widget.CardView
             android:id="@+id/card"
             android:layout_width="match_parent"
@@ -23,17 +23,18 @@
 
 
                 <app.zingo.mysolite.Custom.MyRegulerText
+                    android:layout_margin="10dp"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:textSize="15dp"
-                    android:layout_margin="5dp"
-                    android:text=""
+                    android:textSize="16dp"
+                    android:gravity="center"
+                    android:text="Do You wants to Update your Attendance  ?"
                     android:textColor="#000000"/>
-
 
                 <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
+                    android:layout_height="wrap_content"
+                    android:layout_margin="10dp">
 
 
                     <app.zingo.mysolite.Custom.MyEditText
@@ -43,11 +44,10 @@
                         android:background="@drawable/test_background"
                         android:layout_weight="1"
                         android:hint="Status"
-
+                        android:paddingStart="20dp"
                         android:singleLine="true"
                         android:textColor="#ffffff"
-                        android:textColorHint="#afaeae"
-                        />
+                        android:textColorHint="#afaeae"/>
 
                     <Spinner
                         android:id="@+id/task_status_update"
@@ -57,12 +57,6 @@
                         android:entries="@array/log_status"
                         android:background="@drawable/spinner_background"/>
                 </LinearLayout>
-
-
-
-
-
-
 
                 <androidx.appcompat.widget.AppCompatButton
                     android:layout_width="150dp"

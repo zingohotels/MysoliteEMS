@@ -9,6 +9,7 @@ import android.text.InputType;
 import android.text.method.HideReturnsTransformationMethod;
 import android.text.method.PasswordTransformationMethod;
 import android.util.Log;
+import android.util.Patterns;
 import android.view.MenuItem;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
@@ -31,6 +32,8 @@ import app.zingo.mysolite.utils.Util;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
+
+import static app.zingo.mysolite.utils.AppUtil.isEmpty;
 
 public class UpdateRetailer extends AppCompatActivity {
 
@@ -211,40 +214,32 @@ public class UpdateRetailer extends AppCompatActivity {
         String address = mAddress.getText().toString();
 
         if(name.isEmpty()){
-
             Toast.makeText(this, "Name is required", Toast.LENGTH_SHORT).show();
-
         }else if(primary.isEmpty()){
-
             Toast.makeText(this, "Primary Email is required", Toast.LENGTH_SHORT).show();
-
+        }else if (!android.util.Patterns.EMAIL_ADDRESS.matcher(primary).matches()) {
+            Toast.makeText(this, "Provide valid Email Address", Toast.LENGTH_SHORT).show();
+        }else if(!isEmpty ( mSecondaryEmail)&&! Patterns.EMAIL_ADDRESS.matcher( Objects.requireNonNull ( mSecondaryEmail.getText ( ) ).toString()).matches()){
+            Toast.makeText(this, "Provide valid secondry Email Address", Toast.LENGTH_SHORT).show();
+        }else if(mPrimaryEmail.getText().toString().equals (mSecondaryEmail.getText().toString())){
+            Toast.makeText(this, "Both email address are same", Toast.LENGTH_SHORT).show();
         }else if(gst.isEmpty()){
-
             Toast.makeText(this, "GST Number is required", Toast.LENGTH_SHORT).show();
-
         }else if(mobile.isEmpty()){
-
             Toast.makeText(this, "Mobile is required", Toast.LENGTH_SHORT).show();
-
+        }else if( mobile.length ( ) < 10 ){
+            Toast.makeText(this, "Provide valid Mobile Number", Toast.LENGTH_SHORT).show();
         }else if(password.isEmpty()){
-
             Toast.makeText(this, "Password is required", Toast.LENGTH_SHORT).show();
-
         }else if(confirm.isEmpty()){
-
             Toast.makeText(this, "Confirm Password is required", Toast.LENGTH_SHORT).show();
-
         }else if(!password.isEmpty()&&!confirm.isEmpty()&&!password.equals(confirm)){
-
             Toast.makeText(this, "Confirm password should be same as Password", Toast.LENGTH_SHORT).show();
-        }else if(!mMale.isChecked()&&!mFemale.isChecked()&&!mOthers.isChecked()){
+        }/*else if(!mMale.isChecked()&&!mFemale.isChecked()&&!mOthers.isChecked()){
 
             Toast.makeText(this, "Please Select Gender", Toast.LENGTH_SHORT).show();
 
-        }else{
-
-
-
+        }*/else{
 
             Employee employees =employee;
             employees.setEmployeeName(name);

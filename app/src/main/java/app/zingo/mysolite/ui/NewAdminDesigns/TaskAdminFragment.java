@@ -7,6 +7,8 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
+
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import androidx.fragment.app.Fragment;
@@ -35,6 +37,7 @@ import app.zingo.mysolite.adapter.TaskAdminListAdapter;
 import app.zingo.mysolite.model.Employee;
 import app.zingo.mysolite.model.TaskAdminData;
 import app.zingo.mysolite.model.Tasks;
+import app.zingo.mysolite.ui.newemployeedesign.EmployeeNewMainScreen;
 import app.zingo.mysolite.utils.PreferenceHandler;
 import app.zingo.mysolite.utils.ThreadExecuter;
 import app.zingo.mysolite.utils.Util;
@@ -61,7 +64,6 @@ public class TaskAdminFragment extends Fragment {
     //View layout;
     private TaskAdminListAdapter mAdapter;
     RecyclerView mTaskList;
-    static Context mContext;
 
     SimpleDateFormat dateFormat;
 
@@ -91,7 +93,9 @@ public class TaskAdminFragment extends Fragment {
     int total=0,pending=0,complete=0,closed=0;
     int daytotal=0,daypending=0,daycomplete=0,dayclosed=0;
     private   String SHOWCASE_ID_ADMIN;
-
+    AdminNewMainScreen mContext;
+    final Calendar calendar = Calendar.getInstance();
+    Date currentDate = calendar.getTime();
 
     public TaskAdminFragment() {
         // Required empty public constructor
@@ -142,7 +146,6 @@ public class TaskAdminFragment extends Fragment {
             mPrevious = this.layout.findViewById(R.id.previousDay);
             mNext = this.layout.findViewById(R.id.nextDay);
 
-            mContext = getContext();
 
             dateFormat = new SimpleDateFormat("dd-MM-yyyy");
             mDate.setText(new SimpleDateFormat("dd-MM-yyyy").format(new Date()));
@@ -382,17 +385,18 @@ public class TaskAdminFragment extends Fragment {
     }
     public void onResume() {
         super.onResume();
+        getEmployees();
     }
-
-    public void onSaveInstanceState(Bundle bundle) {
+    @Override
+    public void onPause ( ) {
+        super.onPause ( );
+        getEmployees();
+    }
+    public void onSaveInstanceState( Bundle bundle) {
         super.onSaveInstanceState(bundle);
     }
 
     private void getEmployees(){
-
-
-
-
         new ThreadExecuter().execute(new Runnable() {
             @Override
             public void run() {
@@ -404,17 +408,9 @@ public class TaskAdminFragment extends Fragment {
                     public void onResponse(Call<ArrayList<Employee>> call, Response<ArrayList<Employee>> response) {
                         int statusCode = response.code();
                         if (statusCode == 200 || statusCode == 201 || statusCode == 203 || statusCode == 204) {
-
-
-                           /* if (progressDialog != null&&progressDialog.isShowing())
-                                progressDialog.dismiss();*/
                             ArrayList<Employee> list = response.body();
-
-
                             if (list !=null && list.size()!=0) {
-
                                 ArrayList<Employee> employeesList= list;
-
                                 Collections.sort(list, Employee.compareEmployee);
 
                                 employeeTasks = new ArrayList<>();
@@ -427,24 +423,17 @@ public class TaskAdminFragment extends Fragment {
                                 daycompletedTasks = new ArrayList<>();
                                 dayclosedTasks = new ArrayList<>();
 
-
                                 for (Employee employee:list) {
                                     final Calendar calendar = Calendar.getInstance();
                                     Date date2 = calendar.getTime();
-
                                     getTasks(employee,new SimpleDateFormat("yyyy-MM-dd").format(date2));
                                 }
-                                //}
 
                             }else{
-
                                 Toast.makeText(getActivity(), "No employees added", Toast.LENGTH_SHORT).show();
-
                             }
 
                         }else {
-
-
                             Toast.makeText(getActivity(), "Failed due to : "+response.message(), Toast.LENGTH_SHORT).show();
                         }
                     }
@@ -452,24 +441,16 @@ public class TaskAdminFragment extends Fragment {
                     @Override
                     public void onFailure(Call<ArrayList<Employee>> call, Throwable t) {
                         // Log error here since request failed
-                      /*  if (progressDialog != null&&progressDialog.isShowing())
-                            progressDialog.dismiss();*/
                         Toast.makeText(getActivity(), "No employees added", Toast.LENGTH_SHORT).show();
                         Log.e("TAG", t.toString());
                     }
                 });
             }
-
-
         });
     }
 
     private void getTasks(final Employee employee, final String dateValue){
-
-
         final int employeeId = employee.getEmployeeId();
-
-
         new ThreadExecuter().execute(new Runnable() {
             @Override
             public void run() {
@@ -481,11 +462,7 @@ public class TaskAdminFragment extends Fragment {
                     public void onResponse(Call<ArrayList<Tasks>> call, Response<ArrayList<Tasks>> response) {
                         int statusCode = response.code();
                         if (statusCode == 200 || statusCode == 201 || statusCode == 203 || statusCode == 204) {
-
-
-
                             ArrayList<Tasks> list = response.body();
-
                             Date date = new Date();
                             Date adate = new Date();
                             Date edate = new Date();
@@ -498,19 +475,9 @@ public class TaskAdminFragment extends Fragment {
                                 e.printStackTrace();
                             }
 
-
-
                             if (list !=null && list.size()!=0) {
-
-
-
                                 for (Tasks task:list) {
-
-
                                     if(task.getCategory()==null){
-
-
-
                                         TaskAdminData taskAdminData = new TaskAdminData();
                                         taskAdminData.setEmployee(employee);
                                         taskAdminData.setTasks(task);
@@ -528,9 +495,6 @@ public class TaskAdminFragment extends Fragment {
                                             closedTasks.add(taskAdminData);
                                             closed = closed+1;
                                         }
-
-
-
 
                                         String froms = task.getStartDate();
                                         String tos = task.getEndDate();
@@ -749,9 +713,6 @@ public class TaskAdminFragment extends Fragment {
 
                         }
                     }
-
-
-
                 }
 
                 if(dayemployeeTasks!=null&&dayemployeeTasks.size()!=0){
@@ -872,17 +833,13 @@ public class TaskAdminFragment extends Fragment {
                         .build()
         );
 
-
-
-
         sequence.start();
-
-
-
-
-
 
     }
 
-
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+        mContext = ( AdminNewMainScreen )context;
+    }
 }

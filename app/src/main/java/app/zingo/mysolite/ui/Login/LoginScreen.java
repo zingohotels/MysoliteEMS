@@ -25,7 +25,6 @@ import app.zingo.mysolite.ui.NewAdminDesigns.AdminNewMainScreen;
 import app.zingo.mysolite.ui.newemployeedesign.EmployeeNewMainScreen;
 import app.zingo.mysolite.utils.Constants;
 import app.zingo.mysolite.utils.PreferenceHandler;
-import app.zingo.mysolite.utils.ThreadExecuter;
 import app.zingo.mysolite.utils.Util;
 import app.zingo.mysolite.WebApi.DepartmentApi;
 import app.zingo.mysolite.WebApi.EmployeeApi;
@@ -113,201 +112,177 @@ public class LoginScreen extends AppCompatActivity {
         progressDialog.setCancelable(false);
         progressDialog.show();
 
+        EmployeeApi apiService = Util.getClient().create( EmployeeApi.class);
 
-        new ThreadExecuter ().execute( new Runnable() {
+
+        Call<ArrayList<Employee>> call = apiService.getEmployeeforLogin(p);
+
+        call.enqueue(new Callback<ArrayList<Employee>>() {
             @Override
-            public void run() {
-
-
-                EmployeeApi apiService = Util.getClient().create( EmployeeApi.class);
-
-
-                Call<ArrayList<Employee>> call = apiService.getEmployeeforLogin(p);
-
-                call.enqueue(new Callback<ArrayList<Employee>>() {
-                    @Override
-                    public void onResponse(Call<ArrayList<Employee>> call, Response<ArrayList<Employee>> response) {
+            public void onResponse(Call<ArrayList<Employee>> call, Response<ArrayList<Employee>> response) {
 //                List<RouteDTO.Routes> list = new ArrayList<RouteDTO.Routes>();
-                        int statusCode = response.code();
+                int statusCode = response.code();
+                if (progressDialog != null&&progressDialog.isShowing())
+                    progressDialog.dismiss();
+                if (statusCode == 200 || statusCode == 201) {
+
+                    ArrayList<Employee> dto1 = response.body();//-------------------should not be list------------
+                    if (dto1!=null && dto1.size()!=0) {
+                        Employee dto = dto1.get(0);
+
+
+                        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences( LoginScreen.this);
+                        SharedPreferences.Editor spe = sp.edit();
+                        spe.putInt( Constants.USER_ID, dto.getEmployeeId());
+                        PreferenceHandler.getInstance( LoginScreen.this).setUserId(dto.getEmployeeId());
+                        PreferenceHandler.getInstance( LoginScreen.this).setManagerId(dto.getManagerId());
+                        PreferenceHandler.getInstance( LoginScreen.this).setUserRoleUniqueID(dto.getUserRoleId());
+                        PreferenceHandler.getInstance( LoginScreen.this).setUserName(dto.getEmployeeName());
+                        PreferenceHandler.getInstance( LoginScreen.this).setUserEmail(dto.getPrimaryEmailAddress());
+                        PreferenceHandler.getInstance( LoginScreen.this).setUserFullName(dto.getEmployeeName());
+                        PreferenceHandler.getInstance( LoginScreen.this).setPhoneNumber(dto.getPhoneNumber());
+                        spe.putString("FullName", dto.getEmployeeName());
+                        spe.putString("Password", dto.getPassword());
+                        spe.putString("Email", dto.getPrimaryEmailAddress());
+                        spe.putString("PhoneNumber", dto.getPhoneNumber());
+                        spe.apply();
+
+                        if(dto.getStatus().contains("Active")){
+
+                            getDepartment(dto.getDepartmentId(),dto);
+
+
+                        }else if(dto.getStatus().equalsIgnoreCase("Disabled")){
+                            Toast.makeText( LoginScreen.this, "Your Account is Disabled", Toast.LENGTH_SHORT).show();
+                        }else{
+
+                        }
+
+
+
+                    }else{
                         if (progressDialog != null&&progressDialog.isShowing())
                             progressDialog.dismiss();
-                        if (statusCode == 200 || statusCode == 201) {
+                        Toast.makeText( LoginScreen.this, "Login credentials are wrong..", Toast.LENGTH_SHORT).show();
 
-                            ArrayList<Employee> dto1 = response.body();//-------------------should not be list------------
-                            if (dto1!=null && dto1.size()!=0) {
-                                Employee dto = dto1.get(0);
-
-
-                                SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences( LoginScreen.this);
-                                SharedPreferences.Editor spe = sp.edit();
-                                spe.putInt( Constants.USER_ID, dto.getEmployeeId());
-                                PreferenceHandler.getInstance( LoginScreen.this).setUserId(dto.getEmployeeId());
-                                PreferenceHandler.getInstance( LoginScreen.this).setManagerId(dto.getManagerId());
-                                PreferenceHandler.getInstance( LoginScreen.this).setUserRoleUniqueID(dto.getUserRoleId());
-                                PreferenceHandler.getInstance( LoginScreen.this).setUserName(dto.getEmployeeName());
-                                PreferenceHandler.getInstance( LoginScreen.this).setUserEmail(dto.getPrimaryEmailAddress());
-                                PreferenceHandler.getInstance( LoginScreen.this).setUserFullName(dto.getEmployeeName());
-                                PreferenceHandler.getInstance( LoginScreen.this).setPhoneNumber(dto.getPhoneNumber());
-                                spe.putString("FullName", dto.getEmployeeName());
-                                spe.putString("Password", dto.getPassword());
-                                spe.putString("Email", dto.getPrimaryEmailAddress());
-                                spe.putString("PhoneNumber", dto.getPhoneNumber());
-                                spe.apply();
-
-                                if(dto.getStatus().contains("Active")){
-
-                                    getDepartment(dto.getDepartmentId(),dto);
-
-
-                                }else if(dto.getStatus().equalsIgnoreCase("Disabled")){
-                                    Toast.makeText( LoginScreen.this, "Your Account is Disabled", Toast.LENGTH_SHORT).show();
-                                }else{
-
-                                }
-
-
-
-                            }else{
-                                if (progressDialog != null&&progressDialog.isShowing())
-                                    progressDialog.dismiss();
-                                Toast.makeText( LoginScreen.this, "Login credentials are wrong..", Toast.LENGTH_SHORT).show();
-
-                            }
-                        }else {
-                            if (progressDialog!=null)
-                                progressDialog.dismiss();
-                            Toast.makeText( LoginScreen.this, "Login failed due to status code:"+statusCode, Toast.LENGTH_SHORT).show();
-                        }
                     }
+                }else {
+                    if (progressDialog!=null)
+                        progressDialog.dismiss();
+                    Toast.makeText( LoginScreen.this, "Login failed due to status code:"+statusCode, Toast.LENGTH_SHORT).show();
+                }
+            }
 
-                    @Override
-                    public void onFailure(Call<ArrayList<Employee>> call, Throwable t) {
-                        // Log error here since request failed
-                        if (progressDialog!=null)
-                            progressDialog.dismiss();
-                        Log.e("TAG", t.toString());
-                    }
-                });
+            @Override
+            public void onFailure(Call<ArrayList<Employee>> call, Throwable t) {
+                // Log error here since request failed
+                if (progressDialog!=null)
+                    progressDialog.dismiss();
+                Log.e("TAG", t.toString());
             }
         });
     }
 
     public void getDepartment(final int id,final Employee dto){
+        final DepartmentApi subCategoryAPI = Util.getClient().create( DepartmentApi.class);
+        Call<Departments> getProf = subCategoryAPI.getDepartmentById(id);
+        //Call<ArrayList<Blogs>> getBlog = blogApi.getBlogs();
 
-        new ThreadExecuter ().execute( new Runnable() {
+        getProf.enqueue(new Callback<Departments>() {
+
             @Override
-            public void run() {
+            public void onResponse(Call<Departments> call, Response<Departments> response) {
 
-                final DepartmentApi subCategoryAPI = Util.getClient().create( DepartmentApi.class);
-                Call<Departments> getProf = subCategoryAPI.getDepartmentById(id);
-                //Call<ArrayList<Blogs>> getBlog = blogApi.getBlogs();
+                if (response.code() == 200||response.code() == 201||response.code() == 204)
+                {
+                    System.out.println("Inside api");
 
-                getProf.enqueue(new Callback<Departments>() {
+                    try {
+                        getCompany(response.body().getOrganizationId(),dto);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        Intent i = new Intent( LoginScreen.this, InternalServerErrorScreen.class);
 
-                    @Override
-                    public void onResponse(Call<Departments> call, Response<Departments> response) {
-
-                        if (response.code() == 200||response.code() == 201||response.code() == 204)
-                        {
-                            System.out.println("Inside api");
-
-                            try {
-                                getCompany(response.body().getOrganizationId(),dto);
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                                Intent i = new Intent( LoginScreen.this, InternalServerErrorScreen.class);
-
-                                startActivity(i);
-                            }
-
-
-                        }else{
-
-                            Intent i = new Intent( LoginScreen.this, AdminNewMainScreen.class);
-                            i.putExtra("Profile",dto);
-                            startActivity(i);
-                            finish();
-                        }
+                        startActivity(i);
                     }
 
-                    @Override
-                    public void onFailure(Call<Departments> call, Throwable t) {
 
-                    }
-                });
+                }else{
 
+                    Intent i = new Intent( LoginScreen.this, AdminNewMainScreen.class);
+                    i.putExtra("Profile",dto);
+                    startActivity(i);
+                    finish();
+                }
             }
 
+            @Override
+            public void onFailure(Call<Departments> call, Throwable t) {
+
+            }
         });
+
     }
 
     public void getCompany(final int id,final Employee dto) {
+        final OrganizationApi subCategoryAPI = Util.getClient().create( OrganizationApi.class);
+        Call<ArrayList< Organization >> getProf = subCategoryAPI.getOrganizationById(id);
+        //Call<ArrayList<Blogs>> getBlog = blogApi.getBlogs();
 
-        new ThreadExecuter ().execute( new Runnable() {
+        getProf.enqueue(new Callback<ArrayList< Organization >>() {
+
             @Override
-            public void run() {
+            public void onResponse( Call<ArrayList< Organization >> call, Response<ArrayList< Organization >> response) {
 
-                final OrganizationApi subCategoryAPI = Util.getClient().create( OrganizationApi.class);
-                Call<ArrayList< Organization >> getProf = subCategoryAPI.getOrganizationById(id);
-                //Call<ArrayList<Blogs>> getBlog = blogApi.getBlogs();
+                if (response.code() == 200||response.code() == 201||response.code() == 204&&response.body().size()!=0)
+                {
 
-                getProf.enqueue(new Callback<ArrayList< Organization >>() {
+                    Organization organization = response.body().get(0);
+                    System.out.println("Inside api");
+                    PreferenceHandler.getInstance( LoginScreen.this).setCompanyId(organization.getOrganizationId());
+                    PreferenceHandler.getInstance( LoginScreen.this).setCompanyName(organization.getOrganizationName());
 
-                    @Override
-                    public void onResponse( Call<ArrayList< Organization >> call, Response<ArrayList< Organization >> response) {
+                    if(PreferenceHandler.getInstance( LoginScreen.this).getUserRoleUniqueID()==2){
+                        Intent i = new Intent( LoginScreen.this, AdminNewMainScreen.class);
+                        //Intent i = new Intent(LoginScreen.this, DashBoardEmployee.class);
+                        i.putExtra("Profile",dto);
 
-                        if (response.code() == 200||response.code() == 201||response.code() == 204&&response.body().size()!=0)
-                        {
-
-                            Organization organization = response.body().get(0);
-                            System.out.println("Inside api");
-                            PreferenceHandler.getInstance( LoginScreen.this).setCompanyId(organization.getOrganizationId());
-                            PreferenceHandler.getInstance( LoginScreen.this).setCompanyName(organization.getOrganizationName());
-
-                            if(PreferenceHandler.getInstance( LoginScreen.this).getUserRoleUniqueID()==2){
-                                Intent i = new Intent( LoginScreen.this, AdminNewMainScreen.class);
-                                //Intent i = new Intent(LoginScreen.this, DashBoardEmployee.class);
-                                i.putExtra("Profile",dto);
-
-                                startActivity(i);
-                                finish();
-                            }else{
-                                //Intent i = new Intent(LoginScreen.this, DashBoardAdmin.class);
-                                Intent i = new Intent( LoginScreen.this, EmployeeNewMainScreen.class);
-                                i.putExtra("Profile",dto);
-                                i.putExtra("Organization",organization);
-                                startActivity(i);
-                                finish();
-                            }
-
-
-
-                        }else{
-
-                            if(PreferenceHandler.getInstance( LoginScreen.this).getUserRoleUniqueID()==2){
-                                Intent i = new Intent( LoginScreen.this, AdminNewMainScreen.class);
-                                //Intent i = new Intent(LoginScreen.this, DashBoardEmployee.class);
-                                i.putExtra("Profile",dto);
-                                startActivity(i);
-                                finish();
-                            }else{
-                                //Intent i = new Intent(LoginScreen.this, DashBoardAdmin.class);
-                                Intent i = new Intent( LoginScreen.this, EmployeeNewMainScreen.class);
-                                i.putExtra("Profile",dto);
-                                startActivity(i);
-                                finish();
-                            }
-                        }
+                        startActivity(i);
+                        finish();
+                    }else{
+                        //Intent i = new Intent(LoginScreen.this, DashBoardAdmin.class);
+                        Intent i = new Intent( LoginScreen.this, EmployeeNewMainScreen.class);
+                        i.putExtra("Profile",dto);
+                        i.putExtra("Organization",organization);
+                        startActivity(i);
+                        finish();
                     }
 
-                    @Override
-                    public void onFailure( Call<ArrayList< Organization >> call, Throwable t) {
 
+
+                }else{
+
+                    if(PreferenceHandler.getInstance( LoginScreen.this).getUserRoleUniqueID()==2){
+                        Intent i = new Intent( LoginScreen.this, AdminNewMainScreen.class);
+                        //Intent i = new Intent(LoginScreen.this, DashBoardEmployee.class);
+                        i.putExtra("Profile",dto);
+                        startActivity(i);
+                        finish();
+                    }else{
+                        //Intent i = new Intent(LoginScreen.this, DashBoardAdmin.class);
+                        Intent i = new Intent( LoginScreen.this, EmployeeNewMainScreen.class);
+                        i.putExtra("Profile",dto);
+                        startActivity(i);
+                        finish();
                     }
-                });
-
+                }
             }
 
+            @Override
+            public void onFailure( Call<ArrayList< Organization >> call, Throwable t) {
+
+            }
         });
+
     }
 }

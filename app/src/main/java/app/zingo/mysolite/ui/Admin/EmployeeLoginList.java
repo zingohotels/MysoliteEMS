@@ -11,7 +11,6 @@ import java.util.ArrayList;
 
 import app.zingo.mysolite.adapter.LoginDetailsListAdapter;
 import app.zingo.mysolite.model.LoginDetails;
-import app.zingo.mysolite.utils.ThreadExecuter;
 import app.zingo.mysolite.utils.Util;
 import app.zingo.mysolite.WebApi.LoginDetailsAPI;
 import app.zingo.mysolite.R;
@@ -56,61 +55,52 @@ public class EmployeeLoginList extends AppCompatActivity {
     }
 
     private void getMeetingDetails(final int employeeId){
-
-
         final ProgressDialog progressDialog = new ProgressDialog(this);
         progressDialog.setTitle("Loading Details..");
         progressDialog.setCancelable(false);
         progressDialog.show();
 
-        new ThreadExecuter ().execute( new Runnable() {
+        LoginDetailsAPI apiService = Util.getClient().create( LoginDetailsAPI.class);
+        Call<ArrayList< LoginDetails >> call = apiService.getLoginByEmployeeId(employeeId);
+
+        call.enqueue(new Callback<ArrayList< LoginDetails >>() {
             @Override
-            public void run() {
-                LoginDetailsAPI apiService = Util.getClient().create( LoginDetailsAPI.class);
-                Call<ArrayList< LoginDetails >> call = apiService.getLoginByEmployeeId(employeeId);
-
-                call.enqueue(new Callback<ArrayList< LoginDetails >>() {
-                    @Override
-                    public void onResponse( Call<ArrayList< LoginDetails >> call, Response<ArrayList< LoginDetails >> response) {
-                        int statusCode = response.code();
-                        if (statusCode == 200 || statusCode == 201 || statusCode == 203 || statusCode == 204) {
+            public void onResponse( Call<ArrayList< LoginDetails >> call, Response<ArrayList< LoginDetails >> response) {
+                int statusCode = response.code();
+                if (statusCode == 200 || statusCode == 201 || statusCode == 203 || statusCode == 204) {
 
 
-                            if (progressDialog!=null)
-                                progressDialog.dismiss();
+                    if (progressDialog!=null)
+                        progressDialog.dismiss();
 
 
-                            ArrayList< LoginDetails > list = response.body();
+                    ArrayList< LoginDetails > list = response.body();
 
 
-                            if (list !=null && list.size()!=0) {
+                    if (list !=null && list.size()!=0) {
 
-                                LoginDetailsListAdapter adapter = new LoginDetailsListAdapter( EmployeeLoginList.this,list);
-                                mMeetingList.setAdapter(adapter);
+                        LoginDetailsListAdapter adapter = new LoginDetailsListAdapter( EmployeeLoginList.this,list);
+                        mMeetingList.setAdapter(adapter);
 
-                            }else{
+                    }else{
 
-                                Toast.makeText( EmployeeLoginList.this, "No Meetings", Toast.LENGTH_SHORT).show();
-                            }
-
-                        }else {
-
-
-                            Toast.makeText( EmployeeLoginList.this, "Failed due to : "+response.message(), Toast.LENGTH_SHORT).show();
-                        }
+                        Toast.makeText( EmployeeLoginList.this, "No Meetings", Toast.LENGTH_SHORT).show();
                     }
 
-                    @Override
-                    public void onFailure( Call<ArrayList< LoginDetails >> call, Throwable t) {
-                        // Log error here since request failed
-                        if (progressDialog!=null)
-                            progressDialog.dismiss();
-                        Log.e("TAG", t.toString());
-                    }
-                });
+                }else {
+
+
+                    Toast.makeText( EmployeeLoginList.this, "Failed due to : "+response.message(), Toast.LENGTH_SHORT).show();
+                }
             }
 
-
+            @Override
+            public void onFailure( Call<ArrayList< LoginDetails >> call, Throwable t) {
+                // Log error here since request failed
+                if (progressDialog!=null)
+                    progressDialog.dismiss();
+                Log.e("TAG", t.toString());
+            }
         });
     }
 

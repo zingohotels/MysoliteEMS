@@ -58,7 +58,6 @@
                 android:focusableInTouchMode="false"
                 android:focusable="false"
                 android:id="@+id/client_name_layout"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:hint="Client Name">
 
                 <com.google.android.material.textfield.TextInputEditText
@@ -76,7 +75,6 @@
                 android:focusableInTouchMode="false"
                 android:focusable="false"
                 android:id="@+id/client_contact_number_InputLayout"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:hint="Client Contact Number">
 
                 <com.google.android.material.textfield.TextInputEditText
@@ -93,7 +91,6 @@
                 android:focusableInTouchMode="false"
                 android:focusable="false"
                 android:id="@+id/client_contact_email_InputLayout"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="55dp"
                 android:hint="Client Contact Email">
@@ -109,7 +106,6 @@
             <com.google.android.material.textfield.TextInputLayout
                 android:layout_marginTop="5dp"
                 android:id="@+id/task_InputLayout"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="55dp">
                 <com.google.android.material.textfield.TextInputEditText
@@ -128,7 +124,6 @@
                 <com.google.android.material.textfield.TextInputLayout
                     android:layout_margin="5dp"
                     android:id="@+id/from_date_TextInputEditText"
-                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                     android:layout_width="match_parent"
                     android:layout_height="55dp"
                     android:layout_weight="1">
@@ -147,7 +142,6 @@
                 <com.google.android.material.textfield.TextInputLayout
                     android:layout_margin="5dp"
                     android:id="@+id/from_time_TextInputEditText"
-                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                     android:layout_width="match_parent"
                     android:layout_height="55dp"
                     android:layout_weight="1">
@@ -174,14 +168,13 @@
 
                 <com.google.android.material.textfield.TextInputLayout
                     android:layout_margin="5dp"
-                    android:id="@+id/to_date_TextInputEditText"
-                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    android:id="@+id/payment_date_TextInputEditText"
                     android:layout_width="match_parent"
                     android:layout_height="55dp"
                     android:layout_weight="1">
 
                     <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/to_date"
+                        android:id="@+id/payment_date"
                         android:layout_width="match_parent"
                         android:textSize="12sp"
                         android:layout_height="wrap_content"
@@ -193,14 +186,13 @@
 
                 <com.google.android.material.textfield.TextInputLayout
                     android:layout_margin="5dp"
-                    android:id="@+id/to_time_TextInputEditText"
-                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    android:id="@+id/payment_time_TextInputEditText"
                     android:layout_width="match_parent"
                     android:layout_height="55dp"
                     android:layout_weight="1">
 
                     <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/to_time"
+                        android:id="@+id/payment_time"
                         android:layout_width="match_parent"
                         android:textSize="12sp"
                         android:layout_height="wrap_content"
@@ -254,7 +246,7 @@
                 <com.google.android.material.textfield.TextInputLayout
                     android:layout_margin="5dp"
                     android:id="@+id/amount_expense_TextInputEditText"
-                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                   
                     android:layout_width="match_parent"
                     android:layout_height="55dp"
                     android:layout_weight="1">
@@ -278,7 +270,7 @@
 
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/task_desc_TextInputEditText"
-                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                   
                     android:layout_width="match_parent"
                     android:layout_height="150dp">
 
@@ -289,8 +281,7 @@
                         android:textSize="12sp"
                         android:gravity="left"
                         android:lines="5"
-                        android:hint="Order Details"
-                        android:inputType="text" />
+                        android:hint="Order Details"/>
                 </com.google.android.material.textfield.TextInputLayout>
 
             </LinearLayout>
@@ -366,7 +357,6 @@
                     android:layout_below="@+id/lan_lat"
                     android:layout_margin="10dp" />
 
-
             </RelativeLayout>
 
             <androidx.appcompat.widget.AppCompatButton
@@ -382,7 +372,6 @@
                 android:layout_marginRight="@dimen/activity_large_margin"
                 android:text="Create Order"
                 android:textAllCaps="false" />
-
 
         </LinearLayout>
     </ScrollView>

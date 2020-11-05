@@ -7,6 +7,7 @@ import com.google.android.material.textfield.TextInputEditText;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatButton;
+import androidx.appcompat.widget.AppCompatTextView;
 import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 import android.util.Log;
@@ -33,7 +34,6 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class DepartmentLilstScreen extends AppCompatActivity {
-
     RecyclerView mDepartmentList;
     LinearLayout mDepartmentLay,mDepartmentMain;
     CardView mDepartmentCard;
@@ -48,13 +48,10 @@ public class DepartmentLilstScreen extends AppCompatActivity {
         try{
 
             setContentView(R.layout.activity_department_lilst_screen);
-
             getSupportActionBar().setHomeButtonEnabled(true);
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             setTitle("Department List");
-
             mDepartmentCount = findViewById(R.id.department_count);
-
             mDepartmentList = findViewById(R.id.department_list);
             mDepartmentLay = findViewById(R.id.department_lay);
             mDepartmentMain = findViewById(R.id.department_layout_main);
@@ -103,14 +100,11 @@ public class DepartmentLilstScreen extends AppCompatActivity {
             mAddDepartment.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-
                     if(orgId!=0){
-
                         departmentAlert(orgId);
                     }else{
                         departmentAlert(PreferenceHandler.getInstance( DepartmentLilstScreen.this).getCompanyId());
                     }
-
                 }
             });
 
@@ -195,10 +189,9 @@ public class DepartmentLilstScreen extends AppCompatActivity {
         View views = inflater.inflate(R.layout.custom_alert_box_department, null);
 
         builder.setView(views);
-        final Button mSave = views.findViewById(R.id.save);
-        final EditText desc = views.findViewById(R.id.department_description);
+        final AppCompatTextView mSave = views.findViewById(R.id.save);
+        final TextInputEditText desc = views.findViewById(R.id.department_description);
         final TextInputEditText mName = views.findViewById(R.id.department_name);
-
 
         final AlertDialog dialog = builder.create();
         dialog.show();
@@ -232,8 +225,6 @@ public class DepartmentLilstScreen extends AppCompatActivity {
                         e.printStackTrace();
                     }
                 }
-
-
             }
         });
 

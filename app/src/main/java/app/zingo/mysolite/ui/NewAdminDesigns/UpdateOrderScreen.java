@@ -10,6 +10,12 @@ import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
 import android.os.Bundle;
+
+import com.google.android.libraries.places.api.Places;
+import com.google.android.libraries.places.api.model.Place;
+import com.google.android.libraries.places.widget.Autocomplete;
+import com.google.android.libraries.places.widget.AutocompleteActivity;
+import com.google.android.libraries.places.widget.model.AutocompleteActivityMode;
 import com.google.android.material.textfield.TextInputEditText;
 import androidx.core.app.ActivityCompat;
 import androidx.appcompat.app.AppCompatActivity;
@@ -27,12 +33,7 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
-
-import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
-import com.google.android.gms.common.GooglePlayServicesRepairableException;
 import com.google.android.gms.common.api.Status;
-import com.google.android.gms.location.places.Place;
-import com.google.android.gms.location.places.ui.PlaceAutocomplete;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapsInitializer;
@@ -47,6 +48,7 @@ import java.io.IOException;
 import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -54,6 +56,7 @@ import java.util.Locale;
 
 import app.zingo.mysolite.Custom.MapViewScroll;
 import app.zingo.mysolite.model.Tasks;
+import app.zingo.mysolite.utils.Constants;
 import app.zingo.mysolite.utils.TrackGPS;
 import app.zingo.mysolite.utils.Util;
 import app.zingo.mysolite.WebApi.TasksAPI;
@@ -120,6 +123,13 @@ public class UpdateOrderScreen extends AppCompatActivity {
                 updateTask = (Tasks)bundle.getSerializable("Task");
                 ADAPTER_POSITION = bundle.getInt("Position");
             }
+
+            try{
+                Places.initialize(getApplicationContext(), Constants.locationApiKey);
+            }catch ( Exception e ){
+                e.printStackTrace ();
+            }
+
 
             if(updateTask!=null){
 
@@ -367,16 +377,16 @@ public class UpdateOrderScreen extends AppCompatActivity {
                 @Override
                 public void onClick(View v) {
                     try {
-                        Intent intent =
-                                new PlaceAutocomplete.IntentBuilder(PlaceAutocomplete.MODE_OVERLAY/*MODE_FULLSCREEN*/)
+                        /*Intent intent =
+                                new PlaceAutocomplete.IntentBuilder(PlaceAutocomplete.MODE_OVERLAY*//*MODE_FULLSCREEN*//*)
                                         .build( UpdateOrderScreen.this);
+                        startActivityForResult(intent, PLACE_AUTOCOMPLETE_REQUEST_CODE);*/
+                        List< com.google.android.libraries.places.api.model.Place.Field> fields = Arrays.asList( com.google.android.libraries.places.api.model.Place.Field.ID, com.google.android.libraries.places.api.model.Place.Field.LAT_LNG, com.google.android.libraries.places.api.model.Place.Field.NAME, com.google.android.libraries.places.api.model.Place.Field.ADDRESS);
+                        Intent intent = new Autocomplete.IntentBuilder( AutocompleteActivityMode.FULLSCREEN, fields).build(getApplicationContext());
                         startActivityForResult(intent, PLACE_AUTOCOMPLETE_REQUEST_CODE);
-                    } catch (GooglePlayServicesRepairableException e) {
+                    } catch (Exception e) {
                         e.printStackTrace();
                         // TODO: Handle the error.
-                    } catch (GooglePlayServicesNotAvailableException e) {
-                        // TODO: Handle the error.
-                        e.printStackTrace();
                     }
                 }
             });
@@ -590,11 +600,11 @@ public class UpdateOrderScreen extends AppCompatActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-//        super.onActivityResult(requestCode, resultCode, data);
+        super.onActivityResult(requestCode, resultCode, data);
         try{
             if (requestCode == PLACE_AUTOCOMPLETE_REQUEST_CODE) {
                 if (resultCode == RESULT_OK) {
-                    Place place = PlaceAutocomplete.getPlace(this, data);
+                    Place place = Autocomplete.getPlaceFromIntent ( data);
                     //System.out.println(place.getLatLng());
                     location.setText(place.getName()+","+place.getAddress());
                     //location.setText(""+place.getId());
@@ -617,8 +627,8 @@ public class UpdateOrderScreen extends AppCompatActivity {
                     }
                     //address.setText(place.getAddress());*/
                     Log.i(TAG, "Place: " + place.getName());
-                } else if (resultCode == PlaceAutocomplete.RESULT_ERROR) {
-                    Status status = PlaceAutocomplete.getStatus(this, data);
+                } else if (resultCode == AutocompleteActivity.RESULT_ERROR) {
+                    Status status = Autocomplete.getStatusFromIntent (data);
                     // TODO: Handle the error.
                     Log.i(TAG, status.getStatusMessage());
 
@@ -645,20 +655,15 @@ public class UpdateOrderScreen extends AppCompatActivity {
         call.enqueue(new Callback<Tasks>() {
             @Override
             public void onResponse(Call<Tasks> call, Response<Tasks> response) {
-//                List<RouteDTO.Routes> list = new ArrayList<RouteDTO.Routes>();
-                try
-                {
-                    if(dialog != null && dialog.isShowing())
-                    {
+                try {
+                    if(dialog != null && dialog.isShowing()) {
                         dialog.dismiss();
                     }
 
                     int statusCode = response.code();
                     if (statusCode == 200 || statusCode == 201|| statusCode == 204) {
-
-
                         Toast.makeText( UpdateOrderScreen.this, "Update Task succesfully", Toast.LENGTH_SHORT).show();
-
+                        UpdateOrderScreen.this.finish ();
                         //  AdminDashBoardFragment.mTaskList.getAdapter().notifyDataSetChanged();
 
                     }else {

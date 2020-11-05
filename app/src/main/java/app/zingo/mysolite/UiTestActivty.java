@@ -23,8 +23,8 @@ public class UiTestActivty extends AppCompatActivity {
         super.onCreate ( savedInstanceState );
         setContentView ( R.layout.activity_ui_test_activty );
 
-        foundDevice=( ImageView )findViewById(R.id.foundDevice);
-        ImageView button=(ImageView)findViewById(R.id.centerImage);
+     /*   foundDevice=( ImageView )findViewById(R.id.foundDevice);
+        ImageView button=(ImageView)findViewById(R.id.centerImage);*/
 
         startAnimation();
    /*     button.setOnClickListener(new View.OnClickListener() {
@@ -42,10 +42,10 @@ public class UiTestActivty extends AppCompatActivity {
     }
 
     private void startAnimation ( ) {
-        final RippleBackground rippleBackground=(RippleBackground)findViewById(R.id.content);
+      //  final RippleBackground rippleBackground=(RippleBackground)findViewById(R.id.content);
 
         final Handler handler=new Handler ();
-        rippleBackground.startRippleAnimation();
+       // rippleBackground.startRippleAnimation();
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {

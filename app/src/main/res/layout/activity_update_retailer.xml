@@ -29,11 +29,11 @@
                 android:orientation="horizontal">
 
                 <ImageView
+                    android:visibility="gone"
                     android:id="@+id/zoologo"
                     android:layout_width="50dp"
                     android:layout_height="50dp"
-                    android:src="@drawable/ems_ems"
-                    />
+                    android:src="@drawable/ems_ems" />
 
                 <app.zingo.mysolite.Custom.MyTextView
                     android:id="@+id/signin"
@@ -88,7 +88,7 @@
                 android:layout_marginTop="25dp"
                 android:background="#00000000"
                 android:hint="Retailer Name *"
-                android:inputType="text"
+                android:inputType="textPersonName"
                 android:textColorHint="@color/grey_charcoal"
                 android:textSize="18dp"
 
@@ -103,6 +103,7 @@
                 />
 
             <RadioGroup
+                android:visibility="gone"
                 android:layout_width="match_parent"
                 android:layout_height="30dp"
                 android:layout_gravity="center"
@@ -196,7 +197,7 @@
                 android:layout_marginTop="20dp"
                 android:background="#00000000"
                 android:hint="Primary Email Id *"
-                android:inputType="text"
+                android:inputType="textEmailAddress"
                 android:textColorHint="@color/grey_charcoal"
                 android:textSize="18dp"
 
@@ -215,7 +216,7 @@
                 android:layout_marginTop="20dp"
                 android:background="#00000000"
                 android:hint="Alternate Email Id(Optional) "
-                android:inputType="text"
+                android:inputType="textEmailAddress"
                 android:textColorHint="@color/grey_charcoal"
                 android:textSize="18dp"
 
@@ -234,7 +235,7 @@
                 android:layout_marginTop="20dp"
                 android:background="#00000000"
                 android:hint="Mobile Number *"
-                android:inputType="number"
+                android:inputType="phone"
                 android:textColorHint="@color/grey_charcoal"
                 android:textSize="18dp"
 

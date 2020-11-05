@@ -36,7 +36,6 @@ import app.zingo.mysolite.ui.NewAdminDesigns.AdminNewMainScreen;
 import app.zingo.mysolite.ui.newemployeedesign.EmployeeNewMainScreen;
 import app.zingo.mysolite.utils.Constants;
 import app.zingo.mysolite.utils.PreferenceHandler;
-import app.zingo.mysolite.utils.ThreadExecuter;
 import app.zingo.mysolite.utils.Util;
 import app.zingo.mysolite.WebApi.DepartmentApi;
 import app.zingo.mysolite.WebApi.DesignationsAPI;
@@ -675,269 +674,236 @@ public class CreateFounderScreen extends AppCompatActivity {
         dialog.setTitle("Please wait..");
         dialog.show();
 
+        EmployeeApi apiService =
+                Util.getClient().create(EmployeeApi.class);
 
-        new ThreadExecuter().execute(new Runnable() {
+        Call<ArrayList<Employee>> call = apiService.getUserByEmail(userProfile);
+
+        call.enqueue(new Callback<ArrayList<Employee>>() {
             @Override
-            public void run() {
-
-
-                EmployeeApi apiService =
-                        Util.getClient().create(EmployeeApi.class);
-
-                Call<ArrayList<Employee>> call = apiService.getUserByEmail(userProfile);
-
-                call.enqueue(new Callback<ArrayList<Employee>>() {
-                    @Override
-                    public void onResponse(Call<ArrayList<Employee>> call, Response<ArrayList<Employee>> response) {
+            public void onResponse(Call<ArrayList<Employee>> call, Response<ArrayList<Employee>> response) {
 //                List<RouteDTO.Routes> list = new ArrayList<RouteDTO.Routes>();
-                        int statusCode = response.code();
+                int statusCode = response.code();
 
-                        if(dialog != null)
-                        {
-                            dialog.dismiss();
-                        }
+                if(dialog != null)
+                {
+                    dialog.dismiss();
+                }
 
-                        if(statusCode == 200 || statusCode == 204)
-                        {
+                if(statusCode == 200 || statusCode == 204)
+                {
 
-                            ArrayList<Employee> responseProfile = response.body();
-                            if(responseProfile != null && responseProfile.size()!=0 )
-                            {
+                    ArrayList<Employee> responseProfile = response.body();
+                    if(responseProfile != null && responseProfile.size()!=0 )
+                    {
 
-                                mPrimaryEmail.setError("Email Exists");
-                                Toast.makeText(CreateFounderScreen.this, "Email already Exists", Toast.LENGTH_SHORT).show();
+                        mPrimaryEmail.setError("Email Exists");
+                        Toast.makeText(CreateFounderScreen.this, "Email already Exists", Toast.LENGTH_SHORT).show();
 
 
-                            }
-                            else
-                            {
-                                    checkUserByPhone(userProfile);
-                            }
-                        }
-                        else
-                        {
+                    }
+                    else
+                    {
+                        checkUserByPhone(userProfile);
+                    }
+                }
+                else
+                {
 
-                            Toast.makeText(CreateFounderScreen.this,response.message(),Toast.LENGTH_SHORT).show();
-                        }
+                    Toast.makeText(CreateFounderScreen.this,response.message(),Toast.LENGTH_SHORT).show();
+                }
 //                callGetStartEnd();
-                    }
+            }
 
-                    @Override
-                    public void onFailure(Call<ArrayList<Employee>> call, Throwable t) {
-                        // Log error here since request failed
+            @Override
+            public void onFailure(Call<ArrayList<Employee>> call, Throwable t) {
+                // Log error here since request failed
 
-                        if(dialog != null)
-                        {
-                            dialog.dismiss();
-                        }
+                if(dialog != null)
+                {
+                    dialog.dismiss();
+                }
 
-                        Log.e("TAG", t.toString());
-                    }
-                });
+                Log.e("TAG", t.toString());
             }
         });
     }
 
     private void checkUserByPhone(final Employee userProfile){
+        EmployeeApi apiService =
+                Util.getClient().create(EmployeeApi.class);
 
-        new ThreadExecuter().execute(new Runnable() {
+        Call<ArrayList<Employee>> call = apiService.getUserByPhone(userProfile.getPhoneNumber());
+
+        call.enqueue(new Callback<ArrayList<Employee>>() {
             @Override
-            public void run() {
-
-
-                EmployeeApi apiService =
-                        Util.getClient().create(EmployeeApi.class);
-
-                Call<ArrayList<Employee>> call = apiService.getUserByPhone(userProfile.getPhoneNumber());
-
-                call.enqueue(new Callback<ArrayList<Employee>>() {
-                    @Override
-                    public void onResponse(Call<ArrayList<Employee>> call, Response<ArrayList<Employee>> response) {
+            public void onResponse(Call<ArrayList<Employee>> call, Response<ArrayList<Employee>> response) {
 //                List<RouteDTO.Routes> list = new ArrayList<RouteDTO.Routes>();
-                        int statusCode = response.code();
+                int statusCode = response.code();
 
-                        if(statusCode == 200 || statusCode == 204)
-                        {
-                            ArrayList<Employee> responseProfile = response.body();
-                            if(responseProfile != null && responseProfile.size()!=0 )
-                            {
-                                    mMobile.setError("Number Already Exists");
-                                Toast.makeText(CreateFounderScreen.this, "Mobile already Exists", Toast.LENGTH_SHORT).show();
+                if(statusCode == 200 || statusCode == 204)
+                {
+                    ArrayList<Employee> responseProfile = response.body();
+                    if(responseProfile != null && responseProfile.size()!=0 )
+                    {
+                        mMobile.setError("Number Already Exists");
+                        Toast.makeText(CreateFounderScreen.this, "Mobile already Exists", Toast.LENGTH_SHORT).show();
 
-                            }
-                            else
-                            {
+                    }
+                    else
+                    {
 
-                                try {
-                                    addEmployee(userProfile);
-                                } catch (Exception e) {
-                                    e.printStackTrace();
-                                }
-                            }
+                        try {
+                            addEmployee(userProfile);
+                        } catch (Exception e) {
+                            e.printStackTrace();
                         }
-                        else
-                        {
+                    }
+                }
+                else
+                {
 
-                            Toast.makeText(CreateFounderScreen.this,response.message(),Toast.LENGTH_SHORT).show();
-                        }
+                    Toast.makeText(CreateFounderScreen.this,response.message(),Toast.LENGTH_SHORT).show();
+                }
 //                callGetStartEnd();
-                    }
+            }
 
-                    @Override
-                    public void onFailure(Call<ArrayList<Employee>> call, Throwable t) {
-                        // Log error here since request failed
+            @Override
+            public void onFailure(Call<ArrayList<Employee>> call, Throwable t) {
+                // Log error here since request failed
 
-                        Log.e("TAG", t.toString());
-                    }
-                });
+                Log.e("TAG", t.toString());
             }
         });
     }
 
     public void getDepartment(final int id,final Employee dto) {
+        final DepartmentApi subCategoryAPI = Util.getClient().create(DepartmentApi.class);
+        Call<Departments> getProf = subCategoryAPI.getDepartmentById(id);
+        //Call<ArrayList<Blogs>> getBlog = blogApi.getBlogs();
 
-        new ThreadExecuter().execute(new Runnable() {
+        getProf.enqueue(new Callback<Departments>() {
+
             @Override
-            public void run() {
+            public void onResponse(Call<Departments> call, Response<Departments> response) {
 
-                final DepartmentApi subCategoryAPI = Util.getClient().create(DepartmentApi.class);
-                Call<Departments> getProf = subCategoryAPI.getDepartmentById(id);
-                //Call<ArrayList<Blogs>> getBlog = blogApi.getBlogs();
+                if (response.code() == 200||response.code() == 201||response.code() == 204)
+                {
+                    System.out.println("Inside api");
 
-                getProf.enqueue(new Callback<Departments>() {
+                    try {
+                        PreferenceHandler.getInstance(CreateFounderScreen.this).setCompanyId(response.body().getOrganizationId());
+                        //PreferenceHandler.getInstance(LandingScreen.this).setDepartmentName(response.body().getDepartmentName());
+                        getCompany(response.body().getOrganizationId(),dto);
 
-                    @Override
-                    public void onResponse(Call<Departments> call, Response<Departments> response) {
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        Intent i = new Intent(CreateFounderScreen.this, InternalServerErrorScreen.class);
 
-                        if (response.code() == 200||response.code() == 201||response.code() == 204)
-                        {
-                            System.out.println("Inside api");
-
-                            try {
-                                PreferenceHandler.getInstance(CreateFounderScreen.this).setCompanyId(response.body().getOrganizationId());
-                                //PreferenceHandler.getInstance(LandingScreen.this).setDepartmentName(response.body().getDepartmentName());
-                                getCompany(response.body().getOrganizationId(),dto);
-
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                                Intent i = new Intent(CreateFounderScreen.this, InternalServerErrorScreen.class);
-
-                                startActivity(i);
-
-                            }
-
-
-                        }else{
-
-                            Intent i = new Intent(CreateFounderScreen.this, AdminNewMainScreen.class);
-                            i.putExtra("Profile",dto);
-                            startActivity(i);
-                            finish();
-                        }
-                    }
-
-                    @Override
-                    public void onFailure(Call<Departments> call, Throwable t) {
+                        startActivity(i);
 
                     }
-                });
 
+
+                }else{
+
+                    Intent i = new Intent(CreateFounderScreen.this, AdminNewMainScreen.class);
+                    i.putExtra("Profile",dto);
+                    startActivity(i);
+                    finish();
+                }
             }
 
+            @Override
+            public void onFailure(Call<Departments> call, Throwable t) {
+
+            }
         });
+
     }
 
     public void getCompany(final int id,final Employee dto) {
+        final OrganizationApi subCategoryAPI = Util.getClient().create(OrganizationApi.class);
+        Call<ArrayList<Organization>> getProf = subCategoryAPI.getOrganizationById(id);
+        //Call<ArrayList<Blogs>> getBlog = blogApi.getBlogs();
 
-        new ThreadExecuter().execute(new Runnable() {
+        getProf.enqueue(new Callback<ArrayList<Organization>>() {
+
             @Override
-            public void run() {
+            public void onResponse(Call<ArrayList<Organization>> call, Response<ArrayList<Organization>> response) {
 
-                final OrganizationApi subCategoryAPI = Util.getClient().create(OrganizationApi.class);
-                Call<ArrayList<Organization>> getProf = subCategoryAPI.getOrganizationById(id);
-                //Call<ArrayList<Blogs>> getBlog = blogApi.getBlogs();
+                if (response.code() == 200||response.code() == 201||response.code() == 204&&response.body().size()!=0)
+                {
+                    Organization organization = response.body().get(0);
+                    System.out.println("Inside api");
+                    PreferenceHandler.getInstance(CreateFounderScreen.this).setCompanyId(organization.getOrganizationId());
+                    PreferenceHandler.getInstance(CreateFounderScreen.this).setCompanyName(organization.getOrganizationName());
+                    PreferenceHandler.getInstance(CreateFounderScreen.this).setAppType(organization.getAppType());
 
-                getProf.enqueue(new Callback<ArrayList<Organization>>() {
+                    PreferenceHandler.getInstance(CreateFounderScreen.this).setAppType(organization.getAppType());
+                    PreferenceHandler.getInstance(CreateFounderScreen.this).setLicenseStartDate(organization.getLicenseStartDate());
+                    PreferenceHandler.getInstance(CreateFounderScreen.this).setCheckInTime(organization.getPlaceId());
+                    PreferenceHandler.getInstance(CreateFounderScreen.this).setLicenseEndDate(organization.getLicenseEndDate());
+                    PreferenceHandler.getInstance(CreateFounderScreen.this).setSignupDate(organization.getSignupDate());
+                    PreferenceHandler.getInstance(CreateFounderScreen.this).setOrganizationLongi(organization.getLongitude());
+                    PreferenceHandler.getInstance(CreateFounderScreen.this).setOrganizationLati(organization.getLatitude());
+                    PreferenceHandler.getInstance(CreateFounderScreen.this).setPlanType(organization.getPlanType());
+                    PreferenceHandler.getInstance(CreateFounderScreen.this).setEmployeeLimit(organization.getEmployeeLimit());
+                    PreferenceHandler.getInstance(CreateFounderScreen.this).setPlanId(organization.getPlanId());
+                    PreferenceHandler.getInstance(CreateFounderScreen.this).setResellerUserId(organization.getResellerProfileId());
 
-                    @Override
-                    public void onResponse(Call<ArrayList<Organization>> call, Response<ArrayList<Organization>> response) {
+                    String licenseStartDate = organization.getLicenseStartDate();
+                    String licenseEndDate = organization.getLicenseEndDate();
+                    SimpleDateFormat smdf = new SimpleDateFormat("MM/dd/yyyy");
 
-                        if (response.code() == 200||response.code() == 201||response.code() == 204&&response.body().size()!=0)
-                        {
-                            Organization organization = response.body().get(0);
-                            System.out.println("Inside api");
-                            PreferenceHandler.getInstance(CreateFounderScreen.this).setCompanyId(organization.getOrganizationId());
-                            PreferenceHandler.getInstance(CreateFounderScreen.this).setCompanyName(organization.getOrganizationName());
-                            PreferenceHandler.getInstance(CreateFounderScreen.this).setAppType(organization.getAppType());
+                    if(PreferenceHandler.getInstance(CreateFounderScreen.this).getUserRoleUniqueID()==2){
+                        Intent i = new Intent(CreateFounderScreen.this, AdminNewMainScreen.class);
+                        //Intent i = new Intent(CreateFounderScreen.this, DashBoardEmployee.class);
+                        i.putExtra("Profile",dto);
 
-                            PreferenceHandler.getInstance(CreateFounderScreen.this).setAppType(organization.getAppType());
-                            PreferenceHandler.getInstance(CreateFounderScreen.this).setLicenseStartDate(organization.getLicenseStartDate());
-                            PreferenceHandler.getInstance(CreateFounderScreen.this).setCheckInTime(organization.getPlaceId());
-                            PreferenceHandler.getInstance(CreateFounderScreen.this).setLicenseEndDate(organization.getLicenseEndDate());
-                            PreferenceHandler.getInstance(CreateFounderScreen.this).setSignupDate(organization.getSignupDate());
-                            PreferenceHandler.getInstance(CreateFounderScreen.this).setOrganizationLongi(organization.getLongitude());
-                            PreferenceHandler.getInstance(CreateFounderScreen.this).setOrganizationLati(organization.getLatitude());
-                            PreferenceHandler.getInstance(CreateFounderScreen.this).setPlanType(organization.getPlanType());
-                            PreferenceHandler.getInstance(CreateFounderScreen.this).setEmployeeLimit(organization.getEmployeeLimit());
-                            PreferenceHandler.getInstance(CreateFounderScreen.this).setPlanId(organization.getPlanId());
-                            PreferenceHandler.getInstance(CreateFounderScreen.this).setResellerUserId(organization.getResellerProfileId());
+                        startActivity(i);
+                        finish();
+                    }else{
+                        //Intent i = new Intent(CreateFounderScreen.this, DashBoardAdmin.class);
+                        Intent i = new Intent(CreateFounderScreen.this, EmployeeNewMainScreen.class);
+                        i.putExtra("Profile",dto);
+                        i.putExtra("Organization",organization);
 
-                            String licenseStartDate = organization.getLicenseStartDate();
-                            String licenseEndDate = organization.getLicenseEndDate();
-                            SimpleDateFormat smdf = new SimpleDateFormat("MM/dd/yyyy");
-
-                            if(PreferenceHandler.getInstance(CreateFounderScreen.this).getUserRoleUniqueID()==2){
-                                Intent i = new Intent(CreateFounderScreen.this, AdminNewMainScreen.class);
-                                //Intent i = new Intent(CreateFounderScreen.this, DashBoardEmployee.class);
-                                i.putExtra("Profile",dto);
-
-                                startActivity(i);
-                                finish();
-                            }else{
-                                //Intent i = new Intent(CreateFounderScreen.this, DashBoardAdmin.class);
-                                Intent i = new Intent(CreateFounderScreen.this, EmployeeNewMainScreen.class);
-                                i.putExtra("Profile",dto);
-                                i.putExtra("Organization",organization);
-
-                                if(organization.isWorking()){
+                        if(organization.isWorking()){
 
                                    /* Intent serviceIntent = new Intent(CreateFounderScreen.this,LocationSharingServices.class);
                                     startService(serviceIntent);*/
-                                }
-                                startActivity(i);
-                                finish();
-                            }
-
-
-
-
-
-                        }else{
-
-                            if(PreferenceHandler.getInstance(CreateFounderScreen.this).getUserRoleUniqueID()==2){
-                                Intent i = new Intent(CreateFounderScreen.this, AdminNewMainScreen.class);
-                                //Intent i = new Intent(CreateFounderScreen.this, DashBoardEmployee.class);
-                                i.putExtra("Profile",dto);
-                                startActivity(i);
-                                finish();
-                            }else{
-                                //Intent i = new Intent(CreateFounderScreen.this, DashBoardAdmin.class);
-                                Intent i = new Intent(CreateFounderScreen.this, EmployeeNewMainScreen.class);
-                                i.putExtra("Profile",dto);
-                                startActivity(i);
-                                finish();
-                            }
                         }
+                        startActivity(i);
+                        finish();
                     }
 
-                    @Override
-                    public void onFailure(Call<ArrayList<Organization>> call, Throwable t) {
 
+
+
+
+                }else{
+
+                    if(PreferenceHandler.getInstance(CreateFounderScreen.this).getUserRoleUniqueID()==2){
+                        Intent i = new Intent(CreateFounderScreen.this, AdminNewMainScreen.class);
+                        //Intent i = new Intent(CreateFounderScreen.this, DashBoardEmployee.class);
+                        i.putExtra("Profile",dto);
+                        startActivity(i);
+                        finish();
+                    }else{
+                        //Intent i = new Intent(CreateFounderScreen.this, DashBoardAdmin.class);
+                        Intent i = new Intent(CreateFounderScreen.this, EmployeeNewMainScreen.class);
+                        i.putExtra("Profile",dto);
+                        startActivity(i);
+                        finish();
                     }
-                });
-
+                }
             }
 
+            @Override
+            public void onFailure(Call<ArrayList<Organization>> call, Throwable t) {
+
+            }
         });
     }
 

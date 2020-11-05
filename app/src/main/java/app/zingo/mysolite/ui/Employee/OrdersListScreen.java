@@ -19,7 +19,6 @@ import java.util.Collections;
 import app.zingo.mysolite.adapter.EmployeeAdapter;
 import app.zingo.mysolite.model.Employee;
 import app.zingo.mysolite.utils.PreferenceHandler;
-import app.zingo.mysolite.utils.ThreadExecuter;
 import app.zingo.mysolite.utils.Util;
 import app.zingo.mysolite.WebApi.EmployeeApi;
 import app.zingo.mysolite.R;
@@ -93,102 +92,94 @@ public class OrdersListScreen extends AppCompatActivity {
         progressDialog.setTitle("Loading Orders");
         progressDialog.setCancelable(false);
         progressDialog.show();
+        EmployeeApi apiService = Util.getClient().create( EmployeeApi.class);
+        Call<ArrayList<Employee>> call = apiService.getEmployeesByOrgId(PreferenceHandler.getInstance( OrdersListScreen.this).getCompanyId());
 
-        new ThreadExecuter().execute(new Runnable() {
+        call.enqueue(new Callback<ArrayList<Employee>>() {
+            @SuppressLint("RestrictedApi")
             @Override
-            public void run() {
-                EmployeeApi apiService = Util.getClient().create( EmployeeApi.class);
-                Call<ArrayList<Employee>> call = apiService.getEmployeesByOrgId(PreferenceHandler.getInstance( OrdersListScreen.this).getCompanyId());
-
-                call.enqueue(new Callback<ArrayList<Employee>>() {
-                    @SuppressLint("RestrictedApi")
-                    @Override
-                    public void onResponse(Call<ArrayList<Employee>> call, Response<ArrayList<Employee>> response) {
-                        int statusCode = response.code();
-                        if (statusCode == 200 || statusCode == 201 || statusCode == 203 || statusCode == 204) {
+            public void onResponse(Call<ArrayList<Employee>> call, Response<ArrayList<Employee>> response) {
+                int statusCode = response.code();
+                if (statusCode == 200 || statusCode == 201 || statusCode == 203 || statusCode == 204) {
 
 
-                            if (progressDialog != null&&progressDialog.isShowing())
-                                progressDialog.dismiss();
-                            ArrayList<Employee> list = response.body();
+                    if (progressDialog != null&&progressDialog.isShowing())
+                        progressDialog.dismiss();
+                    ArrayList<Employee> list = response.body();
 
 
-                            if (list !=null && list.size()!=0) {
+                    if (list !=null && list.size()!=0) {
 
-                                ArrayList<Employee> employees = new ArrayList<>();
-                                for(int i=0;i<list.size();i++){
+                        ArrayList<Employee> employees = new ArrayList<>();
+                        for(int i=0;i<list.size();i++){
 
-                                    if(PreferenceHandler.getInstance( OrdersListScreen.this).getUserRoleUniqueID()==2){
+                            if(PreferenceHandler.getInstance( OrdersListScreen.this).getUserRoleUniqueID()==2){
 
-                                        if(list.get(i).getEmployeeId()!= PreferenceHandler.getInstance( OrdersListScreen.this).getUserId()){
+                                if(list.get(i).getEmployeeId()!= PreferenceHandler.getInstance( OrdersListScreen.this).getUserId()){
 
-                                            employees.add(list.get(i));
-
-                                        }
-
-                                    }else{
-
-                                        if(list.get(i).getUserRoleId()!=2){
-
-                                            employees.add(list.get(i));
-
-                                        }
-                                    }
-
+                                    employees.add(list.get(i));
 
                                 }
-
-                                if(employees!=null&&employees.size()!=0){
-                                    mNoEmpl.setVisibility(View.GONE);
-                                    mProfileList.setVisibility(View.VISIBLE);
-                                    Collections.sort(employees, Employee.compareEmployee);
-                                    EmployeeAdapter adapter = new EmployeeAdapter( OrdersListScreen.this, employees,type);
-                                    mProfileList.setAdapter(adapter);
-
-                                    if(PreferenceHandler.getInstance( OrdersListScreen.this).getEmployeeLimit()<=employees.size()){
-                                        mAddProfiles.setVisibility(View.GONE);
-                                    }
-                                }else{
-                                    Toast.makeText( OrdersListScreen.this,"No Orders added",Toast.LENGTH_LONG).show();
-                                    /*Intent employee =new Intent(OrdersListScreen.this,CreateEmployeeScreen.class);
-                                    startActivity(employee);*/
-                                    mNoEmpl.setVisibility(View.VISIBLE);
-                                    mProfileList.setVisibility(View.GONE);
-                                }
-
-
-                                //}
 
                             }else{
-                                Toast.makeText( OrdersListScreen.this,"No Orders added",Toast.LENGTH_LONG).show();
-                               /* Intent employee =new Intent(OrdersListScreen.this,CreateEmployeeScreen.class);
-                                startActivity(employee);*/
-                                mNoEmpl.setVisibility(View.VISIBLE);
-                                mProfileList.setVisibility(View.GONE);
+
+                                if(list.get(i).getUserRoleId()!=2){
+
+                                    employees.add(list.get(i));
+
+                                }
                             }
 
-                        }else {
 
+                        }
 
-                            Toast.makeText( OrdersListScreen.this, "Failed due to : "+response.message(), Toast.LENGTH_SHORT).show();
+                        if(employees!=null&&employees.size()!=0){
+                            mNoEmpl.setVisibility(View.GONE);
+                            mProfileList.setVisibility(View.VISIBLE);
+                            Collections.sort(employees, Employee.compareEmployee);
+                            EmployeeAdapter adapter = new EmployeeAdapter( OrdersListScreen.this, employees,type);
+                            mProfileList.setAdapter(adapter);
+
+                            if(PreferenceHandler.getInstance( OrdersListScreen.this).getEmployeeLimit()<=employees.size()){
+                                mAddProfiles.setVisibility(View.GONE);
+                            }
+                        }else{
+                            Toast.makeText( OrdersListScreen.this,"No Orders added",Toast.LENGTH_LONG).show();
+                                    /*Intent employee =new Intent(OrdersListScreen.this,CreateEmployeeScreen.class);
+                                    startActivity(employee);*/
                             mNoEmpl.setVisibility(View.VISIBLE);
                             mProfileList.setVisibility(View.GONE);
                         }
-                    }
 
-                    @Override
-                    public void onFailure(Call<ArrayList<Employee>> call, Throwable t) {
-                        // Log error here since request failed
-                        if (progressDialog != null&&progressDialog.isShowing())
-                            progressDialog.dismiss();
-                        Log.e("TAG", t.toString());
+
+                        //}
+
+                    }else{
+                        Toast.makeText( OrdersListScreen.this,"No Orders added",Toast.LENGTH_LONG).show();
+                               /* Intent employee =new Intent(OrdersListScreen.this,CreateEmployeeScreen.class);
+                                startActivity(employee);*/
                         mNoEmpl.setVisibility(View.VISIBLE);
                         mProfileList.setVisibility(View.GONE);
                     }
-                });
+
+                }else {
+
+
+                    Toast.makeText( OrdersListScreen.this, "Failed due to : "+response.message(), Toast.LENGTH_SHORT).show();
+                    mNoEmpl.setVisibility(View.VISIBLE);
+                    mProfileList.setVisibility(View.GONE);
+                }
             }
 
-
+            @Override
+            public void onFailure(Call<ArrayList<Employee>> call, Throwable t) {
+                // Log error here since request failed
+                if (progressDialog != null&&progressDialog.isShowing())
+                    progressDialog.dismiss();
+                Log.e("TAG", t.toString());
+                mNoEmpl.setVisibility(View.VISIBLE);
+                mProfileList.setVisibility(View.GONE);
+            }
         });
     }
 

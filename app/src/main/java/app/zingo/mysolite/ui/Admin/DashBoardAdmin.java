@@ -64,7 +64,6 @@ import app.zingo.mysolite.ui.Employee.EmployeeListScreen;
 import app.zingo.mysolite.ui.LandingScreen;
 import app.zingo.mysolite.utils.Constants;
 import app.zingo.mysolite.utils.PreferenceHandler;
-import app.zingo.mysolite.utils.ThreadExecuter;
 import app.zingo.mysolite.utils.Util;
 import app.zingo.mysolite.WebApi.DepartmentApi;
 import app.zingo.mysolite.WebApi.EmployeeApi;
@@ -200,7 +199,7 @@ public class DashBoardAdmin extends AppCompatActivity {
                         imageId = employeeImages.getEmployeeImageId();
                         String base=employeeImages.getImage();
                         if(base != null && !base.isEmpty()){
-                            Picasso.with( DashBoardAdmin.this).load(base).placeholder(R.drawable.profile_image).
+                            Picasso.get ().load(base).placeholder(R.drawable.profile_image).
                                     error(R.drawable.profile_image).into(mProfileImage);
 
 
@@ -321,56 +320,48 @@ public class DashBoardAdmin extends AppCompatActivity {
     }
 
     public void getProfile(final int id){
+        final EmployeeApi subCategoryAPI = Util.getClient().create( EmployeeApi.class);
+        Call<ArrayList<Employee>> getProf = subCategoryAPI.getProfileById(id);
+        //Call<ArrayList<Blogs>> getBlog = blogApi.getBlogs();
 
-        new ThreadExecuter ().execute( new Runnable() {
+        getProf.enqueue(new Callback<ArrayList<Employee>>() {
+
             @Override
-            public void run() {
+            public void onResponse(Call<ArrayList<Employee>> call, Response<ArrayList<Employee>> response) {
 
-                final EmployeeApi subCategoryAPI = Util.getClient().create( EmployeeApi.class);
-                Call<ArrayList<Employee>> getProf = subCategoryAPI.getProfileById(id);
-                //Call<ArrayList<Blogs>> getBlog = blogApi.getBlogs();
+                if (response.code() == 200)
+                {
+                    System.out.println("Inside api");
 
-                getProf.enqueue(new Callback<ArrayList<Employee>>() {
+                    profile = response.body().get(0);
 
-                    @Override
-                    public void onResponse(Call<ArrayList<Employee>> call, Response<ArrayList<Employee>> response) {
+                    ArrayList<EmployeeImages> images = profile.getEmployeeImages();
 
-                        if (response.code() == 200)
-                        {
-                            System.out.println("Inside api");
+                    if(images!=null&&images.size()!=0){
+                        employeeImages = images.get(0);
 
-                            profile = response.body().get(0);
+                        if(employeeImages!=null){
+                            imageId = employeeImages.getEmployeeImageId();
+                            String base=employeeImages.getImage();
+                            if(base != null && !base.isEmpty()){
+                                Picasso.get ().load(base).placeholder(R.drawable.profile_image).
+                                        error(R.drawable.profile_image).into(mProfileImage);
 
-                            ArrayList<EmployeeImages> images = profile.getEmployeeImages();
-
-                            if(images!=null&&images.size()!=0){
-                               employeeImages = images.get(0);
-
-                                if(employeeImages!=null){
-                                    imageId = employeeImages.getEmployeeImageId();
-                                    String base=employeeImages.getImage();
-                                    if(base != null && !base.isEmpty()){
-                                        Picasso.with( DashBoardAdmin.this).load(base).placeholder(R.drawable.profile_image).
-                                                error(R.drawable.profile_image).into(mProfileImage);
-
-
-                                    }
-                                }
 
                             }
-
                         }
-                    }
-
-                    @Override
-                    public void onFailure(Call<ArrayList<Employee>> call, Throwable t) {
 
                     }
-                });
 
+                }
             }
 
+            @Override
+            public void onFailure(Call<ArrayList<Employee>> call, Throwable t) {
+
+            }
         });
+
     }
 
     private void selectImage() {
@@ -744,40 +735,35 @@ public class DashBoardAdmin extends AppCompatActivity {
         dialog.setTitle("Updating Image..");
         dialog.show();
 
-        new ThreadExecuter ().execute( new Runnable() {
+        EmployeeImageAPI auditApi = Util.getClient().create(EmployeeImageAPI.class);
+        Call<EmployeeImages> response = auditApi.updateEmployeeImage(employeeImages.getEmployeeImageId(),employeeImages);
+        response.enqueue(new Callback<EmployeeImages>() {
             @Override
-            public void run() {
-                EmployeeImageAPI auditApi = Util.getClient().create(EmployeeImageAPI.class);
-                Call<EmployeeImages> response = auditApi.updateEmployeeImage(employeeImages.getEmployeeImageId(),employeeImages);
-                response.enqueue(new Callback<EmployeeImages>() {
-                    @Override
-                    public void onResponse(Call<EmployeeImages> call, Response<EmployeeImages> response) {
-                        if(dialog != null)
-                        {
-                            dialog.dismiss();
-                        }
-                        System.out.println(response.code());
+            public void onResponse(Call<EmployeeImages> call, Response<EmployeeImages> response) {
+                if(dialog != null)
+                {
+                    dialog.dismiss();
+                }
+                System.out.println(response.code());
 
-                        if(response.code() == 201||response.code() == 200||response.code() == 204)
-                        {
-                            Toast.makeText( DashBoardAdmin.this,"Profile Image Updated",Toast.LENGTH_SHORT).show();
-                        }
-                        else
-                        {
-                            Toast.makeText( DashBoardAdmin.this,response.message(),Toast.LENGTH_SHORT).show();
-                        }
-                    }
+                if(response.code() == 201||response.code() == 200||response.code() == 204)
+                {
+                    Toast.makeText( DashBoardAdmin.this,"Profile Image Updated",Toast.LENGTH_SHORT).show();
+                }
+                else
+                {
+                    Toast.makeText( DashBoardAdmin.this,response.message(),Toast.LENGTH_SHORT).show();
+                }
+            }
 
-                    @Override
-                    public void onFailure(Call<EmployeeImages> call, Throwable t) {
-                        if(dialog != null)
-                        {
-                            dialog.dismiss();
-                        }
-                        //Toast.makeText(DashBoardAdmin.this,"Bad Internet Connection",Toast.LENGTH_SHORT).show();
+            @Override
+            public void onFailure(Call<EmployeeImages> call, Throwable t) {
+                if(dialog != null)
+                {
+                    dialog.dismiss();
+                }
+                //Toast.makeText(DashBoardAdmin.this,"Bad Internet Connection",Toast.LENGTH_SHORT).show();
 
-                    }
-                });
             }
         });
     }
@@ -790,40 +776,35 @@ public class DashBoardAdmin extends AppCompatActivity {
         dialog.setTitle("Updating Image..");
         dialog.show();
 
-        new ThreadExecuter ().execute( new Runnable() {
+        EmployeeImageAPI auditApi = Util.getClient().create(EmployeeImageAPI.class);
+        Call<EmployeeImages> response = auditApi.addEmployeeImage(employeeImages);
+        response.enqueue(new Callback<EmployeeImages>() {
             @Override
-            public void run() {
-                EmployeeImageAPI auditApi = Util.getClient().create(EmployeeImageAPI.class);
-                Call<EmployeeImages> response = auditApi.addEmployeeImage(employeeImages);
-                response.enqueue(new Callback<EmployeeImages>() {
-                    @Override
-                    public void onResponse(Call<EmployeeImages> call, Response<EmployeeImages> response) {
-                        if(dialog != null)
-                        {
-                            dialog.dismiss();
-                        }
-                        System.out.println(response.code());
+            public void onResponse(Call<EmployeeImages> call, Response<EmployeeImages> response) {
+                if(dialog != null)
+                {
+                    dialog.dismiss();
+                }
+                System.out.println(response.code());
 
-                        if(response.code() == 201||response.code() == 200||response.code() == 204)
-                        {
-                            Toast.makeText( DashBoardAdmin.this,"Profile Image Updated",Toast.LENGTH_SHORT).show();
-                        }
-                        else
-                        {
-                            Toast.makeText( DashBoardAdmin.this,response.message(),Toast.LENGTH_SHORT).show();
-                        }
-                    }
+                if(response.code() == 201||response.code() == 200||response.code() == 204)
+                {
+                    Toast.makeText( DashBoardAdmin.this,"Profile Image Updated",Toast.LENGTH_SHORT).show();
+                }
+                else
+                {
+                    Toast.makeText( DashBoardAdmin.this,response.message(),Toast.LENGTH_SHORT).show();
+                }
+            }
 
-                    @Override
-                    public void onFailure(Call<EmployeeImages> call, Throwable t) {
-                        if(dialog != null)
-                        {
-                            dialog.dismiss();
-                        }
-                        //Toast.makeText(DashBoardAdmin.this,"Bad Internet Connection",Toast.LENGTH_SHORT).show();
+            @Override
+            public void onFailure(Call<EmployeeImages> call, Throwable t) {
+                if(dialog != null)
+                {
+                    dialog.dismiss();
+                }
+                //Toast.makeText(DashBoardAdmin.this,"Bad Internet Connection",Toast.LENGTH_SHORT).show();
 
-                    }
-                });
             }
         });
     }
@@ -901,187 +882,171 @@ public class DashBoardAdmin extends AppCompatActivity {
 
     private void getDepartment(final int id){
 
-        new ThreadExecuter ().execute( new Runnable() {
+        DepartmentApi apiService =
+                Util.getClient().create( DepartmentApi.class);
+
+        Call<ArrayList<Departments>> call = apiService.getDepartmentByOrganization(id);
+
+        call.enqueue(new Callback<ArrayList<Departments>>() {
             @Override
-            public void run() {
-
-
-                DepartmentApi apiService =
-                        Util.getClient().create( DepartmentApi.class);
-
-                Call<ArrayList<Departments>> call = apiService.getDepartmentByOrganization(id);
-
-                call.enqueue(new Callback<ArrayList<Departments>>() {
-                    @Override
-                    public void onResponse(Call<ArrayList<Departments>> call, Response<ArrayList<Departments>> response) {
+            public void onResponse(Call<ArrayList<Departments>> call, Response<ArrayList<Departments>> response) {
 //                List<RouteDTO.Routes> list = new ArrayList<RouteDTO.Routes>();
-                        int statusCode = response.code();
+                int statusCode = response.code();
 
-                        if(statusCode == 200 || statusCode == 204)
-                        {
-                            ArrayList<Departments> departmentsList = response.body();
-                            if(departmentsList != null && departmentsList.size()!=0 )
-                            {
+                if(statusCode == 200 || statusCode == 204)
+                {
+                    ArrayList<Departments> departmentsList = response.body();
+                    if(departmentsList != null && departmentsList.size()!=0 )
+                    {
 
-                                ArrayList<Departments> departmentsArrayList = new ArrayList<>();
+                        ArrayList<Departments> departmentsArrayList = new ArrayList<>();
 
-                                for(int i=0;i<departmentsList.size();i++){
+                        for(int i=0;i<departmentsList.size();i++){
 
-                                    if(!departmentsList.get(i).getDepartmentName().equalsIgnoreCase("Founders")){
+                            if(!departmentsList.get(i).getDepartmentName().equalsIgnoreCase("Founders")){
 
-                                        departmentsArrayList.add(departmentsList.get(i));
-                                    }
-                                }
-
-                                if(departmentsArrayList!=null&&departmentsArrayList.size()!=0){
-
-
-                                    DepartmentGridAdapter adapter = new DepartmentGridAdapter( DashBoardAdmin.this,departmentsArrayList);
-                                    mDepartmentGrid.setAdapter(adapter);
-                                }
-
-
-
-                            }
-                            else
-                            {
-
-
+                                departmentsArrayList.add(departmentsList.get(i));
                             }
                         }
-                        else
-                        {
 
-                            Toast.makeText( DashBoardAdmin.this,response.message(),Toast.LENGTH_SHORT).show();
+                        if(departmentsArrayList!=null&&departmentsArrayList.size()!=0){
+
+
+                            DepartmentGridAdapter adapter = new DepartmentGridAdapter( DashBoardAdmin.this,departmentsArrayList);
+                            mDepartmentGrid.setAdapter(adapter);
                         }
+
+
+
+                    }
+                    else
+                    {
+
+
+                    }
+                }
+                else
+                {
+
+                    Toast.makeText( DashBoardAdmin.this,response.message(),Toast.LENGTH_SHORT).show();
+                }
 //                callGetStartEnd();
-                    }
+            }
 
-                    @Override
-                    public void onFailure(Call<ArrayList<Departments>> call, Throwable t) {
-                        // Log error here since request failed
+            @Override
+            public void onFailure(Call<ArrayList<Departments>> call, Throwable t) {
+                // Log error here since request failed
 
-                        Log.e("TAG", t.toString());
-                    }
-                });
+                Log.e("TAG", t.toString());
             }
         });
     }
 
     public void getCompany(final int id){
+        final OrganizationApi subCategoryAPI = Util.getClient().create( OrganizationApi.class);
+        Call<ArrayList< Organization >> getProf = subCategoryAPI.getOrganizationById(id);
+        //Call<ArrayList<Blogs>> getBlog = blogApi.getBlogs();
 
-        new ThreadExecuter ().execute( new Runnable() {
+        getProf.enqueue(new Callback<ArrayList< Organization >>() {
+
             @Override
-            public void run() {
+            public void onResponse( Call<ArrayList< Organization >> call, Response<ArrayList< Organization >> response) {
 
-                final OrganizationApi subCategoryAPI = Util.getClient().create( OrganizationApi.class);
-                Call<ArrayList< Organization >> getProf = subCategoryAPI.getOrganizationById(id);
-                //Call<ArrayList<Blogs>> getBlog = blogApi.getBlogs();
+                if (response.code() == 200||response.code() == 201||response.code() == 204&&response.body().size()!=0)
+                {
 
-                getProf.enqueue(new Callback<ArrayList< Organization >>() {
+                    Organization organization = response.body().get(0);
+                    System.out.println("Inside api");
+                    PreferenceHandler.getInstance( DashBoardAdmin.this).setCompanyId(organization.getOrganizationId());
+                    PreferenceHandler.getInstance( DashBoardAdmin.this).setCompanyName(organization.getOrganizationName());
+                    PreferenceHandler.getInstance( DashBoardAdmin.this).setAppType(organization.getAppType());
 
-                    @Override
-                    public void onResponse( Call<ArrayList< Organization >> call, Response<ArrayList< Organization >> response) {
+                    PreferenceHandler.getInstance( DashBoardAdmin.this).setAppType(organization.getAppType());
+                    PreferenceHandler.getInstance( DashBoardAdmin.this).setLicenseStartDate(organization.getLicenseStartDate());
+                    PreferenceHandler.getInstance( DashBoardAdmin.this).setLicenseEndDate(organization.getLicenseEndDate());
+                    PreferenceHandler.getInstance( DashBoardAdmin.this).setSignupDate(organization.getSignupDate());
+                    PreferenceHandler.getInstance( DashBoardAdmin.this).setOrganizationLongi(organization.getLongitude());
+                    PreferenceHandler.getInstance( DashBoardAdmin.this).setOrganizationLati(organization.getLatitude());
+                    PreferenceHandler.getInstance( DashBoardAdmin.this).setPlanType(organization.getPlanType());
+                    PreferenceHandler.getInstance( DashBoardAdmin.this).setEmployeeLimit(organization.getEmployeeLimit());
+                    PreferenceHandler.getInstance( DashBoardAdmin.this).setPlanId(organization.getPlanId());
 
-                        if (response.code() == 200||response.code() == 201||response.code() == 204&&response.body().size()!=0)
-                        {
+                    appType = PreferenceHandler.getInstance( DashBoardAdmin.this).getAppType();
+                    planType = PreferenceHandler.getInstance( DashBoardAdmin.this).getPlanType();
+                    licensesStartDate = PreferenceHandler.getInstance( DashBoardAdmin.this).getLicenseStartDate();
+                    licenseEndDate = PreferenceHandler.getInstance( DashBoardAdmin.this).getLicenseEndDate();
+                    planId = PreferenceHandler.getInstance( DashBoardAdmin.this).getPlanId();
 
-                            Organization organization = response.body().get(0);
-                            System.out.println("Inside api");
-                            PreferenceHandler.getInstance( DashBoardAdmin.this).setCompanyId(organization.getOrganizationId());
-                            PreferenceHandler.getInstance( DashBoardAdmin.this).setCompanyName(organization.getOrganizationName());
-                            PreferenceHandler.getInstance( DashBoardAdmin.this).setAppType(organization.getAppType());
+                    try{
 
-                            PreferenceHandler.getInstance( DashBoardAdmin.this).setAppType(organization.getAppType());
-                            PreferenceHandler.getInstance( DashBoardAdmin.this).setLicenseStartDate(organization.getLicenseStartDate());
-                            PreferenceHandler.getInstance( DashBoardAdmin.this).setLicenseEndDate(organization.getLicenseEndDate());
-                            PreferenceHandler.getInstance( DashBoardAdmin.this).setSignupDate(organization.getSignupDate());
-                            PreferenceHandler.getInstance( DashBoardAdmin.this).setOrganizationLongi(organization.getLongitude());
-                            PreferenceHandler.getInstance( DashBoardAdmin.this).setOrganizationLati(organization.getLatitude());
-                            PreferenceHandler.getInstance( DashBoardAdmin.this).setPlanType(organization.getPlanType());
-                            PreferenceHandler.getInstance( DashBoardAdmin.this).setEmployeeLimit(organization.getEmployeeLimit());
-                            PreferenceHandler.getInstance( DashBoardAdmin.this).setPlanId(organization.getPlanId());
+                        if(appType!=null){
 
-                            appType = PreferenceHandler.getInstance( DashBoardAdmin.this).getAppType();
-                            planType = PreferenceHandler.getInstance( DashBoardAdmin.this).getPlanType();
-                            licensesStartDate = PreferenceHandler.getInstance( DashBoardAdmin.this).getLicenseStartDate();
-                            licenseEndDate = PreferenceHandler.getInstance( DashBoardAdmin.this).getLicenseEndDate();
-                            planId = PreferenceHandler.getInstance( DashBoardAdmin.this).getPlanId();
+                            if(appType.equalsIgnoreCase("Trial")){
 
-                            try{
+                                SimpleDateFormat smdf = new SimpleDateFormat("MM/dd/yyyy");
 
-                                if(appType!=null){
-
-                                    if(appType.equalsIgnoreCase("Trial")){
-
-                                        SimpleDateFormat smdf = new SimpleDateFormat("MM/dd/yyyy");
-
-                                        long days = dateCal(licenseEndDate);
+                                long days = dateCal(licenseEndDate);
 
 
 
-                                        if((smdf.parse(licenseEndDate).getTime()<smdf.parse(smdf.format(new Date())).getTime())){
+                                if((smdf.parse(licenseEndDate).getTime()<smdf.parse(smdf.format(new Date())).getTime())){
 
-                                            Toast.makeText( DashBoardAdmin.this, "Trial Version Expired.Please Update Paid Version", Toast.LENGTH_SHORT).show();
-                                            PreferenceHandler.getInstance( DashBoardAdmin.this).clear();
+                                    Toast.makeText( DashBoardAdmin.this, "Trial Version Expired.Please Update Paid Version", Toast.LENGTH_SHORT).show();
+                                    PreferenceHandler.getInstance( DashBoardAdmin.this).clear();
 
-                                            Intent log = new Intent( DashBoardAdmin.this, LandingScreen.class);
-                                            log.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                                            log.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK|Intent.FLAG_ACTIVITY_NEW_TASK);
-                                            Toast.makeText( DashBoardAdmin.this,"Logout",Toast.LENGTH_SHORT).show();
-                                            startActivity(log);
-                                            finish();
+                                    Intent log = new Intent( DashBoardAdmin.this, LandingScreen.class);
+                                    log.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                                    log.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK|Intent.FLAG_ACTIVITY_NEW_TASK);
+                                    Toast.makeText( DashBoardAdmin.this,"Logout",Toast.LENGTH_SHORT).show();
+                                    startActivity(log);
+                                    finish();
 
-                                        }else{
+                                }else{
 
-                                            if(days>=1&&days<=5){
-                                                popupUpgrade("Hope your enjoying to use our Trial version.Get more features You need to Upgrade App","Your trial period is going to expire in "+days+" days");
+                                    if(days>=1&&days<=5){
+                                        popupUpgrade("Hope your enjoying to use our Trial version.Get more features You need to Upgrade App","Your trial period is going to expire in "+days+" days");
 
-                                            }else if(days==0){
-                                                popupUpgrade("Hope your enjoying to use our Trial version.Get more features You need to Upgrade App","Today is last day for your free trial");
+                                    }else if(days==0){
+                                        popupUpgrade("Hope your enjoying to use our Trial version.Get more features You need to Upgrade App","Today is last day for your free trial");
 
-                                            }else if(days<0){
-                                                Toast.makeText( DashBoardAdmin.this, "Your Trial Period is Expired", Toast.LENGTH_SHORT).show();
-                                                PreferenceHandler.getInstance( DashBoardAdmin.this).clear();
+                                    }else if(days<0){
+                                        Toast.makeText( DashBoardAdmin.this, "Your Trial Period is Expired", Toast.LENGTH_SHORT).show();
+                                        PreferenceHandler.getInstance( DashBoardAdmin.this).clear();
 
-                                                Intent log = new Intent( DashBoardAdmin.this, LandingScreen.class);
-                                                log.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                                                log.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK|Intent.FLAG_ACTIVITY_NEW_TASK);
-                                                Toast.makeText( DashBoardAdmin.this,"Logout",Toast.LENGTH_SHORT).show();
-                                                startActivity(log);
-                                                finish();
-                                            }
-
-                                        }
-
-                                    }else if(appType.equalsIgnoreCase("Paid")){
-
+                                        Intent log = new Intent( DashBoardAdmin.this, LandingScreen.class);
+                                        log.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                                        log.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK|Intent.FLAG_ACTIVITY_NEW_TASK);
+                                        Toast.makeText( DashBoardAdmin.this,"Logout",Toast.LENGTH_SHORT).show();
+                                        startActivity(log);
+                                        finish();
                                     }
+
                                 }
 
-                            }catch (Exception e){
-                                e.printStackTrace();
+                            }else if(appType.equalsIgnoreCase("Paid")){
+
                             }
-
-
-
-
-
-
-                        }else{
-
-
                         }
+
+                    }catch (Exception e){
+                        e.printStackTrace();
                     }
 
-                    @Override
-                    public void onFailure( Call<ArrayList< Organization >> call, Throwable t) {
 
-                    }
-                });
 
+
+
+
+                }else{
+
+
+                }
             }
 
+            @Override
+            public void onFailure( Call<ArrayList< Organization >> call, Throwable t) {
+
+            }
         });
     }
 
@@ -1102,68 +1067,59 @@ public class DashBoardAdmin extends AppCompatActivity {
     }
 
 
-    public void addDeviceId(final EmployeeDeviceMapping pf)
-    {
+    public void addDeviceId(final EmployeeDeviceMapping pf) {
+        EmployeeDeviceApi hotelOperation = Util.getClient().create( EmployeeDeviceApi.class);
+        Call<EmployeeDeviceMapping> response = hotelOperation.addProfileDevice(pf);
 
-        new ThreadExecuter ().execute( new Runnable() {
+        response.enqueue(new Callback<EmployeeDeviceMapping>() {
             @Override
-            public void run() {
+            public void onResponse(Call<EmployeeDeviceMapping> call, Response<EmployeeDeviceMapping> response) {
+                System.out.println("GetHotelByProfileId = "+response.code());
 
 
-                EmployeeDeviceApi hotelOperation = Util.getClient().create( EmployeeDeviceApi.class);
-                Call<EmployeeDeviceMapping> response = hotelOperation.addProfileDevice(pf);
+                if(response.code() == 200||response.code() == 201||response.code() == 202||response.code() == 204)
+                {
+                    try{
+                        System.out.println("registered");
+                        EmployeeDeviceMapping pr = response.body();
 
-                response.enqueue(new Callback<EmployeeDeviceMapping>() {
-                    @Override
-                    public void onResponse(Call<EmployeeDeviceMapping> call, Response<EmployeeDeviceMapping> response) {
-                        System.out.println("GetHotelByProfileId = "+response.code());
+                        System.out.println();
 
-
-                        if(response.code() == 200||response.code() == 201||response.code() == 202||response.code() == 204)
+                        if(pr != null)
                         {
-                            try{
-                                System.out.println("registered");
-                                EmployeeDeviceMapping pr = response.body();
 
-                                System.out.println();
-
-                                if(pr != null)
-                                {
-
-                                    PreferenceHandler.getInstance( DashBoardAdmin.this).setMappingId(pr.getEmployeeDeviceMappingId());
-
-
-
-                                }
-
-                            }catch (Exception e){
-                                e.printStackTrace();
-                            }
-
-
-
-
-                        }else if(response.code() == 404){
-                            System.out.println("already registered");
+                            PreferenceHandler.getInstance( DashBoardAdmin.this).setMappingId(pr.getEmployeeDeviceMappingId());
 
 
 
                         }
-                        else
-                        {
 
-
-                        }
-
-
+                    }catch (Exception e){
+                        e.printStackTrace();
                     }
 
-                    @Override
-                    public void onFailure(Call<EmployeeDeviceMapping> call, Throwable t) {
 
 
-                    }
-                });
+
+                }else if(response.code() == 404){
+                    System.out.println("already registered");
+
+
+
+                }
+                else
+                {
+
+
+                }
+
+
+            }
+
+            @Override
+            public void onFailure(Call<EmployeeDeviceMapping> call, Throwable t) {
+
+
             }
         });
     }

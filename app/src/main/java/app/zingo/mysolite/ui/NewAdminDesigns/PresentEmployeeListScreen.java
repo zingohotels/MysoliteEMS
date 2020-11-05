@@ -14,25 +14,20 @@ import app.zingo.mysolite.model.Employee;
 import app.zingo.mysolite.R;
 
 public class PresentEmployeeListScreen extends AppCompatActivity {
-
     RecyclerView mProfileList;
-
     String type;
     ArrayList<Employee> presentEmployeeList;
+    ArrayList<Employee> employeeList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-
         try{
-
             setContentView(R.layout.activity_present_employee_list_screen);
-
             getSupportActionBar().setHomeButtonEnabled(true);
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             setTitle("Employee Details");
-
+            employeeList = new ArrayList <> (  );
             mProfileList = findViewById(R.id.profile_list);
 
             Bundle bundle = getIntent().getExtras();
@@ -42,23 +37,24 @@ public class PresentEmployeeListScreen extends AppCompatActivity {
                 presentEmployeeList = (ArrayList<Employee>)bundle.getSerializable("Employees");
             }
 
-            if(presentEmployeeList!=null&&presentEmployeeList.size()!=0){
+            for(Employee employee:presentEmployeeList){
+                if(employee.getUserRoleId()!=2&&employee.getUserRoleId()!=8&&employee.getUserRoleId()!=10){
+                    employeeList.add(employee);
+                }
+            }
 
+            if(presentEmployeeList!=null&&presentEmployeeList.size()!=0){
                 Collections.sort(presentEmployeeList, Employee.compareEmployee);
-                EmployeeAdapter adapter = new EmployeeAdapter( PresentEmployeeListScreen.this, presentEmployeeList,type);
+                EmployeeAdapter adapter = new EmployeeAdapter( PresentEmployeeListScreen.this, employeeList,type);
                 mProfileList.setAdapter(adapter);
 
             }else{
                 Toast.makeText( PresentEmployeeListScreen.this, "Something went wrong", Toast.LENGTH_SHORT).show();
             }
 
-
-
-
         }catch (Exception e){
             e.printStackTrace();
         }
-
     }
 
     @Override

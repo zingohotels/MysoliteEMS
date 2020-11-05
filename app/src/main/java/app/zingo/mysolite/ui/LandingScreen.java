@@ -1,12 +1,11 @@
 package app.zingo.mysolite.ui;
-
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
+import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
 import android.preference.PreferenceManager;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
@@ -23,13 +22,13 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.ImageView;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.target.GlideDrawableImageViewTarget;
-import com.squareup.picasso.Picasso;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.messaging.FirebaseMessaging;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -62,30 +61,27 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class LandingScreen extends AppCompatActivity {
-
-    TextView mSupport, mForgot;
-    MyEditText mEmail, mPassword;
-    MyRegulerText mSignInButton, mGetStarted, mContactUs;
-    CheckBox mShowPwd, mResellerSign;
-    ProgressBarUtil progressBarUtil;
-
+    private MyEditText mEmail, mPassword;
+    private MyRegulerText mSignInButton;
+    private CheckBox mShowPwd, mResellerSign;
+    private ProgressBarUtil progressBarUtil;
+    private String TAG;
     @Override
     protected void onCreate ( Bundle savedInstanceState ) {
         super.onCreate ( savedInstanceState );
         try {
             setContentView ( R.layout.activity_landing_screen );
             progressBarUtil = new ProgressBarUtil ( LandingScreen.this );
-            mSupport = findViewById ( R.id.landing_support );
+            TextView mSupport = findViewById ( R.id.landing_support );
             ImageView landing_top_image = findViewById ( R.id.landing_top_image );
             mEmail = findViewById ( R.id.landing_email );
             mPassword = findViewById ( R.id.landing_password );
             mSignInButton = findViewById ( R.id.buttonsignin );
-            mGetStarted = findViewById ( R.id.button_get_started );
-            mContactUs = findViewById ( R.id.button_contact_us );
+            MyRegulerText mGetStarted = findViewById ( R.id.button_get_started );
+            MyRegulerText mContactUs = findViewById ( R.id.button_contact_us );
             mShowPwd = findViewById ( R.id.show_hide_password );
             mResellerSign = findViewById ( R.id.reseller_sign_in_check );
-            mForgot = findViewById ( R.id.forgot_pwd );
-
+            TextView mForgot = findViewById ( R.id.forgot_pwd );
             Glide.with ( this ).load ( R.drawable.working_employee ).into ( new GlideDrawableImageViewTarget ( landing_top_image ) );
 
             mSupport.setOnClickListener ( view -> {
@@ -186,13 +182,13 @@ public class LandingScreen extends AppCompatActivity {
 
             mGetStarted.setOnClickListener ( view -> {
 
-             /*   Intent started = new Intent ( LandingScreen.this , SignUpOptioins.class );
-                startActivity ( started );*/
+                Intent started = new Intent ( LandingScreen.this , SignUpOptioins.class );
+                startActivity ( started );
 
-                Intent started = new Intent( LandingScreen.this, PhoneVerificationScreen.class);
+          /*      Intent started = new Intent( LandingScreen.this, PhoneVerificationScreen.class);
                 PreferenceHandler.getInstance( LandingScreen.this).setSignUpType("Employee");
                 started.putExtra("Screen","Employee");
-                startActivity(started);
+                startActivity(started);*/
 
             } );
 
@@ -202,6 +198,26 @@ public class LandingScreen extends AppCompatActivity {
                 startActivity ( contact );
 
             } );
+/*
+            if( Build.VERSION.SDK_INT>=Build.VERSION_CODES.O ){
+                NotificationChannel channel = new NotificationChannel ( "MyNotification","MyNotification" , NotificationManager.IMPORTANCE_DEFAULT );
+                NotificationManager manager = getSystemService ( NotificationManager.class );
+                manager.createNotificationChannel ( channel );
+            }*/
+/*
+            FirebaseMessaging.getInstance().subscribeToTopic("general")
+                    .addOnCompleteListener(new OnCompleteListener <Void>() {
+                        @Override
+                        public void onComplete(@NonNull Task <Void> task) {
+                            String msg = "Successfull";
+                            if (!task.isSuccessful()) {
+                                msg = "Failed";
+                            }
+                            Log.d(TAG, msg);
+                            Toast.makeText(LandingScreen.this, msg, Toast.LENGTH_SHORT).show();
+                        }
+                    });
+*/
 
         } catch ( Exception e ) {
             e.printStackTrace ( );
@@ -239,10 +255,10 @@ public class LandingScreen extends AppCompatActivity {
             @Override
             public void onResponse ( @NonNull Call < ArrayList < ResellerProfiles >> call , @NonNull Response < ArrayList <ResellerProfiles>> response ) {
                 int statusCode = response.code ( );
-                if(progressBarUtil!=null){
-                    progressBarUtil.hideProgress ();
-                }
                 if ( statusCode == 200 || statusCode == 201 ) {
+                    if(progressBarUtil!=null){
+                        progressBarUtil.hideProgress ();
+                    }
                     ArrayList < ResellerProfiles > dto1 = response.body ( );
                     if ( dto1 != null && dto1.size ( ) != 0 ) {
                         ResellerProfiles dto = dto1.get ( 0 );
@@ -301,10 +317,10 @@ public class LandingScreen extends AppCompatActivity {
             @Override
             public void onResponse ( @NonNull Call < ArrayList < Employee > > call , @NonNull Response < ArrayList < Employee > > response ) {
                 int statusCode = response.code ( );
-                if(progressBarUtil!=null){
-                    progressBarUtil.hideProgress ();
-                }
                 if ( statusCode == 200 || statusCode == 201 ) {
+                    if(progressBarUtil!=null){
+                        progressBarUtil.hideProgress ();
+                    }
                     ArrayList < Employee > dto1 = response.body ( );
                     if ( dto1 != null && dto1.size ( ) != 0 ) {
                         final Employee dto = dto1.get ( 0 );
@@ -360,7 +376,6 @@ public class LandingScreen extends AppCompatActivity {
                                                         PreferenceHandler.getInstance ( LandingScreen.this ).setPlanId ( organization.getPlanId ( ) );
                                                         PreferenceHandler.getInstance ( LandingScreen.this ).setResellerUserId ( organization.getResellerProfileId ( ) );
                                                         PreferenceHandler.getInstance ( LandingScreen.this ).setLogo ( organization.getDeductionType ( ) );
-
 
                                                         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences ( LandingScreen.this );
                                                         SharedPreferences.Editor spe = sp.edit ( );
@@ -709,6 +724,7 @@ public class LandingScreen extends AppCompatActivity {
             androidx.appcompat.app.AlertDialog.Builder builder = new androidx.appcompat.app.AlertDialog.Builder ( LandingScreen.this );
             LayoutInflater inflater = ( LayoutInflater ) getSystemService ( Context.LAYOUT_INFLATER_SERVICE );
             final ViewGroup nullParent = null;
+            assert inflater != null;
             View views = inflater.inflate ( R.layout.app_upgrade_pop , nullParent );
             builder.setView ( views );
 

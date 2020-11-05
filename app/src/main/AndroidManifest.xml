@@ -3,20 +3,17 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="app.zingo.mysolite">
 
-    <uses-permission android:name="android.permission.INTERNET" /> <!-- Network call and base permission -->
-    <!-- Camera Permission -->
+    <uses-permission android:name="android.permission.READ_PRIVILEGED_PHONE_STATE" />
+    <uses-permission android:name="android.permission.WRITE_SETTINGS" tools:ignore="ProtectedPermissions" />
+    <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
-
-    <uses-feature
-        android:name="android.hardware.camera"
-        android:required="true" /> <!-- Storage Permission -->
+    <uses-feature android:name="android.hardware.camera" android:required="true" /> <!-- Storage Permission -->
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" /> <!-- save images taken from in-app camera -->
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" /> <!-- Location Permission -->
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-
     <uses-feature android:name="android.hardware.location.gps" /> <!-- Required API 21 or higher -->
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
@@ -24,6 +21,16 @@
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.hardware.camera.autofocus" />
     <uses-permission android:name="com.google.android.gms.permission.ACTIVITY_RECOGNITION" />
+    <uses-permission android:name="android.permission.WRITE_SETTINGS" tools:ignore="ProtectedPermissions" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.REQUEST_COMPANION_RUN_IN_BACKGROUND" />
+    <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="com.example.permission.MAPS_RECEIVE" />
+    <uses-permission android:name="com.example.permission.USE_FULL_SCREEN_INTENT" />
+    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
+    <uses-permission android:name="android.permission.READ_SMS" />
+    <uses-permission android:name="android.permission.RECEIVE_SMS" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
     <supports-screens
         android:anyDensity="true"
@@ -35,7 +42,7 @@
 
     <application
         android:name="androidx.multidex.MultiDexApplication"
-        android:allowBackup="false"
+        android:allowBackup="true"
         android:extractNativeLibs="false"
         android:hardwareAccelerated="true"
         android:icon="@mipmap/ic_launcher"
@@ -46,8 +53,9 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning,UnusedAttribute"
-        tools:replace="android:allowBackup,android:icon">
-        <activity android:name=".UiTestActivty"></activity>
+        tools:replace="android:allowBackup,android:icon"
+        android:requestLegacyExternalStorage="true">
+        <activity android:name=".UiTestActivty"/>
         <activity android:name=".ui.NewAdminDesigns.UpdateRetailer" />
         <activity android:name=".ui.NewAdminDesigns.RetailerCreation" />
         <activity android:name=".ui.NewAdminDesigns.RetailerListScreen" />
@@ -118,9 +126,14 @@
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar" />
 
+       <!-- <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyCCOdiugQwNAGmBpMdloo6Iu4Rb1i5RwEs" />-->
+
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyCCOdiugQwNAGmBpMdloo6Iu4Rb1i5RwEs" />
+            android:value="@string/place_api_key"/>
+
         <meta-data
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
@@ -193,14 +206,49 @@
             android:name=".Service.LocationTrackEmplService"
             android:enabled="true"
             android:exported="true" />
-        <service
+  <!--      <service
             android:name=".FireBase.MyFirebaseMessagingService"
             android:enabled="true"
             android:exported="true">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
+        </service>-->
+
+        <!-- Firebase Notification -->
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_icon"
+            android:resource="@drawable/ic_launcher_background" />
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_color"
+            android:resource="@color/colorAccent" />
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_channel_id"
+            android:value="@string/default_notification_channel_id" />
+
+        <service
+            android:name=".FireBase.MyFirebaseMessagingService"
+            android:enabled="true"
+            android:exported="false"
+            android:permission="com.google.android.c2dm.permission.SEND"
+            android:stopWithTask="false">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+                <action android:name="com.google.android.c2dm.permission.RECEIVE" />
+            </intent-filter>
         </service>
+
+<!--        <service
+            android:name=".FireBase.MyFirebaseMessagingService"
+            android:enabled="true"
+            android:exported="false"
+            android:permission="com.google.android.c2dm.permission.SEND"
+            android:stopWithTask="false">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+                <action android:name="com.google.android.c2dm.permission.RECEIVE" />
+            </intent-filter>
+        </service>-->
         <service
             android:name=".Service.LocationListenerService"
             android:enabled="true" />
@@ -490,6 +538,10 @@
         <activity android:name=".ui.Common.VisitingCard" />
         <activity android:name=".ui.Common.CustomerMapViewScreen" />
         <activity android:name=".ui.NewAdminDesigns.CalenderDashBoardActivity" />
+
+        <!--Separate Class-->
+        <activity android:name=".utils.BaseActivity" />
+        <activity android:name=".utils.ValidationClass" />
     </application>
 
 </manifest>

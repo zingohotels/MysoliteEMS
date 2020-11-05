@@ -16,8 +16,7 @@ public class ManagerSpinnerAdapter extends BaseAdapter {
     private Context context;
     private ArrayList< Employee > mList = new ArrayList<>();
 
-    public ManagerSpinnerAdapter(Context context, ArrayList< Employee > mList)
-    {
+    public ManagerSpinnerAdapter(Context context, ArrayList< Employee > mList) {
         this.context = context;
         this.mList = mList;
     }
@@ -39,19 +38,14 @@ public class ManagerSpinnerAdapter extends BaseAdapter {
 
     @Override
     public View getView(int pos, View view, ViewGroup viewGroup) {
-
-        if(view == null)
-        {
+        if(view == null) {
             LayoutInflater mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             view = mInflater.inflate(R.layout.adapter_department_spinner,viewGroup,false);
         }
 
         TextView mCategoryName = view.findViewById(R.id.category_spinner_item);
-
-
         mCategoryName.setText(mList.get(pos).getEmployeeName());
 
         return view;
     }
 }
-

@@ -40,7 +40,6 @@ import java.util.List;
 import app.zingo.mysolite.model.LoginDetails;
 import app.zingo.mysolite.model.MarkerData;
 import app.zingo.mysolite.utils.DataParser;
-import app.zingo.mysolite.utils.ThreadExecuter;
 import app.zingo.mysolite.utils.Util;
 import app.zingo.mysolite.WebApi.LoginDetailsAPI;
 import app.zingo.mysolite.R;
@@ -132,101 +131,94 @@ public class EmployeeLoginMapView extends AppCompatActivity {
         progressDialog.setCancelable(false);
         progressDialog.show();
 
-        new ThreadExecuter ().execute( new Runnable() {
+        LoginDetailsAPI apiService = Util.getClient().create( LoginDetailsAPI.class);
+        Call<ArrayList< LoginDetails >> call = apiService.getLoginByEmployeeId(employeeId);
+
+        call.enqueue(new Callback<ArrayList< LoginDetails >>() {
             @Override
-            public void run() {
-                LoginDetailsAPI apiService = Util.getClient().create( LoginDetailsAPI.class);
-                Call<ArrayList< LoginDetails >> call = apiService.getLoginByEmployeeId(employeeId);
-
-                call.enqueue(new Callback<ArrayList< LoginDetails >>() {
-                    @Override
-                    public void onResponse( Call<ArrayList< LoginDetails >> call, Response<ArrayList< LoginDetails >> response) {
-                        int statusCode = response.code();
-                        if (statusCode == 200 || statusCode == 201 || statusCode == 203 || statusCode == 204) {
+            public void onResponse( Call<ArrayList< LoginDetails >> call, Response<ArrayList< LoginDetails >> response) {
+                int statusCode = response.code();
+                if (statusCode == 200 || statusCode == 201 || statusCode == 203 || statusCode == 204) {
 
 
-                            if (progressDialog != null&&progressDialog.isShowing())
-                                progressDialog.dismiss();
-                            ArrayList< LoginDetails > list = response.body();
-                            long hours=0;
+                    if (progressDialog != null&&progressDialog.isShowing())
+                        progressDialog.dismiss();
+                    ArrayList< LoginDetails > list = response.body();
+                    long hours=0;
 
-                            ArrayList< MarkerData > markerData = new ArrayList<>();
+                    ArrayList< MarkerData > markerData = new ArrayList<>();
 
-                            if (list !=null && list.size()!=0) {
+                    if (list !=null && list.size()!=0) {
 
-                                Collections.sort(list, LoginDetails.compareLogin);
+                        Collections.sort(list, LoginDetails.compareLogin);
 
-                                mMap.clear();
-                                for(int i=0;i<list.size();i++){
+                        mMap.clear();
+                        for(int i=0;i<list.size();i++){
 
-                                    if(list.get(i).getLongitude()!=null||list.get(i).getLatitude()!=null){
-
-
-                                        markerData.add(new MarkerData (Double.parseDouble(list.get(i).getLongitude()),Double.parseDouble(list.get(i).getLatitude()),""+(i+1),list.get(i).getLocation()));
-                                        markerData.add(new MarkerData (Double.parseDouble(list.get(i).getLongitude()),Double.parseDouble(list.get(i).getLatitude()),""+(i+1),list.get(i).getLocation()));
-
-                                        MarkerPoints.add(new LatLng(Double.parseDouble(list.get(i).getLongitude()),Double.parseDouble(list.get(i).getLatitude())));
-                                        MarkerPoints.add(new LatLng(Double.parseDouble(list.get(i).getLongitude()),Double.parseDouble(list.get(i).getLatitude())));
-
-                                    }
+                            if(list.get(i).getLongitude()!=null||list.get(i).getLatitude()!=null){
 
 
+                                markerData.add(new MarkerData (Double.parseDouble(list.get(i).getLongitude()),Double.parseDouble(list.get(i).getLatitude()),""+(i+1),list.get(i).getLocation()));
+                                markerData.add(new MarkerData (Double.parseDouble(list.get(i).getLongitude()),Double.parseDouble(list.get(i).getLatitude()),""+(i+1),list.get(i).getLocation()));
 
-
-                                }
-
-                                for ( MarkerData point : markerData) {
-                                    createMarker(point.getLati(),point.getLongi(), point.getTitle(), point.getPerson());
-                                }
-
-                                if(markerData!=null&&markerData.size()!=0){
-                                    LatLng latlng = new LatLng(markerData.get(0).getLati(),markerData.get(0).getLongi());
-
-                                    if (MarkerPoints.size() > 2) {
-                                        LatLng origin = MarkerPoints.get(0);
-                                        LatLng dest = MarkerPoints.get(3);
-
-                                        // Getting URL to the Google Directions API
-                                        String url = getUrl(origin, dest);
-                                        Log.d("onMapClick", url);
-                                        FetchUrl FetchUrl = new FetchUrl();
-
-                                        // Start downloading json data from Google Directions API
-                                        FetchUrl.execute(url);
-                                        //move map camera
-                                        mMap.moveCamera(CameraUpdateFactory.newLatLng(origin));
-                                        mMap.animateCamera(CameraUpdateFactory.zoomTo(11));
-                                    }
-
-
-                                    CameraPosition cameraPosition = new CameraPosition.Builder().zoom(10).target(latlng).build();
-                                    mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
-                                }
-
-
-
-                            }else{
+                                MarkerPoints.add(new LatLng(Double.parseDouble(list.get(i).getLongitude()),Double.parseDouble(list.get(i).getLatitude())));
+                                MarkerPoints.add(new LatLng(Double.parseDouble(list.get(i).getLongitude()),Double.parseDouble(list.get(i).getLatitude())));
 
                             }
 
-                        }else {
 
 
-                            Toast.makeText( EmployeeLoginMapView.this, "Failed due to : "+response.message(), Toast.LENGTH_SHORT).show();
+
                         }
+
+                        for ( MarkerData point : markerData) {
+                            createMarker(point.getLati(),point.getLongi(), point.getTitle(), point.getPerson());
+                        }
+
+                        if(markerData!=null&&markerData.size()!=0){
+                            LatLng latlng = new LatLng(markerData.get(0).getLati(),markerData.get(0).getLongi());
+
+                            if (MarkerPoints.size() > 2) {
+                                LatLng origin = MarkerPoints.get(0);
+                                LatLng dest = MarkerPoints.get(3);
+
+                                // Getting URL to the Google Directions API
+                                String url = getUrl(origin, dest);
+                                Log.d("onMapClick", url);
+                                FetchUrl FetchUrl = new FetchUrl();
+
+                                // Start downloading json data from Google Directions API
+                                FetchUrl.execute(url);
+                                //move map camera
+                                mMap.moveCamera(CameraUpdateFactory.newLatLng(origin));
+                                mMap.animateCamera(CameraUpdateFactory.zoomTo(11));
+                            }
+
+
+                            CameraPosition cameraPosition = new CameraPosition.Builder().zoom(10).target(latlng).build();
+                            mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+                        }
+
+
+
+                    }else{
+
                     }
 
-                    @Override
-                    public void onFailure( Call<ArrayList< LoginDetails >> call, Throwable t) {
-                        // Log error here since request failed
-                        if (progressDialog != null&&progressDialog.isShowing())
-                            progressDialog.dismiss();
-                        Log.e("TAG", t.toString());
-                    }
-                });
+                }else {
+
+
+                    Toast.makeText( EmployeeLoginMapView.this, "Failed due to : "+response.message(), Toast.LENGTH_SHORT).show();
+                }
             }
 
-
+            @Override
+            public void onFailure( Call<ArrayList< LoginDetails >> call, Throwable t) {
+                // Log error here since request failed
+                if (progressDialog != null&&progressDialog.isShowing())
+                    progressDialog.dismiss();
+                Log.e("TAG", t.toString());
+            }
         });
     }
 

@@ -3,22 +3,16 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:card-view="http://schemas.android.com/apk/res-auto"
-    xmlns:card_view="http://schemas.android.com/tools"
     android:focusable="false"
-    tools:context=".UI.NewAdminDesigns.LeaveDashBoardAdminScreen">
+    tools:context=".ui.NewAdminDesigns.LeaveDashBoardAdminScreen">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:focusable="false"
         android:focusableInTouchMode="true"
-        android:orientation="vertical">
-
-
-
-
+        android:orientation="vertical"
+        tools:ignore="UselessParent">
 
         <androidx.core.widget.NestedScrollView
             android:layout_width="match_parent"
@@ -26,260 +20,299 @@
             android:id="@+id/scroll_view"
             android:focusable="false"
             android:scrollbars="none">
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical">
+                android:orientation="vertical"
+                android:layout_margin="5dp">
 
-
+                <!--<include
+                    layout="@layout/divider_grey"/>-->
+            <androidx.cardview.widget.CardView
+                xmlns:card_view="http://schemas.android.com/apk/res-auto"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:id="@+id/profileLayout"
+                android:orientation="vertical"
+                tools:ignore="PrivateResource">
 
                 <LinearLayout
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:layout_margin="4dp"
-                    android:layout_marginBottom="4dp">
-                    <de.hdodenhof.circleimageview.CircleImageView
-                        android:id="@+id/employee_pic"
-                        android:layout_width="36dp"
-                        android:layout_height="36dp"
-                        android:src="@drawable/profile"/>
-                    <TextView
-                        android:textColor="@color/text_grey"
+                    android:orientation="vertical">
+
+                    <LinearLayout
                         android:gravity="center_vertical"
-                        android:id="@+id/name"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginLeft="8dp"
-                        android:text="Name"
-                        android:textSize="18dp"
-                        android:layout_weight="1"/>
+                        android:orientation="horizontal"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_margin="4dp"
+                        android:layout_marginBottom="4dp">
 
-                </LinearLayout>
+                        <de.hdodenhof.circleimageview.CircleImageView
+                            android:id="@+id/employee_pic"
+                            android:layout_width="50dp"
+                            android:layout_height="50dp"
+                            android:src="@drawable/ic_account_circle_black"/>
 
-                <LinearLayout android:gravity="center"
-                    android:orientation="horizontal"
-                    android:id="@+id/linearLayout"
-                    android:layout_width="match_parent"
-                    android:layout_height="48dp"
-                    android:layout_marginLeft="8dp"
-                    android:layout_marginRight="8dp">
-                    <ImageView
-                        android:id="@+id/previousDay"
-                        android:layout_width="32dp"
-                        android:layout_height="32dp"
-                        android:src="@drawable/back_arrow"
-                        android:contentDescription="TODO" />
-                    <TextView
-                        android:textColor="@color/colorPrimary"
+                        <TextView
+                            android:textColor="@color/text_grey"
+                            android:gravity="center_vertical"
+                            android:id="@+id/name"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="8dp"
+                            android:textStyle="bold"
+                            android:textColorHint="@color/grey"
+                            android:textSize="20sp"
+                            android:layout_weight="1"
+                            android:textAppearance="@style/Base.TextAppearance.AppCompat.Title"/>
+
+                    </LinearLayout>
+
+                    <LinearLayout
                         android:gravity="center"
-                        android:id="@+id/presentDate"
-                        android:layout_width="0dp"
+                        android:orientation="horizontal"
+                        android:id="@+id/linearLayout"
+                        android:layout_width="match_parent"
+                        android:layout_height="48dp"
+                        android:layout_marginLeft="8dp"
+                        android:layout_marginRight="8dp">
+
+                        <ImageView
+                            android:id="@+id/previousDay"
+                            android:layout_width="32dp"
+                            android:layout_height="32dp"
+                            android:src="@drawable/back_arrow"
+                            android:contentDescription="@string/todo" />
+
+                        <TextView
+                            android:textColor="@color/colorPrimary"
+                            android:gravity="center"
+                            android:id="@+id/presentDate"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:text="@string/current_day"
+                            android:layout_weight="1"
+                            android:textSize="16sp"
+                            android:textAppearance="@style/Base.TextAppearance.AppCompat.Title"/>
+
+                        <ImageView
+                            android:id="@+id/nextDay"
+                            android:layout_width="32dp"
+                            android:layout_height="32dp"
+                            android:src="@drawable/front_arrow"
+                            android:contentDescription="@string/todo" />
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Current Day"
-                        android:layout_weight="1"/>
-                    <ImageView
-                        android:id="@+id/nextDay"
-                        android:layout_width="32dp"
-                        android:layout_height="32dp"
-                        android:src="@drawable/front_arrow"
-                        android:contentDescription="TODO" />
+                        android:orientation="horizontal"
+                        android:layout_marginTop="16dp"
+                        android:baselineAligned="false">
+
+                        <LinearLayout
+                            android:layout_weight="1"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical">
+                            <TextView
+                                android:id="@+id/paid_leaves"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="@string/_0"
+                                android:textSize="25sp"
+                                android:textColor="#009293"
+                                android:gravity="center"
+                                android:textStyle="bold"
+                                android:textAppearance="@style/Base.TextAppearance.AppCompat.Title"/>
+                            <TextView
+                                android:id="@+id/bookmark"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="@string/paid"
+                                android:textSize="16sp"
+                                android:textColor="@color/grey"
+                                android:gravity="center"
+                                android:textAppearance="@style/Base.TextAppearance.AppCompat.Title"/>
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_weight="1"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical">
+                            <TextView
+                                android:id="@+id/un_paid_leaves"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="@string/_0"
+                                android:textSize="25sp"
+                                android:textColor="#009293"
+                                android:gravity="center"
+                                android:textStyle="bold"
+                                android:textAppearance="@style/Base.TextAppearance.AppCompat.Title"/>
+
+                            <TextView
+                                android:id="@+id/channel"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="@string/un_paid"
+                                android:textSize="16sp"
+                                android:textColor="@color/grey"
+                                android:gravity="center"
+                                android:textAppearance="@style/Base.TextAppearance.AppCompat.Title"/>
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_weight="1"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical">
+                            <TextView
+                                android:id="@+id/total_leaves"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="@string/_0"
+                                android:textSize="25sp"
+                                android:textColor="#009293"
+                                android:gravity="center"
+                                android:textStyle="bold"
+                                android:textAppearance="@style/Base.TextAppearance.AppCompat.Title"/>
+                            <TextView
+                                android:id="@+id/comment"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="@string/total"
+                                android:textColor="@color/grey"
+                                android:textSize="16sp"
+                                android:gravity="center"
+                                android:textAppearance="@style/Base.TextAppearance.AppCompat.Title"/>
+                        </LinearLayout>
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginTop="16dp"
+                        android:layout_marginBottom="16dp"
+                        android:baselineAligned="false">
+
+                        <LinearLayout
+                            android:layout_weight="1"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical">
+                            <TextView
+                                android:id="@+id/approved_leaves"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="@string/_0"
+                                android:textSize="25sp"
+                                android:textColor="#009293"
+                                android:gravity="center"
+                                android:textStyle="bold"
+                                android:textAppearance="@style/Base.TextAppearance.AppCompat.Title"/>
+                            <TextView
+                                android:id="@+id/bookmark_approved"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="@string/approved"
+                                android:textSize="16sp"
+                                android:textColor="@color/grey"
+                                android:gravity="center"
+                                android:textAppearance="@style/Base.TextAppearance.AppCompat.Title"/>
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_weight="1"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:id="@+id/rejected_leaves"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="@string/_0"
+                                android:textSize="25sp"
+                                android:textColor="#009293"
+                                android:gravity="center"
+                                android:textStyle="bold"
+                                android:textAppearance="@style/Base.TextAppearance.AppCompat.Title"/>
+
+                            <TextView
+                                android:id="@+id/channel_rejected"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="@string/rejected"
+                                android:textColor="@color/grey"
+                                android:textSize="16sp"
+                                android:gravity="center"
+                                android:textAppearance="@style/Base.TextAppearance.AppCompat.Title"/>
+
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_weight="1"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:id="@+id/pending_leaves"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="@string/_0"
+                                android:textSize="25sp"
+                                android:textColor="#009293"
+                                android:gravity="center"
+                                android:textStyle="bold"
+                                android:textAppearance="@style/Base.TextAppearance.AppCompat.Title"/>
+
+                            <TextView
+                                android:id="@+id/comment_pending"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="@string/pending"
+                                android:textColor="@color/grey"
+                                android:textSize="16sp"
+                                android:gravity="center"
+                                android:textAppearance="@style/Base.TextAppearance.AppCompat.Title"/>
+
+                        </LinearLayout>
+
+                    </LinearLayout>
+
                 </LinearLayout>
-                <include
-                    layout="@layout/divider_grey"/>
 
+            </androidx.cardview.widget.CardView>
 
-
-                <LinearLayout
+                <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:layout_marginTop="16dp">
-
-                    <LinearLayout
-                        android:layout_weight="1"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical">
-                        <TextView
-                            android:id="@+id/paid_leaves"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="0"
-                            android:textSize="25dp"
-                            android:textColor="#009293"
-                            android:gravity="center"
-                            android:textStyle="bold"/>
-                        <TextView
-                            android:id="@+id/bookmark"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="Paid"
-                            android:textColor="#000"
-                            android:gravity="center"/>
-                    </LinearLayout>
-
-                    <LinearLayout
-                        android:layout_weight="1"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical">
-                        <TextView
-                            android:id="@+id/un_paid_leaves"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="0"
-                            android:textSize="25dp"
-                            android:textColor="#009293"
-                            android:gravity="center"
-                            android:textStyle="bold"
-                            />
-                        <TextView
-                            android:id="@+id/channel"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="Un paid"
-                            android:textColor="#000"
-                            android:gravity="center"/>
-                    </LinearLayout>
-
-                    <LinearLayout
-                        android:layout_weight="1"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical">
-                        <TextView
-                            android:id="@+id/total_leaves"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="0"
-                            android:textSize="25dp"
-                            android:textColor="#009293"
-                            android:gravity="center"
-                            android:textStyle="bold"/>
-                        <TextView
-                            android:id="@+id/comment"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="Total"
-                            android:textColor="#000"
-                            android:gravity="center"/>
-                    </LinearLayout>
-
-
-
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:layout_marginTop="16dp">
-
-                    <LinearLayout
-                        android:layout_weight="1"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical">
-                        <TextView
-                            android:id="@+id/approved_leaves"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="0"
-                            android:textSize="25dp"
-                            android:textColor="#009293"
-                            android:gravity="center"
-                            android:textStyle="bold"/>
-                        <TextView
-                            android:id="@+id/bookmark_approved"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="Approved"
-                            android:textColor="#000"
-                            android:gravity="center"/>
-                    </LinearLayout>
-
-                    <LinearLayout
-                        android:layout_weight="1"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical">
-                        <TextView
-                            android:id="@+id/rejected_leaves"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="0"
-                            android:textSize="25dp"
-                            android:textColor="#009293"
-                            android:gravity="center"
-                            android:textStyle="bold"
-                            />
-                        <TextView
-                            android:id="@+id/channel_rejected"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="Rejected"
-                            android:textColor="#000"
-                            android:gravity="center"/>
-                    </LinearLayout>
-
-                    <LinearLayout
-                        android:layout_weight="1"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical">
-                        <TextView
-                            android:id="@+id/pending_leaves"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="0"
-                            android:textSize="25dp"
-                            android:textColor="#009293"
-                            android:gravity="center"
-                            android:textStyle="bold"/>
-                        <TextView
-                            android:id="@+id/comment_pending"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="Pending"
-                            android:textColor="#000"
-                            android:gravity="center"/>
-                    </LinearLayout>
-
-
-
-                </LinearLayout>
-
-
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="0.3dp"
-                    android:background="#99A1AC"
-                    android:layout_marginTop="5dp"/>
-
-                <app.zingo.mysolite.Custom.MyRegulerText
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:textSize="14sp"
-
-                    android:layout_below="@+id/cardview_data_count"
-                    android:gravity="left"
-                    android:text="Leaves"
-                    android:paddingLeft="10dp"
+                    android:textSize="16sp"
+                    android:gravity="start"
+                    android:text="@string/leaves"
                     android:paddingTop="10dp"
-                    android:textColor="#000"
-                    />
+                    android:textColor="@color/grey"
+                    android:textAppearance="@style/Base.TextAppearance.AppCompat.Title"/>
 
                 <LinearLayout
                     android:gravity="center"
                     android:orientation="vertical"
                     android:id="@+id/noRecordFound"
+                    android:visibility="gone"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="40dp"
+                    tools:ignore="UseCompoundDrawables">
 
-                    android:layout_below="@+id/linearLayout2">
                     <ImageView
                         android:id="@+id/imageView2"
                         android:background="@color/white"
@@ -288,15 +321,18 @@
                         android:src="@drawable/search"
                         android:minHeight="100dp"
                         android:alpha="0.7"
-                        android:contentDescription="TODO" />
+                        android:contentDescription="@string/todo" />
+
                     <TextView
-                        android:textSize="15sp"
+                        android:textSize="16sp"
                         android:textColor="@color/text_grey"
                         android:gravity="center_horizontal"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="No Leaves Found"/>
+                        android:text="@string/no_leaves_found"/>
+
                 </LinearLayout>
+
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/leaves_list_dash"
                     android:focusable="false"
@@ -304,7 +340,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"/>
 
-                <app.zingo.mysolite.Custom.MyRegulerText
+                <TextView
                     android:id="@+id/read_leaves"
                     android:layout_weight="1"
                     android:layout_width="150dp"
@@ -315,20 +351,14 @@
                     android:textAlignment="center"
                     android:gravity="center"
                     android:focusable="false"
-                    android:layout_gravity="right"
+                    android:layout_gravity="start"
                     android:padding="5dp"
-                    android:text="Read More"
-                    android:textSize="22dp"
-                    android:textColor="@color/white"
-                    />
-
-
-
-
-
-
+                    android:text="@string/read_more"
+                    android:textSize="22sp"
+                    android:textColor="@color/white" />
 
             </LinearLayout>
+
         </androidx.core.widget.NestedScrollView>
 
     </LinearLayout>

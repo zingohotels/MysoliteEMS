@@ -118,7 +118,7 @@ public class SubCategoryDetailScreen extends AppCompatActivity {
 
             if(category!=null){
                 collapsingToolbarLayout.setTitle(""+category.getStockSubCategoryName ());
-                Picasso.with(SubCategoryDetailScreen.this).load(category.getStockSubCategoryImage ()).placeholder(R.drawable.no_image).
+                Picasso.get ().load(category.getStockSubCategoryImage ()).placeholder(R.drawable.no_image).
                         error(R.drawable.no_image).into(collapsingToolbarImageView);
                 mCateDes.setText("About "+category.getStockSubCategoryName ());
 
@@ -146,7 +146,7 @@ public class SubCategoryDetailScreen extends AppCompatActivity {
 
             }else{
                 collapsingToolbarLayout.setTitle("Category Detail");
-                Picasso.with(SubCategoryDetailScreen.this).load(category.getStockSubCategoryImage ()).placeholder(R.drawable.no_image).
+                Picasso.get ().load(category.getStockSubCategoryImage ()).placeholder(R.drawable.no_image).
                         error(R.drawable.no_image).into(collapsingToolbarImageView);
             }
 
@@ -386,7 +386,7 @@ public class SubCategoryDetailScreen extends AppCompatActivity {
                     String cateIma = dto.getStockItemImage();
 
                     if(cateIma!=null&&!cateIma.isEmpty()){
-                        Picasso.with(context).load(cateIma).placeholder(R.drawable.no_image).
+                        Picasso.get ().load(cateIma).placeholder(R.drawable.no_image).
                                 error(R.drawable.no_image).into(holder.mCaeImg);
                     }
                 }

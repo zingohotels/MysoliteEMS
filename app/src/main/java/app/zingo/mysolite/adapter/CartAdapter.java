@@ -50,7 +50,7 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.ViewHolder> {
                 holder.txt_product_name.setText (items.get (position).getStockItemName ());
                 holder.txt_quantity.setText ("Quantity: "+items.get (position).getQuantity ());
 
-                Picasso.with (context).load (items.get (position).getStockItemImage ()).into (holder.img_product);
+                Picasso.get ().load (items.get (position).getStockItemImage ()).into (holder.img_product);
             }
             else{
 
@@ -58,7 +58,7 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.ViewHolder> {
                 holder.txt_product_name.setText (items.get (position).getStockItemName ());
                 holder.txt_quantity.setText ("Quantity: "+items.get (position).getQuantity ());
 
-                Picasso.with (context).load (items.get (position).getStockItemImage ()).into (holder.img_product);
+                Picasso.get ().load (items.get (position).getStockItemImage ()).into (holder.img_product);
 
             }
 

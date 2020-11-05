@@ -1,5 +1,7 @@
-<resources>
-    <string name="app_name">Mysolite Anjana</string>
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <string name="app_name" tools:ignore="PrivateResource">Mysolite Anjana</string>
+    <string name="place_api_key" >AIzaSyC-BYCFrpXUa4CI-H9fRqWEc0-I_ylk31k</string>
+    <string name="default_notification_channel_id" translatable="false">Channel Id</string>
 
     <!--Custom Font Type imported,refer main->assets->font folder-->
     <string name="ColonnaMT">ColonnaMT</string>
@@ -249,7 +251,7 @@
     <string name="delete_title">Delete Calendar?</string>
     <string name="yes">Yes</string>
     <string name="no">No</string>
-    <string name="error">Error</string>
+    <string name="error">Error !</string>
     <string name="error_format">[Error] %s</string>
 
     <string name="barcode_reader">QrCode Reader</string>
@@ -298,7 +300,6 @@
     <string name="pref_previously_started">FirstTimeSplash</string>
     <string name="hide_password">Hide Password</string>
     <string name="show_password">Show Password</string>
-    <string name="todo">TODO</string>
     <string name="sign_in">Sign in</string>
     <string name="support">Support</string>
     <string name="e_mail_user_name">E-mail/User name</string>
@@ -323,11 +324,9 @@
     <string name="live_tracking">Live Tracking</string>
     <string name="task">Task</string>
     <string name="expenses">Expenses</string>
-    <string name="leaves">Leaves</string>
     <string name="meetings">Meetings</string>
     <string name="my_team">My Team</string>
     <string name="reports">Reports</string>
-    <string name="department">Department</string>
     <string name="employees">Employees</string>
     <string name="customer_client">Customer/Client</string>
     <string name="orders">Orders</string>
@@ -349,4 +348,81 @@
     <string name="give_desc_brand">Give Description of the Brand*</string>
 
     <string name="dialog_title">Do you want to do?</string>
+    <string name="version">Ver:</string>
+
+    <string name="default_message">Message here</string>
+    <string name="client_name">Client Name</string>
+    <string name="client_contact_number">Client Contact Number</string>
+    <string name="client_email">Client Email</string>
+    <string name="submit">Submit</string>
+    <string name="show_on_map">Show on map</string>
+    <string name="to_report">To report</string>
+    <string name="location">Location</string>
+    <string name="latitude">Latitude</string>
+    <string name="longitude">Longitude</string>
+    <string name="department">Department</string>
+    <string name="choose_image">Choose Image !</string>
+    <string name="pick_from_gallary">Pick from gallary</string>
+    <string name="click_from_camera">Click from camera</string>
+    <string name="remove_image">Remove Image</string>
+    <string name="please_check_your_internet_connection">Please check your internet
+        connection</string>
+    <string name="admin">Admin</string>
+    <string name="employee_name">Employee Name *</string>
+    <string name="other">Others</string>
+    <string name="male">Male</string>
+    <string name="female">Female</string>
+    <string name="primary_organization_email_id">Primary/Organization Email Id *</string>
+    <string name="alternate_email_id_optional">Alternate Email Id(Optional)</string>
+    <string name="mobile_number">Mobile Number *</string>
+    <string name="salary_astric">Salary *</string>
+    <string name="password_astric">Password *</string>
+    <string name="shift">Shift</string>
+    <string name="designation">Designation *</string>
+    <string name="con_password_astric">Confirm Password *</string>
+    <string name="create_employee">Create Employee</string>
+    <string name="address_optional">Address(Optional)</string>
+    <string name="fields_are_mandatory_astric">* Fields are Mandatory</string>
+    <string name="dob">DOB *</string>
+    <string name="doj">DOJ *</string>
+    <string name="department_name">Department Name</string>
+    <string name="description">Description</string>
+    <string name="create_department">Create Department</string>
+    <string name="address">Address</string>
+    <string name="check_in_location">Check-in Location</string>
+    <string name="check_in_time">Check-in Time</string>
+    <string name="check_in_with_location">Check-in Location (If Checked Employee has to Check-in
+        from Office Only)</string>
+    <string name="check_in_with_time" >Check-in Time (If Checked Employee has to Check-in within
+        Office Check-in Hours only)</string>
+    <string name="retailers">Retailers</string>
+    <string name="stocks">Stocks</string>
+    <string name="no_employees_added">No Employees added.</string>
+    <string name="absent">Absent</string>
+    <string name="present">Present</string>
+    <string name="_0">0</string>
+    <string name="todo">TODO</string>
+    <string name="current_day">Current Day</string>
+    <string name="pending">Pending</string>
+    <string name="paid">Paid</string>
+    <string name="un_paid">Un paid</string>
+    <string name="total">Total</string>
+    <string name="rejected">Rejected</string>
+    <string name="no_leaves_found">No Leaves Found</string>
+    <string name="read_more">Read More</string>
+    <string name="leaves">Leaves</string>
+    <string name="approved">Approved</string>
+    <string name="p">P</string>
+    <string name="contact">Contact : </string>
+    <string name="call">Call : </string>
+    <string name="email">Email : </string>
+    <string name="leave_type">Leave Type</string>
+    <string name="leave_status">Leave Status</string>
+    <string name="from">From</string>
+    <string name="to">To</string>
+    <string name="leave_comment">Leave Comment</string>
+    <string name="update_leave">Update Leave</string>
+    <string name="task_name">Task Name</string>
+    <string name="crash_toast_text">App Crashed</string>
+    <string name="ok">Ok</string>
 </resources>

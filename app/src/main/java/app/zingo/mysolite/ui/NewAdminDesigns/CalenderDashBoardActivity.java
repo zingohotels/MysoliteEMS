@@ -8,6 +8,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
+import android.os.BatteryManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -54,6 +55,8 @@ import app.zingo.mysolite.ui.Common.ReportManagementScreen;
 import app.zingo.mysolite.ui.Employee.CreateEmployeeScreen;
 import app.zingo.mysolite.ui.Employee.EmployeeListScreen;
 import app.zingo.mysolite.ui.landing.InternalServerErrorScreen;
+import app.zingo.mysolite.utils.BaseActivity;
+import app.zingo.mysolite.utils.Const;
 import app.zingo.mysolite.utils.PreferenceHandler;
 import app.zingo.mysolite.utils.Util;
 import app.zingo.mysolite.WebApi.DepartmentApi;
@@ -72,7 +75,7 @@ import uk.co.deanwild.materialshowcaseview.MaterialShowcaseView;
 import uk.co.deanwild.materialshowcaseview.ShowcaseConfig;
 import uk.co.deanwild.materialshowcaseview.ShowcaseTooltip;
 
-public class CalenderDashBoardActivity extends AppCompatActivity {
+public class CalenderDashBoardActivity extends BaseActivity {
     final String TAG = "Employer Dash";
     View layout;
     RecyclerView mTaskList,mLiveList,mMeetingList;
@@ -321,8 +324,12 @@ public class CalenderDashBoardActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
-                Intent employee = new Intent(getApplicationContext(), EmployeeUpdateListScreen.class);
-                startActivity(employee);
+                /*Intent employee = new Intent(getApplicationContext(), EmployeeUpdateListScreen.class);
+                startActivity(employee);*/
+                Intent intent = new Intent(CalenderDashBoardActivity.this, EmployeeListScreen.class);
+                //intent.putExtra("viewId", view.getId());
+                intent.putExtra("Type","attendance");
+                startActivity(intent);
 
             }
         });
@@ -442,11 +449,10 @@ public class CalenderDashBoardActivity extends AppCompatActivity {
 
                                 for (Employee emp:list) {
 
-                                    if(emp.getUserRoleId()!=2){
+                                    if(emp.getUserRoleId()!=2&&emp.getUserRoleId()!=8&&emp.getUserRoleId()!=10){
 
                                         allEmployees.add(emp);
                                         employees.add(emp);
-
 
                                         getTasks(emp,new SimpleDateFormat("yyyy-MM-dd").format(date));
                                         getApprovedLeaveDetails(emp.getEmployeeId(),emp);
@@ -460,6 +466,7 @@ public class CalenderDashBoardActivity extends AppCompatActivity {
                                         LiveTracking lv = new LiveTracking();
                                         lv.setEmployeeId(emp.getEmployeeId());
                                         lv.setTrackingDate(new SimpleDateFormat("MM/dd/yyyy").format(date));
+                                        lv.setBatteryPercentage (String.valueOf ( getBatteryPercentage ()));
                                         getLiveLocation(lv);
 
                                         Meetings md  = new Meetings();
@@ -1345,15 +1352,13 @@ public class CalenderDashBoardActivity extends AppCompatActivity {
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == 1) {
-            if (resultCode == Activity.RESULT_OK) {
-                int updatedPositions = data.getIntExtra("Position",UpdateTaskScreen.ADAPTER_POSITION);
-
-                if(updatedPositions!=-1){
-
-                    mAdapter.notifyItemChanged(updatedPositions);
+        super.onActivityResult ( requestCode , resultCode , data );
+        if ( requestCode == 1 ) {
+            if ( resultCode == Activity.RESULT_OK ) {
+                int updatedPositions = data.getIntExtra ( "Position" , UpdateTaskScreen.ADAPTER_POSITION );
+                if ( updatedPositions != - 1 ) {
+                    mAdapter.notifyItemChanged ( updatedPositions );
                 }
-
             }
         }
     }

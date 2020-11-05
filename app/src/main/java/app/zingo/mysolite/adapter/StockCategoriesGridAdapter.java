@@ -50,8 +50,7 @@ public class StockCategoriesGridAdapter extends BaseAdapter {
     public View getView(final int position, View convertView, ViewGroup parent) {
 
         try{
-            if(convertView == null)
-            {
+            if(convertView == null) {
                 LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
                 convertView = inflater.inflate(R.layout.category_grid_view,parent,false);
             }
@@ -61,9 +60,11 @@ public class StockCategoriesGridAdapter extends BaseAdapter {
             final CardView mainLayout = (CardView) convertView.findViewById(R.id.category_layout);
 
             if(mList.get(position)!=null){
+                if(mList.get(position).getStockCategoryImage ().contains ( "\\" )){
+                   String str = mList.get(position).getStockCategoryImage ().replace("\\", "");;
+                }
                 mSName.setText(""+mList.get ( position ).getStockCategoryName ());
-                Picasso.with(context).load(mList.get(position).getStockCategoryImage ()).placeholder( R.drawable.no_image).
-                        error(R.drawable.no_image).into( mImage);
+                Picasso.get ().load(mList.get(position).getStockCategoryImage ()).placeholder( R.drawable.no_image).error(R.drawable.no_image).into( mImage);
             }
 
             mainLayout.setOnClickListener(new View.OnClickListener() {

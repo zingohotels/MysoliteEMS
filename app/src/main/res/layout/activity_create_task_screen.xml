@@ -30,7 +30,6 @@
             <com.google.android.material.textfield.TextInputLayout
                 android:layout_margin="5dp"
                 android:id="@+id/task_InputLayout"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
                 <com.google.android.material.textfield.TextInputEditText
@@ -38,7 +37,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:textSize="12sp"
-                    android:hint="Task Name" />
+                    android:hint="@string/task_name" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <LinearLayout
@@ -49,7 +48,6 @@
                 <com.google.android.material.textfield.TextInputLayout
                     android:layout_margin="5dp"
                     android:id="@+id/from_date_TextInputEditText"
-                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_weight="1">
@@ -68,7 +66,6 @@
                 <com.google.android.material.textfield.TextInputLayout
                     android:layout_margin="5dp"
                     android:id="@+id/to_date_TextInputEditText"
-                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_weight="1">
@@ -94,7 +91,6 @@
                 <com.google.android.material.textfield.TextInputLayout
                     android:layout_margin="5dp"
                     android:id="@+id/from_time_TextInputEditText"
-                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_weight="1">
@@ -113,7 +109,6 @@
                 <com.google.android.material.textfield.TextInputLayout
                     android:layout_margin="5dp"
                     android:id="@+id/to_time_TextInputEditText"
-                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_weight="1">
@@ -172,7 +167,7 @@
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/task_desc_TextInputEditText"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+               
                 android:layout_width="match_parent"
                 android:layout_margin="5dp"
                 android:layout_height="150dp">
@@ -184,8 +179,7 @@
                     android:textSize="12sp"
                     android:gravity="left"
                     android:lines="5"
-                    android:hint="Description"
-                    android:inputType="text" />
+                    android:hint="Description"/>
             </com.google.android.material.textfield.TextInputLayout>
 
         </LinearLayout>

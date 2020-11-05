@@ -1,4 +1,471 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<?xml version="1.0" encoding="utf-8"?>
+<!--<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".UiTestActivty">
+
+  <RelativeLayout
+      android:layout_width="match_parent"
+      android:layout_height="match_parent">
+
+      <RelativeLayout
+          android:id="@+id/rel1"
+          android:visibility="visible"
+          android:layout_width="match_parent"
+          android:layout_height="45dp"
+          android:layout_marginStart="10dp"
+          android:layout_marginEnd="10dp"
+          android:layout_alignParentTop="true"
+          android:layout_marginTop="10dp"
+          android:background="@color/white">
+
+          <ImageView
+              android:layout_width="45dp"
+              android:layout_height="45dp"
+              android:layout_alignParentStart="true"
+              android:src="@drawable/left_arrow"
+              android:scaleType="centerCrop"
+              android:padding="10dp"/>
+
+          <ImageView
+              android:layout_width="45dp"
+              android:layout_height="45dp"
+              android:layout_alignParentEnd="true"
+              android:src="@android:drawable/ic_menu_search"
+              android:scaleType="centerCrop"
+              android:padding="10dp"/>
+
+      </RelativeLayout>
+
+      <RelativeLayout
+          android:id="@+id/rel2"
+          android:layout_below="@+id/rel1"
+          android:layout_width="match_parent"
+          android:layout_height="170dp"
+          android:layout_alignParentTop="true"
+          android:layout_marginTop="-1.5dp"
+          android:layout_marginEnd="-1.5dp">
+
+          <TextView
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:layout_centerVertical="true"
+              android:layout_marginStart="70dp"
+              android:text="Material Design"
+              android:textColor="@color/black"
+              android:textSize="20dp"
+              android:textStyle="bold" />
+
+      </RelativeLayout>
+
+      <RelativeLayout
+          android:id="@+id/rel3"
+          android:layout_below="@+id/rel2"
+          android:layout_width="match_parent"
+          android:layout_height="200dp"
+          android:background="@drawable/pearl2_background">
+
+          <RelativeLayout
+              android:id="@+id/rel4"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:layout_marginTop="0dp">
+
+              <RelativeLayout
+                  android:layout_width="match_parent"
+                  android:layout_height="50dp"
+                  android:layout_marginStart="35dp"
+                  android:layout_marginEnd="35dp">
+
+                  <app.zingo.mysolite.Custom.RoundImageView
+                      android:id="@+id/pro1"
+                      android:layout_width="50dp"
+                      android:layout_height="50dp"
+                      android:background="@drawable/profile"
+                      android:scaleType="centerCrop" />
+
+                  <LinearLayout
+                      android:layout_width="wrap_content"
+                      android:layout_height="wrap_content"
+                      android:orientation="vertical"
+                      android:layout_toEndOf="@+id/pro1"
+                      android:layout_marginStart="20dp">
+
+                      <TextView
+                          android:layout_width="wrap_content"
+                          android:layout_height="wrap_content"
+                          android:text="Surendra Pal"
+                          android:textColor="@color/black"
+                          android:textStyle="bold"
+                          android:textSize="18sp"/>
+
+                      <TextView
+                          android:layout_width="wrap_content"
+                          android:layout_height="wrap_content"
+                          android:text="Now"
+                          android:textColor="@android:color/darker_gray"
+                          android:textStyle="bold"
+                          android:textSize="12sp"/>
+
+                  </LinearLayout>
+
+                  <ImageView
+                      android:layout_width="20dp"
+                      android:layout_height="20dp"
+                      android:background="@drawable/down_arrow_location"
+                      android:layout_alignParentEnd="true"
+                      android:padding="90dp"/>
+              </RelativeLayout>
+
+          </RelativeLayout>
+
+          <LinearLayout
+              android:layout_below="@id/rel4"
+              android:layout_marginTop="10dp"
+              android:layout_marginStart="16dp"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:orientation="vertical">
+
+              <TextView
+                  android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"
+                  android:layout_marginStart="30dp"
+                  android:text="Hello How are you"/>
+
+              <TextView
+                  android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"
+                  android:layout_marginStart="30dp"
+                  android:text="Hello How are you"/>
+          </LinearLayout>
+
+          <LinearLayout
+              android:layout_width="match_parent"
+              android:layout_height="25dp"
+              android:layout_alignParentBottom="true"
+              android:layout_alignParentEnd="true"
+              android:background="@drawable/pearl2_background"
+              android:layout_marginEnd="40dp"
+              android:gravity="end"
+              android:layout_marginTop="40dp"
+              android:orientation="horizontal">
+
+              <TextView
+                  android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"
+                  android:text="421"
+                  android:textStyle="bold"
+                  android:textSize="14sp"
+                  android:layout_gravity="center_vertical"/>
+
+              <ImageView
+                  android:layout_width="30dp"
+                  android:layout_height="30dp"
+                  android:background="@drawable/comments"
+                  android:layout_marginStart="7dp"
+                  android:layout_gravity="center_vertical"
+                  android:scaleType="centerCrop"/>
+
+              <TextView
+                  android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"
+                  android:text="421"
+                  android:textStyle="bold"
+                  android:textSize="14sp"
+                  android:layout_gravity="center_vertical"/>
+
+
+              <ImageView
+                  android:layout_width="20dp"
+                  android:layout_height="20dp"
+                  android:background="@drawable/ic_favorite_border"
+                  android:layout_marginStart="7dp"
+                  android:layout_gravity="center_vertical"
+                  android:scaleType="centerCrop"/>
+
+          </LinearLayout>
+
+      </RelativeLayout>
+
+      <RelativeLayout
+          android:layout_marginTop="310dp"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content">
+
+          <RelativeLayout
+              android:layout_width="match_parent"
+              android:layout_height="310dp"
+              android:background="@drawable/pearl3_background"
+              android:layout_marginTop="-70dp">
+
+          </RelativeLayout>
+
+      </RelativeLayout>
+
+  </RelativeLayout>
+
+</RelativeLayout>-->
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+xmlns:app="http://schemas.android.com/apk/res-auto"
+xmlns:tools="http://schemas.android.com/tools"
+android:layout_width="match_parent"
+android:layout_height="match_parent"
+tools:context=".UiTestActivty"
+android:background="@mipmap/login">
+
+<Button
+    android:id="@+id/btnLogin"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="8dp"
+    android:layout_marginEnd="8dp"
+    android:layout_marginTop="8dp"
+    android:background="@drawable/loginbuttonshape"
+    android:text="Login"
+    app:layout_constraintBottom_toBottomOf="parent"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintHorizontal_bias="0.0"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toTopOf="parent"
+    app:layout_constraintVertical_bias="0.43" />
+
+<Button
+    android:id="@+id/btnSignup"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="8dp"
+    android:layout_marginEnd="8dp"
+    android:layout_marginTop="8dp"
+    android:background="@drawable/signupbuttonshape"
+    android:text="Signup"
+    android:textColor="@android:color/black"
+    app:layout_constraintBottom_toBottomOf="parent"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintHorizontal_bias="0.0"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toBottomOf="@+id/btnLogin"
+    app:layout_constraintVertical_bias="0.053" />
+
+<ImageView
+    android:id="@+id/imageView"
+    android:layout_width="50dp"
+    android:layout_height="50dp"
+    android:layout_marginBottom="8dp"
+    android:layout_marginEnd="8dp"
+    android:layout_marginLeft="16dp"
+    android:layout_marginStart="8dp"
+    android:layout_marginTop="8dp"
+    app:layout_constraintBottom_toBottomOf="parent"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintHorizontal_bias="0.023"
+    app:layout_constraintLeft_toLeftOf="parent"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toBottomOf="@+id/btnSignup"
+    app:layout_constraintVertical_bias="0.05"
+    app:srcCompat="@mipmap/facebook" />
+
+<ImageView
+    android:id="@+id/imageView2"
+    android:layout_width="50dp"
+    android:layout_height="50dp"
+    android:layout_marginBottom="8dp"
+    android:layout_marginEnd="8dp"
+    android:layout_marginLeft="16dp"
+    android:layout_marginStart="8dp"
+    android:layout_marginTop="8dp"
+    app:layout_constraintBottom_toBottomOf="parent"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintHorizontal_bias="0.023"
+    app:layout_constraintLeft_toLeftOf="parent"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toBottomOf="@+id/imageView"
+    app:layout_constraintVertical_bias="0.021"
+    app:srcCompat="@mipmap/google" />
+
+<ImageView
+    android:id="@+id/imageView3"
+    android:layout_width="50dp"
+    android:layout_height="50dp"
+    android:layout_marginBottom="8dp"
+    android:layout_marginEnd="8dp"
+    android:layout_marginLeft="16dp"
+    android:layout_marginStart="8dp"
+    android:layout_marginTop="8dp"
+    app:layout_constraintBottom_toBottomOf="parent"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintHorizontal_bias="0.023"
+    app:layout_constraintLeft_toLeftOf="parent"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toBottomOf="@+id/imageView2"
+    app:layout_constraintVertical_bias="0.031"
+    app:srcCompat="@mipmap/twitter" />
+
+<TextView
+    android:id="@+id/textView"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="8dp"
+    android:layout_marginEnd="8dp"
+    android:layout_marginStart="8dp"
+    android:layout_marginTop="8dp"
+    android:text="Mysolite"
+    android:textColor="@android:color/holo_purple"
+    android:textSize="50dp"
+    app:layout_constraintBottom_toBottomOf="parent"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintHorizontal_bias="0.086"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toTopOf="parent"
+    app:layout_constraintVertical_bias="0.029" />
+
+<TextView
+    android:id="@+id/textView2"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="8dp"
+    android:layout_marginEnd="16dp"
+    android:layout_marginRight="16dp"
+    android:layout_marginStart="8dp"
+    android:layout_marginTop="8dp"
+    android:text="Login"
+    android:textSize="35dp"
+    app:layout_constraintBottom_toBottomOf="parent"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintHorizontal_bias="0.513"
+    app:layout_constraintRight_toRightOf="parent"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toTopOf="parent"
+    app:layout_constraintVertical_bias="0.216" />
+
+<EditText
+    android:id="@+id/editText"
+    android:layout_width="wrap_content"
+    android:layout_height="44dp"
+    android:layout_marginBottom="8dp"
+    android:layout_marginEnd="8dp"
+    android:layout_marginStart="8dp"
+    android:layout_marginTop="8dp"
+    android:alpha="0.23"
+    android:background="@drawable/textviewshape"
+    android:ems="10"
+    android:inputType="textPersonName"
+    app:layout_constraintBottom_toBottomOf="parent"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintHorizontal_bias="0.709"
+    app:layout_constraintRight_toRightOf="parent"
+    app:layout_constraintStart_toEndOf="@+id/btnLogin"
+    app:layout_constraintTop_toTopOf="parent"
+    app:layout_constraintVertical_bias="0.427" />
+
+<TextView
+    android:id="@+id/textView3"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="8dp"
+    android:layout_marginEnd="8dp"
+    android:layout_marginStart="8dp"
+    android:layout_marginTop="8dp"
+    android:text="Email"
+    app:layout_constraintBottom_toTopOf="@+id/editText"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintHorizontal_bias="0.235"
+    app:layout_constraintStart_toEndOf="@+id/btnLogin"
+    app:layout_constraintTop_toTopOf="parent"
+    app:layout_constraintVertical_bias="1.0" />
+
+<TextView
+    android:id="@+id/textView4"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="8dp"
+    android:layout_marginEnd="8dp"
+    android:layout_marginStart="8dp"
+    android:layout_marginTop="8dp"
+    android:text="Password"
+    app:layout_constraintBottom_toBottomOf="parent"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintHorizontal_bias="0.261"
+    app:layout_constraintStart_toEndOf="@+id/btnSignup"
+    app:layout_constraintTop_toBottomOf="@+id/editText"
+    app:layout_constraintVertical_bias="0.094" />
+
+<EditText
+    android:id="@+id/editText2"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="8dp"
+    android:layout_marginEnd="8dp"
+    android:layout_marginStart="8dp"
+    android:layout_marginTop="8dp"
+    android:alpha="0.23"
+    android:background="@drawable/textviewshape"
+    android:ems="10"
+    android:inputType="textPersonName"
+    app:layout_constraintBottom_toBottomOf="parent"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintHorizontal_bias="0.688"
+    app:layout_constraintStart_toEndOf="@+id/btnSignup"
+    app:layout_constraintTop_toBottomOf="@+id/textView4"
+    app:layout_constraintVertical_bias="0.003" />
+
+<TextView
+    android:id="@+id/textView5"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="8dp"
+    android:layout_marginEnd="8dp"
+    android:layout_marginStart="8dp"
+    android:layout_marginTop="8dp"
+    android:text="ForgotPassword?"
+    app:layout_constraintBottom_toBottomOf="parent"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintHorizontal_bias="0.39"
+    app:layout_constraintStart_toEndOf="@+id/imageView2"
+    app:layout_constraintTop_toBottomOf="@+id/checkBox"
+    app:layout_constraintVertical_bias="0.152" />
+
+<Button
+    android:id="@+id/button3"
+    android:layout_width="175dp"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="8dp"
+    android:layout_marginEnd="8dp"
+    android:layout_marginStart="8dp"
+    android:layout_marginTop="8dp"
+    android:background="@drawable/buttonshape"
+    android:text="Login"
+    android:textColor="@android:color/black"
+    app:layout_constraintBottom_toBottomOf="parent"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintHorizontal_bias="0.809"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toTopOf="parent"
+    app:layout_constraintVertical_bias="0.905" />
+
+<CheckBox
+    android:id="@+id/checkBox"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_marginStart="8dp"
+    android:layout_marginTop="8dp"
+    android:layout_marginEnd="8dp"
+    android:layout_marginBottom="8dp"
+    android:textSize="12sp"
+    android:textColor="@color/grey_charcoal"
+    android:text="Show Password"
+    app:layout_constraintBottom_toBottomOf="parent"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintHorizontal_bias="0.397"
+    app:layout_constraintStart_toEndOf="@+id/imageView"
+    app:layout_constraintTop_toBottomOf="@+id/editText2"
+    app:layout_constraintVertical_bias="0.025" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
+
+<!--<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -23,7 +490,7 @@
             android:layout_centerInParent="true"
             android:id="@+id/centerImage"/>
 
-       <!-- <ImageView
+       &lt;!&ndash; <ImageView
             android:layout_width="20dp"
             android:layout_height="20dp"
             android:id="@+id/foundDevice"
@@ -33,7 +500,7 @@
             android:layout_marginRight="6dp"
             android:src="@drawable/phone"
             android:visibility="visible"/>
-        -->
+        &ndash;&gt;
     </app.zingo.mysolite.Library.RippleEffect.RippleBackground>
 
     <ImageView
@@ -44,4 +511,4 @@
         android:src="@drawable/phone"
         android:visibility="invisible"/>
 
-</RelativeLayout>
+</RelativeLayout>-->

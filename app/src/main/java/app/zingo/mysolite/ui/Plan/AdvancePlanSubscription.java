@@ -32,7 +32,6 @@ import app.zingo.mysolite.model.OrganizationPayments;
 import app.zingo.mysolite.model.PlanIntentData;
 import app.zingo.mysolite.ui.NewAdminDesigns.PlanSubscribtionScreen;
 import app.zingo.mysolite.utils.PreferenceHandler;
-import app.zingo.mysolite.utils.ThreadExecuter;
 import app.zingo.mysolite.utils.Util;
 import app.zingo.mysolite.WebApi.EmployeeApi;
 import app.zingo.mysolite.WebApi.OrganizationApi;
@@ -265,55 +264,47 @@ public class AdvancePlanSubscription extends AppCompatActivity implements Paymen
     }
 
     public void getCompany(final int id) {
+        final OrganizationApi subCategoryAPI = Util.getClient().create(OrganizationApi.class);
+        Call<ArrayList<Organization>> getProf = subCategoryAPI.getOrganizationById(id);
+        //Call<ArrayList<Blogs>> getBlog = blogApi.getBlogs();
 
-        new ThreadExecuter().execute(new Runnable() {
+        getProf.enqueue(new Callback<ArrayList<Organization>>() {
+
             @Override
-            public void run() {
+            public void onResponse(Call<ArrayList<Organization>> call, Response<ArrayList<Organization>> response) {
 
-                final OrganizationApi subCategoryAPI = Util.getClient().create(OrganizationApi.class);
-                Call<ArrayList<Organization>> getProf = subCategoryAPI.getOrganizationById(id);
-                //Call<ArrayList<Blogs>> getBlog = blogApi.getBlogs();
+                if (response.code() == 200||response.code() == 201||response.code() == 204)
+                {
+                    organization = response.body().get(0);
 
-                getProf.enqueue(new Callback<ArrayList<Organization>>() {
+                    if(organization!=null){
 
-                    @Override
-                    public void onResponse(Call<ArrayList<Organization>> call, Response<ArrayList<Organization>> response) {
-
-                        if (response.code() == 200||response.code() == 201||response.code() == 204)
-                        {
-                            organization = response.body().get(0);
-
-                            if(organization!=null){
-
-                                appType = organization.getAppType();
-                                planType = organization.getPlanType();
-                                startDate = organization.getLicenseStartDate();
-                                endDate = organization.getLicenseEndDate();
+                        appType = organization.getAppType();
+                        planType = organization.getPlanType();
+                        startDate = organization.getLicenseStartDate();
+                        endDate = organization.getLicenseEndDate();
 
 
-                            }else{
-                                Toast.makeText(AdvancePlanSubscription.this, "Something went wrong", Toast.LENGTH_SHORT).show();
-                            }
-
-
-                        }else{
-
-                            Toast.makeText(AdvancePlanSubscription.this, "Something went wrong", Toast.LENGTH_SHORT).show();
-
-                        }
-                    }
-
-                    @Override
-                    public void onFailure(Call<ArrayList<Organization>> call, Throwable t) {
-
+                    }else{
                         Toast.makeText(AdvancePlanSubscription.this, "Something went wrong", Toast.LENGTH_SHORT).show();
-
                     }
-                });
 
+
+                }else{
+
+                    Toast.makeText(AdvancePlanSubscription.this, "Something went wrong", Toast.LENGTH_SHORT).show();
+
+                }
             }
 
+            @Override
+            public void onFailure(Call<ArrayList<Organization>> call, Throwable t) {
+
+                Toast.makeText(AdvancePlanSubscription.this, "Something went wrong", Toast.LENGTH_SHORT).show();
+
+            }
         });
+
     }
 
     private void getEmployees(final int id, final Organization organization, final int plan){
@@ -323,74 +314,66 @@ public class AdvancePlanSubscription extends AppCompatActivity implements Paymen
         progressDialog.setTitle("Loading Employees");
         progressDialog.setCancelable(false);
         progressDialog.show();
+        EmployeeApi apiService = Util.getClient().create(EmployeeApi.class);
+        Call<ArrayList<Employee>> call = apiService.getEmployeesByOrgId(id);
 
-        new ThreadExecuter().execute(new Runnable() {
+        call.enqueue(new Callback<ArrayList<Employee>>() {
             @Override
-            public void run() {
-                EmployeeApi apiService = Util.getClient().create(EmployeeApi.class);
-                Call<ArrayList<Employee>> call = apiService.getEmployeesByOrgId(id);
-
-                call.enqueue(new Callback<ArrayList<Employee>>() {
-                    @Override
-                    public void onResponse(Call<ArrayList<Employee>> call, Response<ArrayList<Employee>> response) {
-                        // Log error here since request failed
-                        if (progressDialog != null&&progressDialog.isShowing())
-                            progressDialog.dismiss();
-                        int statusCode = response.code();
-                        if (statusCode == 200 || statusCode == 201 || statusCode == 203 || statusCode == 204) {
+            public void onResponse(Call<ArrayList<Employee>> call, Response<ArrayList<Employee>> response) {
+                // Log error here since request failed
+                if (progressDialog != null&&progressDialog.isShowing())
+                    progressDialog.dismiss();
+                int statusCode = response.code();
+                if (statusCode == 200 || statusCode == 201 || statusCode == 203 || statusCode == 204) {
 
 
 
-                            ArrayList<Employee> list = response.body();
+                    ArrayList<Employee> list = response.body();
 
 
-                            if (list != null && list.size() != 0) {
+                    if (list != null && list.size() != 0) {
 
-                                emplCount = list.size();
+                        emplCount = list.size();
 
-                                if(plan==3){
+                        if(plan==3){
 
-                                    double amount = emplCount * 95 * 3;
-                                    price = (int)amount;
-                                    organization.setEmployeeLimit(emplCount);
-                                    popupOne(organization,"Advance",amount);
-                                    // Toast.makeText(AdvancePlanSubscription.this, "Rs "+amount, Toast.LENGTH_SHORT).show();
-                                }else if(plan==6){
+                            double amount = emplCount * 95 * 3;
+                            price = (int)amount;
+                            organization.setEmployeeLimit(emplCount);
+                            popupOne(organization,"Advance",amount);
+                            // Toast.makeText(AdvancePlanSubscription.this, "Rs "+amount, Toast.LENGTH_SHORT).show();
+                        }else if(plan==6){
 
-                                    double amount = emplCount * 80 * 6;
-                                    price = (int)amount;
-                                    popupOne(organization,"Advance",amount);
-                                    // Toast.makeText(AdvancePlanSubscription.this, "Rs "+amount, Toast.LENGTH_SHORT).show();
-                                }else if(plan == 12){
-                                    double amount = emplCount * 2.4 * 365;
-                                    price = (int)amount;
-                                    popupOne(organization,"Advance",amount);
-                                    //Toast.makeText(AdvancePlanSubscription.this, "Rs "+amount, Toast.LENGTH_SHORT).show();
-                                }
-
-
-                            }else{
-
-                            }
-                        }else {
-
-
-                            Toast.makeText(AdvancePlanSubscription.this, "Failed due to : " + response.message(), Toast.LENGTH_SHORT).show();
+                            double amount = emplCount * 80 * 6;
+                            price = (int)amount;
+                            popupOne(organization,"Advance",amount);
+                            // Toast.makeText(AdvancePlanSubscription.this, "Rs "+amount, Toast.LENGTH_SHORT).show();
+                        }else if(plan == 12){
+                            double amount = emplCount * 2.4 * 365;
+                            price = (int)amount;
+                            popupOne(organization,"Advance",amount);
+                            //Toast.makeText(AdvancePlanSubscription.this, "Rs "+amount, Toast.LENGTH_SHORT).show();
                         }
-                    }
 
-                    @Override
-                    public void onFailure(Call<ArrayList<Employee>> call, Throwable t) {
-                        // Log error here since request failed
-                        if (progressDialog != null&&progressDialog.isShowing())
-                            progressDialog.dismiss();
 
-                        Log.e("TAG", t.toString());
+                    }else{
+
                     }
-                });
+                }else {
+
+
+                    Toast.makeText(AdvancePlanSubscription.this, "Failed due to : " + response.message(), Toast.LENGTH_SHORT).show();
+                }
             }
 
+            @Override
+            public void onFailure(Call<ArrayList<Employee>> call, Throwable t) {
+                // Log error here since request failed
+                if (progressDialog != null&&progressDialog.isShowing())
+                    progressDialog.dismiss();
 
+                Log.e("TAG", t.toString());
+            }
         });
     }
 

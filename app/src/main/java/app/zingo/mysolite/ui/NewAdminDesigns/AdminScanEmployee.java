@@ -41,7 +41,6 @@ import app.zingo.mysolite.model.LoginDetails;
 import app.zingo.mysolite.model.LoginDetailsNotificationManagers;
 import app.zingo.mysolite.utils.Constants;
 import app.zingo.mysolite.utils.PreferenceHandler;
-import app.zingo.mysolite.utils.ThreadExecuter;
 import app.zingo.mysolite.utils.TrackGPS;
 import app.zingo.mysolite.utils.Util;
 import app.zingo.mysolite.WebApi.LoginDetailsAPI;
@@ -653,108 +652,100 @@ public class AdminScanEmployee extends AppCompatActivity implements ZXingScanner
     }
 
     public void getLoginDetails(final int id,final String employeeName,final int employeeId,final String imei) {
+        final LoginDetailsAPI subCategoryAPI = Util.getClient().create(LoginDetailsAPI.class);
+        Call<LoginDetails> getProf = subCategoryAPI.getLoginById(id);
+        //Call<ArrayList<Blogs>> getBlog = blogApi.getBlogs();
 
-        new ThreadExecuter ().execute( new Runnable() {
+        getProf.enqueue(new Callback<LoginDetails>() {
+
             @Override
-            public void run() {
+            public void onResponse(Call<LoginDetails> call, Response<LoginDetails> response) {
 
-                final LoginDetailsAPI subCategoryAPI = Util.getClient().create(LoginDetailsAPI.class);
-                Call<LoginDetails> getProf = subCategoryAPI.getLoginById(id);
-                //Call<ArrayList<Blogs>> getBlog = blogApi.getBlogs();
+                if (response.code() == 200 || response.code() == 201 || response.code() == 204) {
+                    System.out.println("Inside api");
 
-                getProf.enqueue(new Callback<LoginDetails>() {
+                    final LoginDetails dto = response.body();
 
-                    @Override
-                    public void onResponse(Call<LoginDetails> call, Response<LoginDetails> response) {
+                    if (dto != null) {
 
-                        if (response.code() == 200 || response.code() == 201 || response.code() == 204) {
-                            System.out.println("Inside api");
+                        try {
 
-                            final LoginDetails dto = response.body();
+                            if(locationCheck()) {
 
-                            if (dto != null) {
+                                if (gps.canGetLocation()) {
 
-                                try {
+                                    double longi = gps.getLongitude();
+                                    double lati = gps.getLatitude();
 
-                                    if(locationCheck()) {
+                                    SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy");
+                                    SimpleDateFormat sdt = new SimpleDateFormat("MMM dd,yyyy hh:mm a");
 
-                                        if (gps.canGetLocation()) {
-
-                                            double longi = gps.getLongitude();
-                                            double lati = gps.getLatitude();
-
-                                            SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy");
-                                            SimpleDateFormat sdt = new SimpleDateFormat("MMM dd,yyyy hh:mm a");
-
-                                            LatLng master = new LatLng(lati, longi);
-                                            String address = null;
-                                            try {
-                                                address = getAddress(master);
-                                            } catch (Exception e) {
-                                                e.printStackTrace();
-                                            }
-
-                                            LoginDetails loginDetails = dto;
-                                            loginDetails.setEmployeeId(employeeId);
-                                            loginDetails.setLatitude("" + lati);
-                                            loginDetails.setLongitude("" + longi);
-                                            loginDetails.setPlaceId(dto.getPlaceId()+"&"+imei);
-                                            loginDetails.setLocation("" + address);
-                                            loginDetails.setLogOutTime("" + sdt.format(new Date()));
-                                            // loginDetails.setLoginDate(""+sdf.format(new Date()));
-
-
-
-                                            try {
-                                                LoginDetailsNotificationManagers md = new LoginDetailsNotificationManagers();
-                                                md.setTitle("Login Details from " + employeeName);
-                                                md.setMessage("Log out at  " + "" + sdt.format(new Date()));
-                                                md.setLocation(address);
-                                                md.setLongitude("" + longi);
-                                                md.setLatitude("" + lati);
-                                                md.setLoginDate("" + sdt.format(new Date()));
-                                                md.setStatus("Log out");
-                                                md.setEmployeeId(employeeId);
-                                                md.setManagerId(PreferenceHandler.getInstance( AdminScanEmployee.this).getUserId());
-                                                md.setLoginDetailsId(dto.getLoginDetailsId());
-
-                                                updateLogin(loginDetails,  md);
-
-
-                                            } catch (Exception e) {
-                                                e.printStackTrace();
-                                            }
-
-                                        }
-
+                                    LatLng master = new LatLng(lati, longi);
+                                    String address = null;
+                                    try {
+                                        address = getAddress(master);
+                                    } catch (Exception e) {
+                                        e.printStackTrace();
                                     }
 
+                                    LoginDetails loginDetails = dto;
+                                    loginDetails.setEmployeeId(employeeId);
+                                    loginDetails.setLatitude("" + lati);
+                                    loginDetails.setLongitude("" + longi);
+                                    loginDetails.setPlaceId(dto.getPlaceId()+"&"+imei);
+                                    loginDetails.setLocation("" + address);
+                                    loginDetails.setLogOutTime("" + sdt.format(new Date()));
+                                    // loginDetails.setLoginDate(""+sdf.format(new Date()));
 
 
 
+                                    try {
+                                        LoginDetailsNotificationManagers md = new LoginDetailsNotificationManagers();
+                                        md.setTitle("Login Details from " + employeeName);
+                                        md.setMessage("Log out at  " + "" + sdt.format(new Date()));
+                                        md.setLocation(address);
+                                        md.setLongitude("" + longi);
+                                        md.setLatitude("" + lati);
+                                        md.setLoginDate("" + sdt.format(new Date()));
+                                        md.setStatus("Log out");
+                                        md.setEmployeeId(employeeId);
+                                        md.setManagerId(PreferenceHandler.getInstance( AdminScanEmployee.this).getUserId());
+                                        md.setLoginDetailsId(dto.getLoginDetailsId());
 
-                                } catch (Exception ex) {
-                                    ex.printStackTrace();
+                                        updateLogin(loginDetails,  md);
+
+
+                                    } catch (Exception e) {
+                                        e.printStackTrace();
+                                    }
+
                                 }
 
                             }
 
 
-                        } else {
 
 
-                            //meet
+
+                        } catch (Exception ex) {
+                            ex.printStackTrace();
                         }
-                    }
-
-                    @Override
-                    public void onFailure(Call<LoginDetails> call, Throwable t) {
 
                     }
-                });
 
+
+                } else {
+
+
+                    //meet
+                }
             }
 
+            @Override
+            public void onFailure(Call<LoginDetails> call, Throwable t) {
+
+            }
         });
+
     }
 }

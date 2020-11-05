@@ -13,54 +13,46 @@ public class LoginDetails implements Serializable {
 
     @SerializedName("LoginDetailsId")
     private int LoginDetailsId;
-
     @SerializedName("Latitude")
     private String Latitude;
-
     @SerializedName("Longitude")
     private String Longitude;
-
     @SerializedName("Title")
     private String Title;
-
-
     @SerializedName("Status")
     private String Status;
-
-
     @SerializedName("Location")
     private String Location;
-
     @SerializedName("PlaceId")
     private String PlaceId;
-
     @SerializedName("LoginDate")
     private String LoginDate;
-
     @SerializedName("LoginTime")
     private String LoginTime;
-
     @SerializedName("LogOutTime")
     private String LogOutTime;
 
+    @SerializedName("LogoutLatitude")
+    private String LogoutLatitude;
+
+    @SerializedName("LogoutLongitude")
+    private String LogoutLongitude;
+
+    @SerializedName("LogoutLocation")
+    private String LogoutLocation;
+
     @SerializedName("employees")
     private Employee employees;
-
     @SerializedName("EmployeeId")
     private int EmployeeId;
-
     @SerializedName("IdleTime")
     private String IdleTime;
-
     @SerializedName("WorkedHours")
     private String WorkedHours;
-
     @SerializedName("TotalMeeting")
     private String TotalMeeting;
-
     @SerializedName("MeetingHours")
     private String MeetingHours;
-
     @SerializedName("TravelledDistance")
     private String TravelledDistance;
 
@@ -128,7 +120,30 @@ public class LoginDetails implements Serializable {
     public void setLogOutTime(String logOutTime) {
         LogOutTime = logOutTime;
     }
-
+    public String getLogoutLatitude ( ) {
+        return LogoutLatitude;
+    }
+    public void setLogoutLatitude ( String logoutLatitude ) {
+        LogoutLatitude = logoutLatitude;
+    }
+    public String getLogoutLongitude ( ) {
+        return LogoutLongitude;
+    }
+    public void setLogoutLongitude ( String logoutLongitude ) {
+        LogoutLongitude = logoutLongitude;
+    }
+    public String getLogoutLocation ( ) {
+        return LogoutLocation;
+    }
+    public void setLogoutLocation ( String logoutLocation ) {
+        LogoutLocation = logoutLocation;
+    }
+    public static Comparator getCompareLogin ( ) {
+        return compareLogin;
+    }
+    public static void setCompareLogin ( Comparator compareLogin ) {
+        LoginDetails.compareLogin = compareLogin;
+    }
     public Employee getEmployees() {
         return employees;
     }

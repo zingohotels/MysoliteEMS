@@ -30,7 +30,7 @@
             <com.google.android.material.textfield.TextInputLayout
                 android:layout_margin="5dp"
                 android:id="@+id/expense_title_InputLayout"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
                 <com.google.android.material.textfield.TextInputEditText
@@ -50,7 +50,7 @@
                 <com.google.android.material.textfield.TextInputLayout
                     android:layout_margin="5dp"
                     android:id="@+id/amount_expense_TextInputEditText"
-                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_weight="1">
@@ -68,7 +68,7 @@
                 <com.google.android.material.textfield.TextInputLayout
                     android:layout_margin="5dp"
                     android:id="@+id/to_date_TextInputEditText"
-                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_weight="1">
@@ -94,7 +94,7 @@
                 <android.support.design.widget.TextInputLayout
                     android:layout_margin="5dp"
                     android:id="@+id/from_time_TextInputEditText"
-                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_weight="1">
@@ -112,7 +112,7 @@
                 <android.support.design.widget.TextInputLayout
                     android:layout_margin="5dp"
                     android:id="@+id/to_time_TextInputEditText"
-                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_weight="1">
@@ -137,7 +137,7 @@
 
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/expense_description_TextInputEditText"
-                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+
                     android:layout_width="match_parent"
                     android:layout_margin="5dp"
                     android:layout_height="150dp">

@@ -3,6 +3,7 @@ package app.zingo.mysolite.model;
 import com.google.gson.annotations.SerializedName;
 
 import java.io.Serializable;
+import java.util.Comparator;
 
 /**
  * Created by ZingoHotels Tech on 05-01-2019.
@@ -206,5 +207,12 @@ public class Tasks implements Serializable {
 
     public void setPriority(String priority) {
         Priority = priority;
+    }
+
+    public static class TasksComparator implements Comparator <Tasks> {
+        @Override
+        public int compare(Tasks obj1, Tasks obj2) {
+            return (obj1.TaskId<obj2.TaskId) ? -1 : (obj1.TaskId>obj2.TaskId) ? 1 : 0;
+        }
     }
 }

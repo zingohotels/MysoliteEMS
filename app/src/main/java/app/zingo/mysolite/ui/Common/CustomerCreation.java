@@ -1,7 +1,6 @@
 package app.zingo.mysolite.ui.Common;
-
 import android.Manifest;
-import android.app.ProgressDialog;
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
@@ -18,42 +17,37 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
+import com.google.android.libraries.places.api.Places;
+import com.google.android.libraries.places.api.model.Place;
+import com.google.android.libraries.places.widget.Autocomplete;
+import com.google.android.libraries.places.widget.model.AutocompleteActivityMode;
 import com.google.android.material.textfield.TextInputEditText;
+import androidx.annotation.NonNull;
+import androidx.appcompat.widget.AppCompatTextView;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
-import androidx.appcompat.app.AppCompatActivity;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
-import android.widget.CompoundButton;
-import android.widget.EditText;
 import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.TextView;
-import android.widget.Toast;
-
-import com.afollestad.materialdialogs.MaterialDialog;
 import com.bumptech.glide.Glide;
-import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
-import com.google.android.gms.common.GooglePlayServicesRepairableException;
 import com.google.android.gms.common.api.Status;
-import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.ui.PlaceAutocomplete;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapsInitializer;
-import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.gson.Gson;
 import com.squareup.picasso.Picasso;
-
+import org.jetbrains.annotations.NotNull;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -61,23 +55,27 @@ import java.io.IOException;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.logging.Logger;
-
 import app.zingo.mysolite.Custom.MapViewScroll;
 import app.zingo.mysolite.WebApi.EmployeeApi;
 import app.zingo.mysolite.adapter.ManagerSpinnerAdapter;
 import app.zingo.mysolite.model.Employee;
 import app.zingo.mysolite.utils.Constants;
+import app.zingo.mysolite.utils.NetworkUtil;
 import app.zingo.mysolite.utils.PreferenceHandler;
-import app.zingo.mysolite.utils.ThreadExecuter;
+import app.zingo.mysolite.utils.ProgressBarUtil;
 import app.zingo.mysolite.utils.TrackGPS;
 import app.zingo.mysolite.utils.Util;
 import app.zingo.mysolite.WebApi.UploadApi;
 import app.zingo.mysolite.R;
+import app.zingo.mysolite.utils.ValidationClass;
+import app.zingo.mysolite.utils.ValidationConst;
 import de.hdodenhof.circleimageview.CircleImageView;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
@@ -85,22 +83,20 @@ import okhttp3.RequestBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
+import static app.zingo.mysolite.utils.ValidationConst.FAILES_DUE_TO;
 
-public class CustomerCreation extends AppCompatActivity {
+public class CustomerCreation extends ValidationClass {
     private TextInputEditText mClientName,mClientMobile,mClientMail;
-    private Button mSave;
     private Spinner mtoReport;
     private RelativeLayout mMapLay;
-    private Switch mShow;
-    private EditText  lat, lng;
+    private TextInputEditText  lat, lng;
     private TextView location;
     private GoogleMap mMap;
-    private MapViewScroll mapView;
     private Marker marker;
     private String add;
     private double lati, lngi;
     private DecimalFormat df2 = new DecimalFormat(".##########");
-    public static final int PLACE_AUTOCOMPLETE_REQUEST_CODE = 1;
+    public static final int AUTOCOMPLETE_REQUEST_CODE = 1;
     public String TAG = "MAPLOCATION",placeId;
     private Employee updateCustomers;
     private ArrayList <Employee> employees;
@@ -111,31 +107,38 @@ public class CustomerCreation extends AppCompatActivity {
     private static final int CAMERA_PIC_REQUEST = 1111;
     public static final int MEDIA_TYPE_IMAGE = 1;
     private Uri fileUri;
-    private String mediaPath;
     private String mImageFileLocation = "";
     public static final String IMAGE_DIRECTORY_NAME = "Android File Upload";
     private String postPath;
+    private ProgressBarUtil progressBarUtil;
 
+    @SuppressLint ("SetTextI18n")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         try{
             setContentView(R.layout.activity_customer_creation);
-            getSupportActionBar().setHomeButtonEnabled(true);
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            setTitle("Customer Details");
-            mSave = findViewById(R.id.save);
+            Objects.requireNonNull ( getSupportActionBar ( ) ).setHomeButtonEnabled(true);
+            Objects.requireNonNull ( getSupportActionBar ( ) ).setDisplayHomeAsUpEnabled(true);
+            Objects.requireNonNull ( getSupportActionBar ( ) ).setTitle("Customer Details");
+            progressBarUtil = new ProgressBarUtil ( this );
+            TextView mSave = findViewById ( R.id.save );
             mClientName = findViewById(R.id.client_name);
             mClientMobile = findViewById(R.id.client_contact_number);
             mClientMail = findViewById(R.id.client_contact_email);
-            mapView = findViewById(R.id.task_location_map);
-            mShow = findViewById(R.id.show_map);
+            MapViewScroll mapView = findViewById ( R.id.task_location_map );
+            Switch mShow = findViewById ( R.id.show_map );
             mMapLay = findViewById(R.id.map_layout);
             mtoReport = findViewById(R.id.managers_list);
             location = findViewById(R.id.location_et);
             lat = findViewById(R.id.lat_et);
             lng = findViewById(R.id.lng_et);
 
+            try{
+                Places.initialize(getApplicationContext(), Constants.locationApiKey);
+            }catch ( Exception e ){
+                e.printStackTrace ();
+            }
             //Image
             profileImageView = findViewById(R.id.profileImageView);
             //Permission for image upload
@@ -150,16 +153,13 @@ public class CustomerCreation extends AppCompatActivity {
             if(bun!=null){
                 updateCustomers = ( Employee ) bun.getSerializable("Customer");
             }
-            mShow.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-                @Override
-                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                    if (isChecked) {
-                        mMapLay.setVisibility(View.VISIBLE);
-                    }else{
-                        mMapLay.setVisibility(View.GONE);
-                    }
+            mShow.setOnCheckedChangeListener( ( buttonView , isChecked ) -> {
+                if (isChecked) {
+                    mMapLay.setVisibility(View.VISIBLE);
+                }else{
+                    mMapLay.setVisibility(View.GONE);
                 }
-            });
+            } );
             mapView.onCreate(savedInstanceState);
             mapView.onResume();
             try {
@@ -168,252 +168,247 @@ public class CustomerCreation extends AppCompatActivity {
                 ex.printStackTrace();
             }
 
-            location.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    try {
-                        Intent intent = new PlaceAutocomplete.IntentBuilder(PlaceAutocomplete.MODE_OVERLAY/*MODE_FULLSCREEN*/).build( CustomerCreation.this);
-                        startActivityForResult(intent, PLACE_AUTOCOMPLETE_REQUEST_CODE);
-                    } catch (GooglePlayServicesRepairableException e) {
-                        e.printStackTrace();
-                        // TODO: Handle the error.
-                    } catch (GooglePlayServicesNotAvailableException e) {
-                        // TODO: Handle the error.
-                        e.printStackTrace();
+            location.setOnClickListener( v -> {
+                try {
+                    /*Intent intent = new PlaceAutocomplete.IntentBuilder(PlaceAutocomplete.MODE_OVERLAY).build( CustomerCreation.this);
+                    startActivityForResult(intent, PLACE_AUTOCOMPLETE_REQUEST_CODE);*/
+                    List<Place.Field> fields = Arrays.asList(Place.Field.ID, Place.Field.LAT_LNG, Place.Field.NAME, Place.Field.ADDRESS);
+                    Intent intent = new Autocomplete.IntentBuilder( AutocompleteActivityMode.FULLSCREEN, fields).build(getApplicationContext());
+                    startActivityForResult(intent, AUTOCOMPLETE_REQUEST_CODE);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    // TODO: Handle the error.
+                }
+            } );
+
+            if ( NetworkUtil.checkInternetConnection ( CustomerCreation.this ) ) {
+                getmanagerProfile(PreferenceHandler.getInstance ( CustomerCreation.this ).getCompanyId ());
+            }else{
+                noInternetConnection ();
+            }
+
+            mapView.getMapAsync( googleMap -> {
+                mMap = googleMap;
+                if ( ActivityCompat.checkSelfPermission( CustomerCreation.this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission( CustomerCreation.this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                    // TODO: Consider calling
+                    //    ActivityCompat#requestPermissions
+                    // here to request the missing permissions, and then overriding
+                    //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                    //                                          int[] grantResults)
+                    // to handle the case where the user grants the permission. See the documentation
+                    // for ActivityCompat#requestPermissions for more details.
+                    return;
+                }
+                mMap.getUiSettings().setZoomControlsEnabled(true);
+                mMap.getUiSettings().setAllGesturesEnabled(true);
+                mMap.setMyLocationEnabled(true);
+                mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+                mMap.getProjection().getVisibleRegion().latLngBounds.getCenter();
+                TrackGPS trackGPS = new TrackGPS ( CustomerCreation.this);
+                if(trackGPS.canGetLocation()) {
+                    lati = trackGPS.getLatitude();
+                    lngi = trackGPS.getLongitude();
+                }
+
+                if(updateCustomers!=null){
+                    setData(updateCustomers);
+                }
+                mMap.setOnMapClickListener( latLng -> {
+                    DecimalFormat df2 = new DecimalFormat(".##########");
+                    lati = latLng.latitude;
+                    lngi = latLng.longitude;
+                    lat.setText(df2.format(latLng.latitude)+"");
+                    lng.setText(df2.format(latLng.longitude)+"");
+                    add = getAddress(latLng);
+                    location.setText(add);
+                    mMap.clear();
+                    marker = mMap.addMarker(new MarkerOptions().icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)).position(latLng));
+                    CameraPosition cameraPosition1 = new CameraPosition.Builder().target(latLng).zoom(80).build();
+                    mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition1));
+                } );
+            } );
+
+            mSave.setOnClickListener( view -> {
+                if(isCustomerValidated (CustomerCreation.this,mClientName,mClientMobile,mClientMail) ) {
+                    if ( NetworkUtil.checkInternetConnection ( CustomerCreation.this ) ) {
+                        setLoginModel ( );
+                       // doNetworkCall ( );
+                    } else {
+                        noInternetConnection ();
                     }
                 }
-            });
+            } );
 
-            getmanagerProfile(PreferenceHandler.getInstance ( CustomerCreation.this ).getCompanyId ());
-            mapView.getMapAsync(new OnMapReadyCallback() {
-                @Override
-                public void onMapReady(GoogleMap googleMap) {
-                    mMap = googleMap;
-                    if ( ActivityCompat.checkSelfPermission( CustomerCreation.this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission( CustomerCreation.this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                        // TODO: Consider calling
-                        //    ActivityCompat#requestPermissions
-                        // here to request the missing permissions, and then overriding
-                        //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-                        //                                          int[] grantResults)
-                        // to handle the case where the user grants the permission. See the documentation
-                        // for ActivityCompat#requestPermissions for more details.
-                        return;
-                    }
-                    mMap.getUiSettings().setZoomControlsEnabled(true);
-                    mMap.getUiSettings().setAllGesturesEnabled(true);
-                    mMap.setMyLocationEnabled(true);
-                    mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-                    mMap.getProjection().getVisibleRegion().latLngBounds.getCenter();
-                    TrackGPS trackGPS = new TrackGPS ( CustomerCreation.this);
-                    if(trackGPS.canGetLocation()) {
-                        lati = trackGPS.getLatitude();
-                        lngi = trackGPS.getLongitude();
-                    }
-
-                    if(updateCustomers!=null){
-                        setData(updateCustomers);
-                    }
-                    mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
-                        @Override
-                        public void onMapClick(LatLng latLng) {
-                            DecimalFormat df2 = new DecimalFormat(".##########");
-                            lati = latLng.latitude;
-                            lngi = latLng.longitude;
-                            lat.setText(df2.format(latLng.latitude)+"");
-                            lng.setText(df2.format(latLng.longitude)+"");
-                            add = getAddress(latLng);
-                            location.setText(add);
-                            mMap.clear();
-                            marker = mMap.addMarker(new MarkerOptions().icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)).position(latLng));
-                            CameraPosition cameraPosition1 = new CameraPosition.Builder().target(latLng).zoom(80).build();
-                            mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition1));
-                        }
-                    });
-                }
-            });
-
-            mSave.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    String name = mClientName.getText().toString();
-                    String mail = mClientMail.getText().toString();
-                    String mobile = mClientMobile.getText().toString();
-                    if(name==null||name.isEmpty()){
-                        Toast.makeText( CustomerCreation.this, "Please enter name", Toast.LENGTH_SHORT).show();
-                    }else if(mail==null||mail.isEmpty()){
-                        Toast.makeText( CustomerCreation.this, "Please enter mail", Toast.LENGTH_SHORT).show();
-                    }else if(mail==null||mail.isEmpty()){
-                        Toast.makeText( CustomerCreation.this, "Please enter mobile number", Toast.LENGTH_SHORT).show();
-                    }else{
-                        String emailList = "";
-                        String phoneList="";
-                        if(updateCustomers!=null){
-                            Employee customer = updateCustomers;
-                            customer.setEmployeeName (name);
-                            customer.setPrimaryEmailAddress (mail);
-                            customer.setPhoneNumber (mobile);
-                            customer.setDateOfBirth ( new SimpleDateFormat ( "MM/dd/yyyy",Locale.US ).format ( new Date (  ) ) );
-                            customer.setDateOfJoining ( new SimpleDateFormat ( "MM/dd/yyyy",Locale.US ).format ( new Date (  ) ) );
-                            customer.setLati (""+lati);
-                            customer.setLongi (""+lngi);
-                            customer.setAlternateEmailAddress (""+emailList);
-                            customer.setPhoneNumber (""+mobile);
-                            customer.setUserRoleId ( 10 );
-                            customer.setDesignationId ( 1 );
-                            if(employees!=null&&employees.size()!=0){
-                                customer.setManagerId(employees.get(mtoReport.getSelectedItemPosition()).getEmployeeId());
-                            }else{
-                                customer.setManagerId(PreferenceHandler.getInstance ( CustomerCreation.this ).getUserId ());
-                            }
-                            if(add!=null){
-                                customer.setAddress (""+add);
-                            }else{
-                                if(lati!=0&&lngi!=0){
-                                    customer.setAddress(""+getAddress(new LatLng(lati,lngi)));
-                                }
-                            }
-                            customer.setDepartmentId (1);
-                            if(postPath!=null&&!postPath.isEmpty()){
-                                File file = new File(postPath);
-                                if(file.length() <= 1*1024*1024) {
-                                    FileOutputStream out = null;
-                                    String[] filearray = postPath.split("/");
-                                    final String filename = getFilename(filearray[filearray.length-1]);
-                                    try {
-                                        out = new FileOutputStream(filename);
-                                    } catch (FileNotFoundException e) {
-                                        e.printStackTrace();
-                                    }
-                                    Bitmap myBitmap = BitmapFactory.decodeFile(postPath);
-                                    //write the compressed bitmap at the field_icon specified by filename.
-                                    myBitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
-                                    uploadImage(filename,customer);
-                                }
-                                else {
-                                    compressImage(postPath,customer);
-                                }
-
-                            }else{
-                                if(postPath!=null&&postPath.isEmpty()){
-                                    customer.setImage (null);
-                                }
-                                updateCustomer(customer);
-                            }
-                        }else{
-                            Employee customer = new Employee ();
-                            customer.setEmployeeName (name);
-                            customer.setPrimaryEmailAddress (mail);
-                            customer.setDateOfBirth ( new SimpleDateFormat ( "MM/dd/yyyy",Locale.US ).format ( new Date (  ) ) );
-                            customer.setDateOfJoining ( new SimpleDateFormat ( "MM/dd/yyyy",Locale.US ).format ( new Date (  ) ) );
-                            customer.setPhoneNumber (mobile);
-                            customer.setLati (""+lati);
-                            customer.setLongi (""+lngi);
-                            customer.setAlternateEmailAddress (""+emailList);
-                            customer.setPhoneNumber (""+mobile);
-                            customer.setDesignationId ( 1 );
-                            if(employees!=null&&employees.size()!=0){
-                                customer.setManagerId(employees.get(mtoReport.getSelectedItemPosition()).getEmployeeId());
-                            }else{
-                                customer.setManagerId(PreferenceHandler.getInstance ( CustomerCreation.this ).getUserId ());
-                            }
-                            customer.setUserRoleId ( 10 );
-                            if(lati!=0&&lngi!=0){
-                                customer.setAddress (""+getAddress(new LatLng(lati,lngi)));
-                            }
-                            customer.setDepartmentId (1);
-                            if(postPath!=null&&!postPath.isEmpty()){
-                                File file = new File(postPath);
-                                if(file.length() <= 1*1024*1024) {
-                                    FileOutputStream out = null;
-                                    String[] filearray = postPath.split("/");
-                                    final String filename = getFilename(filearray[filearray.length-1]);
-                                    try {
-                                        out = new FileOutputStream(filename);
-                                    } catch (FileNotFoundException e) {
-                                        e.printStackTrace();
-                                    }
-                                    Bitmap myBitmap = BitmapFactory.decodeFile(postPath);
-                                    //write the compressed bitmap at the field_icon specified by filename.
-                                    myBitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
-                                    uploadImage(filename,customer);
-                                }
-                                else {
-                                    compressImage(postPath,customer);
-                                }
-                            }else{
-                                if(postPath!=null&&postPath.isEmpty()){
-                                    customer.setImage (null);
-                                }
-                                 addCustomer(customer);
-                            }
-                        }
-                    }
-                }
-            });
-
-            //imageview onclicklistner for choose image
-            profileImageView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    new MaterialDialog.Builder( CustomerCreation.this)
-                            .title(R.string.uploadImages)
-                            .items(R.array.uploadImages)
-                            .itemsIds(R.array.itemIds)
-                            .itemsCallback(new MaterialDialog.ListCallback() {
-                                @Override
-                                public void onSelection(MaterialDialog dialog, View view, int which, CharSequence text) {
-                                    switch (which) {
-                                        case 0:
-                                            Intent galleryIntent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-                                            startActivityForResult(galleryIntent, REQUEST_PICK_PHOTO);
-                                            break;
-                                        case 1:
-                                            captureImage();
-                                            break;
-                                        case 2:
-                                            profileImageView.setImageResource(R.drawable.ic_account_circle_black);
-                                            postPath = "";
-                                            break;
-                                    }
-                                }
-                            })
-                            .show();
-                }
-            });
+            profileImageView.setOnClickListener( v -> chooseImageDialog () );
 
         }catch (Exception e){
             e.printStackTrace();
         }
     }
 
-    private String getAddress(LatLng latLng) {
-        Geocoder geocoder = new Geocoder( CustomerCreation.this, Locale.getDefault());
-        String result = null;
-        try {
-            List<Address> addressList = geocoder.getFromLocation( latLng.latitude, latLng.longitude, 1);
-            if (addressList != null && addressList.size() > 0) {
-                Address address = addressList.get(0);
-                StringBuilder sb = new StringBuilder();
-                for (int i = 0; i < address.getMaxAddressLineIndex(); i++) {
-                    sb.append(address.getAddressLine(i)).append(",");
-                }
-                result = address.getAddressLine(0);
-                return result;
+    public void chooseImageDialog() {
+        final android.app.AlertDialog.Builder dialogBuilder = new android.app.AlertDialog.Builder ( this );
+        LayoutInflater inflater = this.getLayoutInflater ( );
+        View view = inflater.inflate ( R.layout.choose_image_images_option , null );
+        TextView gallary = view.findViewById(R.id.gallary);
+        TextView camera = view.findViewById(R.id.camera);
+        TextView remove = view.findViewById(R.id.remove);
+        AppCompatTextView dialog_ok = view.findViewById(R.id.dialog_ok);
+        dialogBuilder.setView(view);
+        final android.app.AlertDialog dialog = dialogBuilder.create();
+        dialog.show();
+        gallary.setOnClickListener( v -> {
+            try {
+                dialog.dismiss();
+                Intent galleryIntent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                startActivityForResult(galleryIntent, REQUEST_PICK_PHOTO);
             }
-            return result;
-        } catch (IOException e) {
-            Log.e("MapLocation", "Unable connect to Geocoder", e);
-            return result;
+            catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        });
+        camera.setOnClickListener( v -> {
+            try {
+                dialog.dismiss();
+               captureImage ();
+            }
+            catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        });
+        remove.setOnClickListener( v -> {
+            try {
+                dialog.dismiss();
+                profileImageView.setImageResource(R.drawable.ic_account_circle_black);
+                postPath = "";
+            }
+            catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        });
+        dialog_ok.setOnClickListener( v -> {
+            try {
+                dialog.dismiss();
+            }
+            catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        });
+    }
+
+    private void setLoginModel ( ) {
+        String emailList = "";
+        if(updateCustomers!=null){
+            Employee customer = updateCustomers;
+            customer.setEmployeeName ( Objects.requireNonNull ( mClientName.getText ( ) ).toString ());
+            customer.setPrimaryEmailAddress (Objects.requireNonNull (mClientMail.getText ().toString ()));
+            customer.setPhoneNumber (Objects.requireNonNull (mClientMobile.getText ().toString ()));
+            customer.setDateOfBirth ( new SimpleDateFormat ( "MM/dd/yyyy",Locale.US ).format ( new Date (  ) ) );
+            customer.setDateOfJoining ( new SimpleDateFormat ( "MM/dd/yyyy",Locale.US ).format ( new Date (  ) ) );
+            customer.setLati (""+lati);
+            customer.setLongi (""+lngi);
+            customer.setAlternateEmailAddress (""+emailList);
+            customer.setPhoneNumber (mClientMobile.getText ().toString ());
+            customer.setUserRoleId ( 10 );
+            customer.setDesignationId ( 1 );
+            if(employees!=null&&employees.size()!=0){
+                customer.setManagerId(employees.get(mtoReport.getSelectedItemPosition()).getEmployeeId());
+            }else{
+                customer.setManagerId(PreferenceHandler.getInstance ( CustomerCreation.this ).getUserId ());
+            }
+            if(add!=null){
+                customer.setAddress (""+add);
+            }else{
+                if(lati!=0&&lngi!=0){
+                    customer.setAddress(""+getAddress(new LatLng(lati,lngi)));
+                }
+            }
+            customer.setDepartmentId (1);
+            if(postPath!=null&&!postPath.isEmpty()){
+                File file = new File(postPath);
+                if(file.length() <= 1024 * 1024 ) {
+                    FileOutputStream out = null;
+                    String[] filearray = postPath.split("/");
+                    final String filename = getFilename(filearray[filearray.length-1]);
+                    try {
+                        out = new FileOutputStream(filename);
+                    } catch (FileNotFoundException e) {
+                        e.printStackTrace();
+                    }
+                    Bitmap myBitmap = BitmapFactory.decodeFile(postPath);
+                    //write the compressed bitmap at the field_icon specified by filename.
+                    myBitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
+                    uploadImage(filename,customer);
+                }
+                else {
+                    compressImage(postPath,customer);
+                }
+
+            }else{
+                if(postPath!=null){
+                    customer.setImage (null);
+                }
+                updateCustomer(customer);
+            }
+        }else{
+            Employee customer = new Employee ();
+            customer.setEmployeeName ( Objects.requireNonNull ( mClientName.getText ( ) ).toString ());
+            customer.setPrimaryEmailAddress (Objects.requireNonNull (mClientMail.getText ().toString ()));
+            customer.setDateOfBirth ( new SimpleDateFormat ( "MM/dd/yyyy",Locale.US ).format ( new Date (  ) ) );
+            customer.setDateOfJoining ( new SimpleDateFormat ( "MM/dd/yyyy",Locale.US ).format ( new Date (  ) ) );
+            customer.setPhoneNumber (Objects.requireNonNull (mClientMobile.getText ().toString ()));
+            customer.setLati (String.valueOf ( lati ));
+            customer.setLongi (String.valueOf ( lngi ));
+            customer.setAlternateEmailAddress (""+emailList);
+            customer.setPhoneNumber (""+mClientMobile.getText ().toString ());
+            customer.setDesignationId ( 1 );
+            if(employees!=null&&employees.size()!=0){
+                customer.setManagerId(employees.get(mtoReport.getSelectedItemPosition()).getEmployeeId());
+            }else{
+                customer.setManagerId(PreferenceHandler.getInstance ( CustomerCreation.this ).getUserId ());
+            }
+            customer.setUserRoleId ( 10 );
+            if(lati!=0&&lngi!=0){
+                customer.setAddress (""+getAddress(new LatLng(lati,lngi)));
+            }
+            customer.setDepartmentId (1);
+            if(postPath!=null&&!postPath.isEmpty()){
+                File file = new File(postPath);
+                if(file.length() <= 1024*1024) {
+                    FileOutputStream out = null;
+                    String[] filearray = postPath.split("/");
+                    final String filename = getFilename(filearray[filearray.length-1]);
+                    try {
+                        out = new FileOutputStream(filename);
+                    } catch (FileNotFoundException e) {
+                        e.printStackTrace();
+                    }
+                    Bitmap myBitmap = BitmapFactory.decodeFile(postPath);
+                    //write the compressed bitmap at the field_icon specified by filename.
+                    myBitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
+                    uploadImage(filename,customer);
+                }
+                else {
+                    compressImage(postPath,customer);
+                }
+            }else{
+                if(postPath!=null&&postPath.isEmpty()){
+                    customer.setImage (null);
+                }
+                addCustomer(customer);
+            }
         }
     }
 
+
+    @SuppressLint ("SetTextI18n")
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult ( requestCode , resultCode , data );
         try {
             if ( resultCode == RESULT_OK ) {
-                if ( requestCode == PLACE_AUTOCOMPLETE_REQUEST_CODE ) {
-                    Place place = PlaceAutocomplete.getPlace ( this , data );
+                if ( requestCode == AUTOCOMPLETE_REQUEST_CODE ) {
+                    Place place = Autocomplete.getPlaceFromIntent(data);
                     //System.out.println(place.getLatLng());
                     location.setText ( place.getName ( ) + "," + place.getAddress ( ) );
                     //location.setText(""+place.getId());
@@ -440,7 +435,7 @@ public class CustomerCreation extends AppCompatActivity {
                         assert cursor != null;
                         cursor.moveToFirst ( );
                         int columnIndex = cursor.getColumnIndex ( filePathColumn[ 0 ] );
-                        mediaPath = cursor.getString ( columnIndex );
+                        String mediaPath = cursor.getString ( columnIndex );
                         // Set the Image in ImageView for Previewing the Media
                         profileImageView.setImageBitmap ( BitmapFactory.decodeFile ( mediaPath ) );
                         cursor.close ( );
@@ -457,13 +452,15 @@ public class CustomerCreation extends AppCompatActivity {
                     }
                 }
             } else if ( resultCode != RESULT_CANCELED ) {
-                if ( requestCode == PLACE_AUTOCOMPLETE_REQUEST_CODE ) {
-                    Status status = PlaceAutocomplete.getStatus ( this , data );
+                if ( requestCode == AUTOCOMPLETE_REQUEST_CODE ) {
+                    Status status = Autocomplete.getStatusFromIntent(data);
                     // TODO: Handle the error.
-                    Log.i ( TAG , status.getStatusMessage ( ) );
+                    if ( status.getStatusMessage ( ) != null ) {
+                        Log.i ( TAG , status.getStatusMessage ( ) );
+                    }
 
                 } else {
-                    Toast.makeText ( this , "Sorry, there was an error!" , Toast.LENGTH_LONG ).show ( );
+                    ShowToast ( "Sorry, there was an error!" );
                 }
             }
 
@@ -473,86 +470,67 @@ public class CustomerCreation extends AppCompatActivity {
     }
 
     public void addCustomer(final Employee customer) {
-        Gson gson = new Gson ();
-        String json = gson.toJson ( customer );
-        System.out.println ("Suree  "+ json );
-        final ProgressDialog dialog = new ProgressDialog(this);
-        dialog.setMessage("Please wait...");
-        dialog.setCancelable(false);
-        dialog.show();
+        progressBarUtil.showProgress ( "Loading ..." );
         EmployeeApi apiService = Util.getClient().create( EmployeeApi.class);
         Call< Employee > call = apiService.addEmployee (customer);
         call.enqueue(new Callback< Employee >() {
             @Override
-            public void onResponse( Call< Employee > call, Response< Employee > response) {
+            public void onResponse( @NonNull Call< Employee > call, @NonNull Response< Employee > response) {
                 try {
-                    if(dialog != null && dialog.isShowing()) {
-                        dialog.dismiss();
-                    }
                     int statusCode = response.code();
-                    if (statusCode == 200 || statusCode == 201) {
+                    if (statusCode == 200 || statusCode == 201|| statusCode == 203|| statusCode == 204) {
+                        progressBarUtil.hideProgress ();
                         Employee s = response.body();
                         if(s!=null){
-                            Toast.makeText( CustomerCreation.this, "Customer created successfully", Toast.LENGTH_SHORT).show();
+                            ShowToast ( ValidationConst.CUSTOMER_ADDES_SUCCESSFULY );
                             CustomerCreation.this.finish();
                         }
                     }else {
-                        Toast.makeText( CustomerCreation.this, "Failed Due to "+response.message(), Toast.LENGTH_SHORT).show();
+                        ShowToast ( FAILES_DUE_TO+statusCode );
                     }
                 }
                 catch (Exception ex) {
-                    if(dialog != null && dialog.isShowing()) {
-                        dialog.dismiss();
-                    }
+                    progressBarUtil.hideProgress ();
                     ex.printStackTrace();
                 }
             }
 
             @Override
-            public void onFailure( Call< Employee > call, Throwable t) {
-                if(dialog != null && dialog.isShowing()) {
-                    dialog.dismiss();
-                }
+            public void onFailure( @NonNull Call< Employee > call, @NonNull Throwable t) {
+                progressBarUtil.hideProgress ();
+                noInternetConnection ();
                 Log.e("TAG", t.toString());
             }
         });
     }
 
     public void updateCustomer(final Employee customer) {
-        final ProgressDialog dialog = new ProgressDialog(this);
-        dialog.setMessage("Please wait...");
-        dialog.setCancelable(false);
-        dialog.show();
+        progressBarUtil.showProgress ( "Updating details" );
         EmployeeApi apiService = Util.getClient().create( EmployeeApi.class);
         Call< Employee > call = apiService.updateEmployee (customer.getEmployeeId (),customer);
         call.enqueue(new Callback< Employee >() {
             @Override
-            public void onResponse( Call< Employee > call, Response< Employee > response) {
+            public void onResponse( @NonNull Call< Employee > call,@NonNull  Response< Employee > response) {
                 try {
-                    if(dialog != null && dialog.isShowing()) {
-                        dialog.dismiss();
-                    }
                     int statusCode = response.code();
                     if (statusCode == 200 || statusCode == 201||statusCode==204) {
-                        Toast.makeText( CustomerCreation.this, "Customer updates successfully", Toast.LENGTH_SHORT).show();
+                        progressBarUtil.hideProgress ();
+                        ShowToast ( ValidationConst.CUSTOMER_UPDATED_SUCCESSFULYY );
                         CustomerCreation.this.finish();
                     }else {
-                        Toast.makeText( CustomerCreation.this, "Failed Due to "+response.message(), Toast.LENGTH_SHORT).show();
+                        ShowToast ( ValidationConst.FAILES_DUE_TO+response.message() );
                     }
                 }
                 catch (Exception ex) {
-                    if(dialog != null && dialog.isShowing()) {
-                        dialog.dismiss();
-                    }
+                    progressBarUtil.hideProgress ();
                     ex.printStackTrace();
                 }
             }
 
             @Override
-            public void onFailure( Call< Employee > call, Throwable t) {
-                if(dialog != null && dialog.isShowing()) {
-                    dialog.dismiss();
-                }
+            public void onFailure( @NonNull Call< Employee > call, @NonNull Throwable t) {
+                progressBarUtil.hideProgress ();
+                noInternetConnection ();
                 Log.e("TAG", t.toString());
             }
         });
@@ -576,7 +554,7 @@ public class CustomerCreation extends AppCompatActivity {
         lng.setText ( String.valueOf ( lngi ) );
         String image = customer.getImage ( );
         if ( image != null && ! image.isEmpty ( ) ) {
-            Picasso.with ( CustomerCreation.this ).load ( image ).placeholder ( R.drawable.ic_account_circle_black ).error ( R.drawable.ic_account_circle_black ).into ( profileImageView );
+            Picasso.get ().load ( image ).placeholder ( R.drawable.ic_account_circle_black ).error ( R.drawable.ic_account_circle_black ).into ( profileImageView );
         }
         add = getAddress ( new LatLng ( lati , lngi ) );
         location.setText ( add );
@@ -587,20 +565,18 @@ public class CustomerCreation extends AppCompatActivity {
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
+    public boolean onOptionsItemSelected( @NotNull MenuItem item) {
         int id = item.getItemId();
-        switch (id) {
-            case android.R.id.home:
-                CustomerCreation.this.finish();
+        if ( id == android.R.id.home ) {
+            CustomerCreation.this.finish ( );
         }
         return super.onOptionsItemSelected(item);
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+    public void onRequestPermissionsResult( int requestCode, @NotNull String[] permissions, @NotNull int[] grantResults) {
         if (requestCode == 0) {
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED
-                    && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            if ( grantResults.length > 0 && grantResults[ 0 ] == PackageManager.PERMISSION_GRANTED ) {
                 profileImageView.setEnabled(true);
             }
         }
@@ -621,10 +597,13 @@ public class CustomerCreation extends AppCompatActivity {
                 e.printStackTrace();
             }
             // Here we add an extra file to the intent to put the address on to. For this purpose we use the FileProvider, declared in the AndroidManifest.
-            Uri outputUri = FileProvider.getUriForFile(
-                    this,
-                    "app.zingo.mysolite.fileprovider",
-                    photoFile);
+            Uri outputUri = null;
+            if ( photoFile != null ) {
+                outputUri = FileProvider.getUriForFile(
+                        this,
+                        "app.zingo.mysolite.fileprovider",
+                        photoFile);
+            }
             callCameraApplicationIntent.putExtra(MediaStore.EXTRA_OUTPUT, outputUri);
             // The following is a new line with a trying attempt
             callCameraApplicationIntent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION | Intent.FLAG_GRANT_READ_URI_PERMISSION);
@@ -643,53 +622,11 @@ public class CustomerCreation extends AppCompatActivity {
         }
     }
 
-    /*@Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-        if (resultCode == RESULT_OK) {
-            if (requestCode == REQUEST_TAKE_PHOTO || requestCode == REQUEST_PICK_PHOTO) {
-                if (data != null) {
-                    // Get the Image from data
-                    Uri selectedImage = data.getData();
-                    String[] filePathColumn = {MediaStore.Images.Media.DATA};
-
-                    Cursor cursor = getContentResolver().query(selectedImage, filePathColumn, null, null, null);
-                    assert cursor != null;
-                    cursor.moveToFirst();
-
-                    int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
-                    mediaPath = cursor.getString(columnIndex);
-                    // Set the Image in ImageView for Previewing the Media
-                    profileImageView.setImageBitmap(BitmapFactory.decodeFile(mediaPath));
-                    cursor.close();
-
-                    postPath = mediaPath;
-                }
-
-
-            }else if (requestCode == CAMERA_PIC_REQUEST){
-                if (Build.VERSION.SDK_INT > 21) {
-
-                    Glide.with(this).load(mImageFileLocation).into(profileImageView);
-                    postPath = mImageFileLocation;
-
-                }else{
-                    Glide.with(this).load(fileUri).into(profileImageView);
-                    postPath = fileUri.getPath();
-                }
-            }
-        }
-        else if (resultCode != RESULT_CANCELED) {
-            Toast.makeText(this, "Sorry, there was an error!", Toast.LENGTH_LONG).show();
-        }
-    }*/
-
     File createImageFile() throws IOException {
         Logger.getAnonymousLogger().info("Generating the image - method started");
 
         // Here we create a "non-collision file name", alternatively said, "an unique filename" using the "timeStamp" functionality
-        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmSS").format(new Date());
+        @SuppressLint ("SimpleDateFormat") String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmSS").format(new Date());
         String imageFileName = "IMAGE_" + timeStamp;
         // Here we specify the environment location and the exact path where we want to save the so-created file
         File storageDirectory = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES + "/photo_saving_app");
@@ -716,7 +653,7 @@ public class CustomerCreation extends AppCompatActivity {
      * app
      */
     @Override
-    protected void onSaveInstanceState(Bundle outState) {
+    protected void onSaveInstanceState( @NotNull Bundle outState) {
         super.onSaveInstanceState(outState);
 
         // save file url in bundle as it will be null on screen orientation
@@ -725,7 +662,7 @@ public class CustomerCreation extends AppCompatActivity {
     }
 
     @Override
-    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+    protected void onRestoreInstanceState( @NotNull Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
 
         // get the file url
@@ -789,18 +726,14 @@ public class CustomerCreation extends AppCompatActivity {
     private void uploadImage(final String filePath,final Employee customer) {
         //String filePath = getRealPathFromURIPath(uri, ImageUploadActivity.this);
         final File file = new File(filePath);
-        int size = 1*1024*1024;
+        int size = 1024*1024;
         if(file != null) {
             if(file.length() > size) {
                 System.out.println(file.length());
                 compressImage(filePath,customer);
             }
             else {
-                final ProgressDialog dialog = new ProgressDialog( CustomerCreation.this);
-                dialog.setCancelable(false);
-                dialog.setTitle("Uploading Image..");
-                dialog.show();
-                Log.d("Image Upload", "Filename " + file.getName());
+               progressBarUtil.showProgress ( "Uploading Image..." );
                 RequestBody mFile = RequestBody.create(MediaType.parse("image"), file);
                 MultipartBody.Part fileToUpload = MultipartBody.Part.createFormData("file", file.getName(), mFile);
                 RequestBody filename = RequestBody.create(MediaType.parse("text/plain"), file.getName());
@@ -808,29 +741,34 @@ public class CustomerCreation extends AppCompatActivity {
                 Call<String> fileUpload = uploadImage.uploadProfileImages(fileToUpload, filename);
                 fileUpload.enqueue(new Callback<String>() {
                     @Override
-                    public void onResponse(Call<String> call, Response<String> response) {
-                        if(dialog != null && dialog.isShowing()) {
-                            dialog.dismiss();
-                        }
-                        if( Util.IMAGE_URL==null){
-                            customer.setImage ( Constants.IMAGE_URL+ response.body());
-                        }else{
-                            customer.setImage ( Util.IMAGE_URL+ response.body());
-                        }
-                        // expenses.setImageUrl(Constants.IMAGE_URL+response.body().toString());
-                        if(customer.getEmployeeId ()!=0){
-                            updateCustomer(customer);
-                        }else{
-                            addCustomer(customer);
-                        }
-                        if(filePath.contains("MyFolder/Images")) {
-                            file.delete();
-                        }
+                    public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
+                      int statusCode = response.code ();
+                      if(statusCode==200||statusCode==203||statusCode==204){
+                          progressBarUtil.hideProgress ();
+                          ShowToast ( ValidationConst.IMAGE_UPLOADED );
+                          if( Util.IMAGE_URL==null){
+                              customer.setImage ( Constants.IMAGE_URL+ response.body());
+                          }else{
+                              customer.setImage ( Util.IMAGE_URL+ response.body());
+                          }
+                          if(customer.getEmployeeId ()!=0){
+                              updateCustomer(customer);
+                          }else{
+                              addCustomer(customer);
+                          }
+                          if(filePath.contains("MyFolder/Images")) {
+                              file.delete();
+                          }
+                      }else{
+                          ShowToast ( FAILES_DUE_TO+response.code ());
+                          progressBarUtil.hideProgress ();
+                      }
                     }
 
                     @Override
-                    public void onFailure(Call<String> call, Throwable t) {
-                        Log.d( "UpdateCate" , "Error " + "Bad Internet Connection" );
+                    public void onFailure(@NonNull Call<String> call, @NonNull Throwable t) {
+                        progressBarUtil.hideProgress ();
+                        noInternetConnection ();
                     }
                 });
             }
@@ -963,19 +901,15 @@ public class CustomerCreation extends AppCompatActivity {
     }
 
     private void getmanagerProfile(final int id){
-        final ProgressDialog progressDialog = new ProgressDialog(this);
-        progressDialog.setTitle("Loading...");
-        progressDialog.setCancelable(false);
-        progressDialog.show();
+        progressBarUtil.showProgress ( "Loading..." );
         EmployeeApi apiService = Util.getClient().create( EmployeeApi.class);
         Call<ArrayList<Employee>> call = apiService.getEmployeesByOrgId(id);
         call.enqueue(new Callback<ArrayList<Employee>>() {
             @Override
-            public void onResponse(Call<ArrayList<Employee>> call, Response<ArrayList<Employee>> response) {
+            public void onResponse(@NonNull Call<ArrayList<Employee>> call, @NonNull Response<ArrayList<Employee>> response) {
                 int statusCode = response.code();
                 if (statusCode == 200 || statusCode == 201 || statusCode == 203 || statusCode == 204) {
-                    if (progressDialog != null&&progressDialog.isShowing())
-                        progressDialog.dismiss();
+                    progressBarUtil.hideProgress ();
                     ArrayList<Employee> list = response.body();
                     employees = new ArrayList <> (  );
                     if (list !=null && list.size()!=0) {
@@ -990,21 +924,24 @@ public class CustomerCreation extends AppCompatActivity {
                             ManagerSpinnerAdapter arrayAdapter = new ManagerSpinnerAdapter( CustomerCreation.this, employees);
                             mtoReport.setAdapter(arrayAdapter);
                         }else{
-                            Toast.makeText( CustomerCreation.this,"No Employees added",Toast.LENGTH_LONG).show();
+                            ShowToast ( ValidationConst.NO_EMPLOYEE_ADDED );
+                            progressBarUtil.hideProgress ();
                         }
                     }else{
-                        Toast.makeText( CustomerCreation.this,"No Employees added",Toast.LENGTH_LONG).show();
+                       ShowToast ( ValidationConst.NO_EMPLOYEE_ADDED );
+                        progressBarUtil.hideProgress ();
                     }
                 }else {
-                    Toast.makeText( CustomerCreation.this, "Failed due to : "+response.message(), Toast.LENGTH_SHORT).show();
+                    ShowToast ( FAILES_DUE_TO+statusCode );
+                    progressBarUtil.hideProgress ();
                 }
             }
 
             @Override
-            public void onFailure(Call<ArrayList<Employee>> call, Throwable t) {
-                if (progressDialog != null&&progressDialog.isShowing())
-                    progressDialog.dismiss();
+            public void onFailure(@NonNull Call<ArrayList<Employee>> call, @NonNull Throwable t) {
                 Log.e("TAG", t.toString());
+                progressBarUtil.hideProgress ();
+                noInternetConnection ();
             }
         });
     }

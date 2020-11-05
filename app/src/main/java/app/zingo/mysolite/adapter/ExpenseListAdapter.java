@@ -84,7 +84,7 @@ public class ExpenseListAdapter  extends RecyclerView.Adapter<ExpenseListAdapter
                     View v = vi.inflate(R.layout.gallery_layout, null);
                     ImageView blogs = v.findViewById(R.id.blog_images);
 
-                    Picasso.with(context).load(image).placeholder(R.drawable.profile_image).
+                  Picasso.get ().load(image).placeholder(R.drawable.profile_image).
                             error(R.drawable.profile_image).into(blogs);
 
 

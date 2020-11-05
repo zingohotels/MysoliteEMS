@@ -3,6 +3,8 @@ package app.zingo.mysolite.WebApi;
 import java.util.ArrayList;
 
 import app.zingo.mysolite.model.LoginDetails;
+import io.reactivex.Flowable;
+import io.reactivex.Observable;
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.GET;
@@ -33,4 +35,22 @@ public interface LoginDetailsAPI {
 
     @POST("LoginDetails/GetLoginDetailsByEmployeeIdAndLoginDate")
     Call<ArrayList<LoginDetails>> getLoginByEmployeeIdAndDate ( @Body LoginDetails details );
+
+
+
+    ///RxJava
+    @POST("LoginDetails/GetLoginDetailsByEmployeeIdAndLoginDate")
+    Observable <ArrayList<LoginDetails>> getLoginByEmployeeIdAndDateRx ( @Body LoginDetails details );
+
+    @GET("LoginDetails/{id}")
+    Observable<LoginDetails> getLoginByIdRx ( @Path ("id") int id );
+
+    @POST("LoginDetails")
+    Flowable <LoginDetails> addLoginRx ( @Body LoginDetails loginDetails );
+
+    @PUT("LoginDetails/{id}")
+    Flowable<LoginDetails> updateLoginByIdRx ( @Path ("id") int id , @Body LoginDetails details );
+
+    @GET("LoginDetails")
+    Observable<ArrayList <LoginDetails>> getLoginDetailsRx ( );
 }

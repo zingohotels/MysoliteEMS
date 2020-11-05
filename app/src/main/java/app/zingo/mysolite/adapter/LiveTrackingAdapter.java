@@ -32,25 +32,18 @@ import retrofit2.Response;
 import static android.text.TextUtils.isEmpty;
 
 public class LiveTrackingAdapter extends RecyclerView.Adapter< LiveTrackingAdapter.ViewHolder>{
-
     private Context context;
     private ArrayList<LiveTracking> list;
 
-
     public LiveTrackingAdapter(Context context, ArrayList<LiveTracking> list) {
-
         this.context = context;
         this.list = list;
-
-
     }
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View v = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.dash_live_update, parent, false);
-        ViewHolder viewHolder = new ViewHolder(v);
-        return viewHolder;
+        View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.dash_live_update, parent, false);
+        return new ViewHolder(v);
     }
 
     @Override
@@ -67,24 +60,19 @@ public class LiveTrackingAdapter extends RecyclerView.Adapter< LiveTrackingAdapt
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            holder.mupdated.setText("Last updated at : "+liveTrackingArrayList.getTrackingTime()+"("+liveTrackingArrayList.getBatteryPercentage ()+" % )");
+            holder.mupdated.setText("Last updated at : "+liveTrackingArrayList.getTrackingTime()+"( Battery "+liveTrackingArrayList.getBatteryPercentage ()+" % )");
 
             holder.mLay.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-
                     Intent intent = new Intent(context, EmployeeLiveMappingScreen.class);
                     Bundle bundle = new Bundle();
                     bundle.putInt("EmployeeId",list.get(position).getEmployeeId());
-
                     intent.putExtras(bundle);
                     context.startActivity(intent);
                 }
             });
-
         }
-
-
     }
 
     private void getEmployees(final int id, final TextView dto){

@@ -223,198 +223,179 @@ public class OrderListAdapter extends RecyclerView.Adapter< OrderListAdapter.Vie
     }
 
     private void getEmployees(final int id, final Tasks dto){
+        EmployeeApi apiService = Util.getClient().create( EmployeeApi.class);
+        Call<ArrayList<Employee>> call = apiService.getProfileById(id);
 
-        new ThreadExecuter ().execute( new Runnable() {
+        call.enqueue(new Callback<ArrayList<Employee>>() {
             @Override
-            public void run() {
-                EmployeeApi apiService = Util.getClient().create( EmployeeApi.class);
-                Call<ArrayList<Employee>> call = apiService.getProfileById(id);
-
-                call.enqueue(new Callback<ArrayList<Employee>>() {
-                    @Override
-                    public void onResponse(Call<ArrayList<Employee>> call, Response<ArrayList<Employee>> response) {
-                        int statusCode = response.code();
-                        if (statusCode == 200 || statusCode == 201 || statusCode == 203 || statusCode == 204) {
+            public void onResponse(Call<ArrayList<Employee>> call, Response<ArrayList<Employee>> response) {
+                int statusCode = response.code();
+                if (statusCode == 200 || statusCode == 201 || statusCode == 203 || statusCode == 204) {
 
 
                            /* if (progressDialog != null&&progressDialog.isShowing())
                                 progressDialog.dismiss();*/
-                            ArrayList<Employee> list = response.body();
+                    ArrayList<Employee> list = response.body();
 
 
-                            if (list !=null && list.size()!=0) {
+                    if (list !=null && list.size()!=0) {
 
-                                final Employee employees = list.get(0);
-                                if(employees!=null){
-                                    try{
-
-
-                                        AlertDialog.Builder builder = new AlertDialog.Builder(context);
-                                        LayoutInflater inflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                                        View views = inflater.inflate(R.layout.alert_contact_employee, null);
-
-                                        builder.setView(views);
+                        final Employee employees = list.get(0);
+                        if(employees!=null){
+                            try{
 
 
+                                AlertDialog.Builder builder = new AlertDialog.Builder(context);
+                                LayoutInflater inflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                                View views = inflater.inflate(R.layout.alert_contact_employee, null);
 
-                                        final MyRegulerText mEmpName = views.findViewById(R.id.employee_name);
-                                        final MyRegulerText mPhone = views.findViewById(R.id.call_employee);
-                                        final MyRegulerText mEmail = views.findViewById(R.id.email_employee);
-
-                                        final AlertDialog dialogs = builder.create();
-                                        dialogs.show();
-                                        dialogs.setCanceledOnTouchOutside(true);
-
-
-                                        mEmpName.setText("Contact "+employees.getEmployeeName());
-                                        mPhone.setText("Call "+employees.getPhoneNumber());
-                                        mEmail.setText("Email "+employees.getPrimaryEmailAddress());
-
-
-                                        mPhone.setOnClickListener(new View.OnClickListener() {
-                                            @Override
-                                            public void onClick(View v) {
-
-                                                Intent intent = new Intent(Intent.ACTION_DIAL);
-                                                intent.setData(Uri.parse("tel:"+employees.getPhoneNumber()));
-                                                context.startActivity(intent);
-                                            }
-                                        });
-
-                                        mEmail.setOnClickListener(new View.OnClickListener() {
-                                            @Override
-                                            public void onClick(View v) {
-
-                                                final Intent emailIntent = new Intent(Intent.ACTION_SEND);
-
-                                                /* Fill it with Data */
-                                                emailIntent.setType("plain/text");
-                                                emailIntent.putExtra(Intent.EXTRA_EMAIL, new String[]{""+employees.getPrimaryEmailAddress()});
-                                                emailIntent.putExtra(Intent.EXTRA_SUBJECT, ""+dto.getTaskName());
-                                                emailIntent.putExtra(Intent.EXTRA_TEXT, "");
-
-                                                /* Send it off to the Activity-Chooser */
-                                                context.startActivity(Intent.createChooser(emailIntent, "Send mail..."));
-
-                                            }
-                                        });
+                                builder.setView(views);
 
 
 
+                                final MyRegulerText mEmpName = views.findViewById(R.id.employee_name);
+                                final MyRegulerText mPhone = views.findViewById(R.id.call_employee);
+                                final MyRegulerText mEmail = views.findViewById(R.id.email_employee);
+
+                                final AlertDialog dialogs = builder.create();
+                                dialogs.show();
+                                dialogs.setCanceledOnTouchOutside(true);
 
 
+                                mEmpName.setText("Contact "+employees.getEmployeeName());
+                                mPhone.setText("Call "+employees.getPhoneNumber());
+                                mEmail.setText("Email "+employees.getPrimaryEmailAddress());
 
 
+                                mPhone.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View v) {
 
-
-                                    }catch (Exception e){
-                                        e.printStackTrace();
+                                        Intent intent = new Intent(Intent.ACTION_DIAL);
+                                        intent.setData(Uri.parse("tel:"+employees.getPhoneNumber()));
+                                        context.startActivity(intent);
                                     }
-                                }
+                                });
+
+                                mEmail.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View v) {
+
+                                        final Intent emailIntent = new Intent(Intent.ACTION_SEND);
+
+                                        /* Fill it with Data */
+                                        emailIntent.setType("plain/text");
+                                        emailIntent.putExtra(Intent.EXTRA_EMAIL, new String[]{""+employees.getPrimaryEmailAddress()});
+                                        emailIntent.putExtra(Intent.EXTRA_SUBJECT, ""+dto.getTaskName());
+                                        emailIntent.putExtra(Intent.EXTRA_TEXT, "");
+
+                                        /* Send it off to the Activity-Chooser */
+                                        context.startActivity(Intent.createChooser(emailIntent, "Send mail..."));
+
+                                    }
+                                });
 
 
 
 
 
-                                //}
 
-                            }else{
 
+
+
+                            }catch (Exception e){
+                                e.printStackTrace();
                             }
-
-                        }else {
-
-
-
                         }
+
+
+
+
+
+                        //}
+
+                    }else{
+
                     }
 
-                    @Override
-                    public void onFailure(Call<ArrayList<Employee>> call, Throwable t) {
-                        // Log error here since request failed
+                }else {
+
+
+
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ArrayList<Employee>> call, Throwable t) {
+                // Log error here since request failed
                       /*  if (progressDialog != null&&progressDialog.isShowing())
                             progressDialog.dismiss();*/
 
-                        Log.e("TAG", t.toString());
-                    }
-                });
+                Log.e("TAG", t.toString());
             }
-
-
         });
     }
     private void getManagers( final int id, final MyRegulerText textView, final String type){
+        EmployeeApi apiService = Util.getClient().create( EmployeeApi.class);
+        Call<ArrayList<Employee>> call = apiService.getProfileById(id);
 
-
-
-
-        new ThreadExecuter ().execute( new Runnable() {
+        call.enqueue(new Callback<ArrayList<Employee>>() {
             @Override
-            public void run() {
-                EmployeeApi apiService = Util.getClient().create( EmployeeApi.class);
-                Call<ArrayList<Employee>> call = apiService.getProfileById(id);
-
-                call.enqueue(new Callback<ArrayList<Employee>>() {
-                    @Override
-                    public void onResponse(Call<ArrayList<Employee>> call, Response<ArrayList<Employee>> response) {
-                        int statusCode = response.code();
-                        if (statusCode == 200 || statusCode == 201 || statusCode == 203 || statusCode == 204) {
+            public void onResponse(Call<ArrayList<Employee>> call, Response<ArrayList<Employee>> response) {
+                int statusCode = response.code();
+                if (statusCode == 200 || statusCode == 201 || statusCode == 203 || statusCode == 204) {
 
 
                            /* if (progressDialog != null&&progressDialog.isShowing())
                                 progressDialog.dismiss();*/
-                            ArrayList<Employee> list = response.body();
+                    ArrayList<Employee> list = response.body();
 
 
-                            if (list !=null && list.size()!=0) {
+                    if (list !=null && list.size()!=0) {
 
-                                final Employee employees = list.get(0);
-                                if(employees!=null){
-                                    try{
+                        final Employee employees = list.get(0);
+                        if(employees!=null){
+                            try{
 
-                                        if(type!=null&&!type.isEmpty()&&type.equalsIgnoreCase("Manager")){
-                                            textView.setText(""+employees.getEmployeeName());
-                                        }else if(type!=null&&!type.isEmpty()&&type.equalsIgnoreCase("Employee")){
-                                            textView.setText("To "+employees.getEmployeeName());
-                                        }
-
-
-
-
-                                    }catch (Exception e){
-                                        e.printStackTrace();
-                                    }
+                                if(type!=null&&!type.isEmpty()&&type.equalsIgnoreCase("Manager")){
+                                    textView.setText(""+employees.getEmployeeName());
+                                }else if(type!=null&&!type.isEmpty()&&type.equalsIgnoreCase("Employee")){
+                                    textView.setText("To "+employees.getEmployeeName());
                                 }
 
 
 
 
-
-                                //}
-
-                            }else{
-
+                            }catch (Exception e){
+                                e.printStackTrace();
                             }
-
-                        }else {
-
-
-
                         }
+
+
+
+
+
+                        //}
+
+                    }else{
+
                     }
 
-                    @Override
-                    public void onFailure(Call<ArrayList<Employee>> call, Throwable t) {
-                        // Log error here since request failed
+                }else {
+
+
+
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ArrayList<Employee>> call, Throwable t) {
+                // Log error here since request failed
                       /*  if (progressDialog != null&&progressDialog.isShowing())
                             progressDialog.dismiss();*/
 
-                        Log.e("TAG", t.toString());
-                    }
-                });
+                Log.e("TAG", t.toString());
             }
-
-
         });
     }
 

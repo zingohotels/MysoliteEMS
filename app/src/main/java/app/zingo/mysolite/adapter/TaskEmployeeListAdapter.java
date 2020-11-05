@@ -67,7 +67,7 @@ public class TaskEmployeeListAdapter  extends RecyclerView.Adapter<TaskEmployeeL
             if(dto.getEmployeeImages()!=null&&dto.getEmployeeImages().size()!=0){
                 String base=dto.getEmployeeImages().get(0).getImage();
                 if(base != null && !base.isEmpty()){
-                    Picasso.with(context).load(base).placeholder(R.drawable.profile_image).
+                    Picasso.get ().load(base).placeholder(R.drawable.profile_image).
                             error(R.drawable.profile_image).into(holder.mProfileImage);
 
 

@@ -141,7 +141,7 @@ public class ApplyLeaveScreen extends AppCompatActivity {
                     }
                 }, mYear, mMonth, mDay);
 
-
+        datePickerDialog.getDatePicker().setMinDate(System.currentTimeMillis() - 1000);
         datePickerDialog.show();
 
     }

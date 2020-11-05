@@ -1,7 +1,9 @@
 package app.zingo.mysolite.ui.newemployeedesign;
-
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import androidx.fragment.app.Fragment;
@@ -18,6 +20,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import app.zingo.mysolite.adapter.TaskListAdapter;
@@ -33,14 +37,11 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-
 public class EmployeeTaskFragment extends Fragment {
-
     FloatingActionButton floatingActionButton;
     View layout;
     private TaskListAdapter mAdapter;
     RecyclerView mTaskList;
-
     //CalendarDay mCalendarDay;
     private Employee mEmployee;
     private int mEmployeeId;
@@ -53,16 +54,14 @@ public class EmployeeTaskFragment extends Fragment {
     TextView presentDate;
     ImageView prevDay;
     ImageView nextDay;
-
-
     LinearLayout mTotalTask,mPendingTask,mCompletedTask,mClosedTask;
-
     ArrayList<Tasks> employeeTasks;
     ArrayList<Tasks> pendingTasks ;
     ArrayList<Tasks> completedTasks ;
     ArrayList<Tasks> closedTasks ;
 
     int total=0,pending=0,complete=0,closed=0;
+    EmployeeNewMainScreen mContext;
 
     public EmployeeTaskFragment() {
         // Required empty public constructor
@@ -77,19 +76,14 @@ public class EmployeeTaskFragment extends Fragment {
         // GAUtil.trackScreen(getActivity(), "Employer Dashboard");
     }
 
-
     @Override
-    public View onCreateView(LayoutInflater layoutInflater, ViewGroup viewGroup,
-                             Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater layoutInflater, ViewGroup viewGroup, Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         // Inflate the layout for this fragment
         super.onCreateView(layoutInflater, viewGroup, savedInstanceState);
         try{
             this.layout = layoutInflater.inflate(R.layout.fragment_employee_task, viewGroup, false);
-
-                mEmployeeId = PreferenceHandler.getInstance(getContext()).getUserId();
-
-
+            mEmployeeId = PreferenceHandler.getInstance(getContext()).getUserId();
 //            this.mCalendarDay = CalendarDay.from(new Date());
             this.presentDate = layout.findViewById(R.id.presentDate);
             // this.presentDate.setText(DateUtil.getReadableDate(this.mCalendarDay));
@@ -114,21 +108,17 @@ public class EmployeeTaskFragment extends Fragment {
             floatingActionButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-
                     Intent createTask = new Intent(getContext(), CreateTaskScreen.class);
                     createTask.putExtra("EmployeeId", mEmployeeId);
                     createTask.putExtra("Type", "Employee");
                     startActivity(createTask);
-
                 }
             });
 
             mPendingTask.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-
                     mTaskList.removeAllViews();
-
                     if(pendingTasks!=null&&pendingTasks.size()!=0){
                         mAdapter = new TaskListAdapter (getContext(),pendingTasks);
                         mTaskList.setAdapter(mAdapter);
@@ -138,17 +128,13 @@ public class EmployeeTaskFragment extends Fragment {
                         mTaskList.setAdapter(mAdapter);
                         Toast.makeText(getContext(), "No Pending Tasks given for this employee", Toast.LENGTH_SHORT).show();
                     }
-
-
                 }
             });
 
             mCompletedTask.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-
                     mTaskList.removeAllViews();
-
                     if(completedTasks!=null&&completedTasks.size()!=0){
                         mAdapter = new TaskListAdapter (getContext(),completedTasks);
                         mTaskList.setAdapter(mAdapter);
@@ -158,37 +144,29 @@ public class EmployeeTaskFragment extends Fragment {
                         mTaskList.setAdapter(mAdapter);
                         Toast.makeText(getContext(), "No Completed Tasks given for this employee", Toast.LENGTH_SHORT).show();
                     }
-
-
                 }
             });
 
             mClosedTask.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-
-                    mTaskList.removeAllViews();
-
-                    if(closedTasks!=null&&closedTasks.size()!=0){
-                        mAdapter = new TaskListAdapter (getContext(),closedTasks);
-                        mTaskList.setAdapter(mAdapter);
-                        mAdapter.notifyDataSetChanged();
-                    }else{
-                        mAdapter = new TaskListAdapter (getContext(),new ArrayList<Tasks>());
-                        mTaskList.setAdapter(mAdapter);
-                        Toast.makeText(getContext(), "No Closed Tasks given for this employee", Toast.LENGTH_SHORT).show();
+                    mTaskList.removeAllViews ( );
+                    if ( closedTasks != null && closedTasks.size ( ) != 0 ) {
+                        mAdapter = new TaskListAdapter ( getContext ( ) , closedTasks );
+                        mTaskList.setAdapter ( mAdapter );
+                        mAdapter.notifyDataSetChanged ( );
+                    } else {
+                        mAdapter = new TaskListAdapter ( getContext ( ) , new ArrayList < Tasks > ( ) );
+                        mTaskList.setAdapter ( mAdapter );
+                        Toast.makeText ( getContext ( ) , "No Closed Tasks given for this employee" , Toast.LENGTH_SHORT ).show ( );
                     }
-
-
                 }
             });
 
             mTotalTask.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-
                     mTaskList.removeAllViews();
-
                     if(employeeTasks!=null&&employeeTasks.size()!=0){
                         mAdapter = new TaskListAdapter (getContext(),employeeTasks);
                         mTaskList.setAdapter(mAdapter);
@@ -198,8 +176,6 @@ public class EmployeeTaskFragment extends Fragment {
                         mTaskList.setAdapter(mAdapter);
                         Toast.makeText(getContext(), "No Tasks given for this employee", Toast.LENGTH_SHORT).show();
                     }
-
-
                 }
             });
 
@@ -221,105 +197,74 @@ public class EmployeeTaskFragment extends Fragment {
     }
 
     private void getTasks(final int employeeId){
+        TasksAPI apiService = Util.getClient().create( TasksAPI.class);
+        Call<ArrayList<Tasks>> call = apiService.getTasksByEmployeeId(employeeId);
 
-
-/*        final ProgressDialog progressDialog = new ProgressDialog(getContext());
-        progressDialog.setTitle("Loading Details..");
-        progressDialog.setCancelable(false);
-        progressDialog.show();*/
-
-        new ThreadExecuter ().execute( new Runnable() {
+        call.enqueue(new Callback<ArrayList<Tasks>>() {
             @Override
-            public void run() {
-                TasksAPI apiService = Util.getClient().create( TasksAPI.class);
-                Call<ArrayList<Tasks>> call = apiService.getTasksByEmployeeId(employeeId);
-
-                call.enqueue(new Callback<ArrayList<Tasks>>() {
-                    @Override
-                    public void onResponse(Call<ArrayList<Tasks>> call, Response<ArrayList<Tasks>> response) {
-                        int statusCode = response.code();
-                        if (statusCode == 200 || statusCode == 201 || statusCode == 203 || statusCode == 204) {
-
-
+            public void onResponse(Call<ArrayList<Tasks>> call, Response<ArrayList<Tasks>> response) {
+                int statusCode = response.code();
+                if (statusCode == 200 || statusCode == 201 || statusCode == 203 || statusCode == 204) {
                            /* if (progressDialog != null&&progressDialog.isShowing())
                                 progressDialog.dismiss();*/
-                            ArrayList<Tasks> list = response.body();
-                            employeeTasks = new ArrayList<>();
-                            pendingTasks = new ArrayList<>();
-                            completedTasks = new ArrayList<>();
-                            closedTasks = new ArrayList<>();
-
-
-
-                            if (list !=null && list.size()!=0) {
-
-
-                                for (Tasks task:list) {
-
-                                    if(task.getCategory()==null){
-
-                                        employeeTasks.add(task);
-                                        total = total+1;
-
-                                        if(task.getStatus().equalsIgnoreCase("Completed")){
-                                            completedTasks.add(task);
-                                            complete = complete+1;
-                                        }else if(task.getStatus().equalsIgnoreCase("Pending")){
-                                            pendingTasks.add(task);
-                                            pending = pending+1;
-                                        }else if(task.getStatus().equalsIgnoreCase("Closed")){
-                                            closedTasks.add(task);
-                                            closed = closed+1;
-                                        }
-
-                                    }
-
-
-
+                    ArrayList<Tasks> list = response.body();
+                    Comparator <Tasks> cmp = Collections.reverseOrder(new Tasks.TasksComparator ());
+                    Collections.sort(list, cmp);
+                    employeeTasks = new ArrayList<>();
+                    pendingTasks = new ArrayList<>();
+                    completedTasks = new ArrayList<>();
+                    closedTasks = new ArrayList<>();
+                    if (list !=null && list.size()!=0) {
+                        for (Tasks task:list) {
+                            if(task.getCategory()==null){
+                                employeeTasks.add(task);
+                                total = total+1;
+                                if(task.getStatus().equalsIgnoreCase("Completed")){
+                                    completedTasks.add(task);
+                                    complete = complete+1;
+                                }else if(task.getStatus().equalsIgnoreCase("Pending")){
+                                    pendingTasks.add(task);
+                                    pending = pending+1;
+                                }else if(task.getStatus().equalsIgnoreCase("Closed")){
+                                    closedTasks.add(task);
+                                    closed = closed+1;
                                 }
-
-                                if(employeeTasks!=null&&employeeTasks.size()!=0){
-
-                                    mAdapter = new TaskListAdapter (getContext(),employeeTasks);
-                                    mTaskList.setAdapter(mAdapter);
-
-                                    totalTargets.setText(""+total);
-                                    openTargets.setText(""+pending);
-                                    closedTargets.setText(""+complete);
-                                    movedTargets.setText(""+closed);
-                                }else{
-                                    Toast.makeText(getContext(), "No Tasks given for this employee", Toast.LENGTH_SHORT).show();
-                                }
-
-
-
-                            }else{
-
-                                Toast.makeText(getContext(), "No Tasks given for this employee ", Toast.LENGTH_SHORT).show();
-
                             }
+                        }
 
-                        }else {
-
+                        if(employeeTasks!=null&&employeeTasks.size()!=0){
+                            mAdapter = new TaskListAdapter (getContext(),employeeTasks);
+                            mTaskList.setAdapter(mAdapter);
+                            totalTargets.setText(""+total);
+                            openTargets.setText(""+pending);
+                            closedTargets.setText(""+complete);
+                            movedTargets.setText(""+closed);
+                        }else{
+                            Toast.makeText(getContext(), "No Tasks given for this employee", Toast.LENGTH_SHORT).show();
+                        }
+                    }else{
+                        Toast.makeText(getContext(), "No Tasks given for this employee ", Toast.LENGTH_SHORT).show();
+                    }
+                }else {
                            /* if (progressDialog != null&&progressDialog.isShowing())
                                 progressDialog.dismiss();*/
-
-                            Toast.makeText(getContext(), "Failed due to : "+response.message(), Toast.LENGTH_SHORT).show();
-                        }
-                    }
-
-                    @Override
-                    public void onFailure(Call<ArrayList<Tasks>> call, Throwable t) {
-                        // Log error here since request failed
-                       /* if (progressDialog != null&&progressDialog.isShowing())
-                            progressDialog.dismiss();*/
-                        Log.e("TAG", t.toString());
-                    }
-                });
+                    Toast.makeText(getContext(), "Failed due to : "+response.message(), Toast.LENGTH_SHORT).show();
+                }
             }
 
-
+            @Override
+            public void onFailure(Call<ArrayList<Tasks>> call, Throwable t) {
+                // Log error here since request failed
+                       /* if (progressDialog != null&&progressDialog.isShowing())
+                            progressDialog.dismiss();*/
+                Log.e("TAG", t.toString());
+            }
         });
     }
 
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+        mContext = (EmployeeNewMainScreen)context;
+    }
 }

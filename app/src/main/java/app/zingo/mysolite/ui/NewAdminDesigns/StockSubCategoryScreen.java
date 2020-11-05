@@ -319,7 +319,7 @@ public class StockSubCategoryScreen extends AppCompatActivity {
             ImageView imageView = v.findViewById(R.id.blog_images);
 
             if(type!=null&&type.equalsIgnoreCase ( "url" )){
-                Picasso.with( StockSubCategoryScreen.this).load(value).placeholder(R.drawable.no_image).
+                Picasso.get ().load(value).placeholder(R.drawable.no_image).
                         error(R.drawable.no_image).into(imageView);
             }else if(type!=null&&type.equalsIgnoreCase ( "bitmap" )){
 
@@ -496,7 +496,7 @@ public class StockSubCategoryScreen extends AppCompatActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-//        super.onActivityResult(requestCode, resultCode, data);
+        super.onActivityResult(requestCode, resultCode, data);
         try{
 
 

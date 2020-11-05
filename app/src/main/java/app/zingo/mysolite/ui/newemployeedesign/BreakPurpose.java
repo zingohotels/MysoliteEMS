@@ -26,7 +26,6 @@ import java.util.Locale;
 import app.zingo.mysolite.model.LoginDetailsNotificationManagers;
 import app.zingo.mysolite.model.OrganizationBreakTimes;
 import app.zingo.mysolite.utils.PreferenceHandler;
-import app.zingo.mysolite.utils.ThreadExecuter;
 import app.zingo.mysolite.utils.Util;
 import app.zingo.mysolite.WebApi.LoginNotificationAPI;
 import app.zingo.mysolite.WebApi.OrganizationBreakTimesAPI;
@@ -203,83 +202,75 @@ public class BreakPurpose extends AppCompatActivity {
         progressDialog.setCancelable(false);
         progressDialog.show();
 
+        final OrganizationBreakTimesAPI orgApi = Util.getClient().create( OrganizationBreakTimesAPI.class);
+        Call<ArrayList< OrganizationBreakTimes >> getProf = orgApi.getBreaksByOrgId(id);
+        //Call<ArrayList<Blogs>> getBlog = blogApi.getBlogs();
 
-        new ThreadExecuter ().execute( new Runnable() {
+        getProf.enqueue(new Callback<ArrayList< OrganizationBreakTimes >>() {
+
             @Override
-            public void run() {
-
-                final OrganizationBreakTimesAPI orgApi = Util.getClient().create( OrganizationBreakTimesAPI.class);
-                Call<ArrayList< OrganizationBreakTimes >> getProf = orgApi.getBreaksByOrgId(id);
-                //Call<ArrayList<Blogs>> getBlog = blogApi.getBlogs();
-
-                getProf.enqueue(new Callback<ArrayList< OrganizationBreakTimes >>() {
-
-                    @Override
-                    public void onResponse( Call<ArrayList< OrganizationBreakTimes >> call, Response<ArrayList< OrganizationBreakTimes >> response) {
+            public void onResponse( Call<ArrayList< OrganizationBreakTimes >> call, Response<ArrayList< OrganizationBreakTimes >> response) {
 
 
-                           if (progressDialog!=null&&progressDialog.isShowing())
-                                progressDialog.dismiss();
+                if (progressDialog!=null&&progressDialog.isShowing())
+                    progressDialog.dismiss();
 
 
-                        if (response.code() == 200||response.code() == 201||response.code() == 204)
-                        {
+                if (response.code() == 200||response.code() == 201||response.code() == 204)
+                {
 
 
-                            ArrayList< OrganizationBreakTimes > holidayLists = response.body();
+                    ArrayList< OrganizationBreakTimes > holidayLists = response.body();
 
 
-                            if(holidayLists!=null&&holidayLists.size()!=0){
+                    if(holidayLists!=null&&holidayLists.size()!=0){
 
-                                ArrayList<String> breakName = new ArrayList<>();
+                        ArrayList<String> breakName = new ArrayList<>();
 
-                                for(int i=0;i<holidayLists.size();i++){
+                        for(int i=0;i<holidayLists.size();i++){
 
-                                        breakName.add(holidayLists.get(i).getBreakName());
-
-                                }
-
-                                if(breakName!=null&&breakName.size()!=0){
-
-                                    ArrayAdapter adapter = new ArrayAdapter<>( BreakPurpose.this, R.layout.spinner_item_selected, breakName);
-                                    adapter.setDropDownViewResource(R.layout.support_simple_spinner_dropdown_item);
-
-                                    // DepartmentSpinnerAdapter arrayAdapter = new DepartmentSpinnerAdapter(EmployeeSignUp.this, departmentData);
-                                    mReason.setAdapter(adapter);
-
-                                }
-
-
-                            }else{
-
-
-                            }
-
-
-                        }else{
-
-
-
-                            Toast.makeText( BreakPurpose.this, "Something went wrong", Toast.LENGTH_SHORT).show();
+                            breakName.add(holidayLists.get(i).getBreakName());
 
                         }
+
+                        if(breakName!=null&&breakName.size()!=0){
+
+                            ArrayAdapter adapter = new ArrayAdapter<>( BreakPurpose.this, R.layout.spinner_item_selected, breakName);
+                            adapter.setDropDownViewResource(R.layout.support_simple_spinner_dropdown_item);
+
+                            // DepartmentSpinnerAdapter arrayAdapter = new DepartmentSpinnerAdapter(EmployeeSignUp.this, departmentData);
+                            mReason.setAdapter(adapter);
+
+                        }
+
+
+                    }else{
+
+
                     }
 
-                    @Override
-                    public void onFailure( Call<ArrayList< OrganizationBreakTimes >> call, Throwable t) {
 
-                        if (progressDialog!=null&&progressDialog.isShowing())
-                            progressDialog.dismiss();
+                }else{
 
 
-                        Toast.makeText( BreakPurpose.this, "Something went wrong", Toast.LENGTH_SHORT).show();
 
-                    }
-                });
+                    Toast.makeText( BreakPurpose.this, "Something went wrong", Toast.LENGTH_SHORT).show();
 
+                }
             }
 
+            @Override
+            public void onFailure( Call<ArrayList< OrganizationBreakTimes >> call, Throwable t) {
+
+                if (progressDialog!=null&&progressDialog.isShowing())
+                    progressDialog.dismiss();
+
+
+                Toast.makeText( BreakPurpose.this, "Something went wrong", Toast.LENGTH_SHORT).show();
+
+            }
         });
+
     }
 
     @Override

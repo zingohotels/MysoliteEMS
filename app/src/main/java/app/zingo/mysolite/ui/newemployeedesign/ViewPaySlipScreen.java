@@ -698,6 +698,7 @@ public class ViewPaySlipScreen extends AppCompatActivity {
 
             invoicepdfFile = sd.getAbsolutePath()+"/Employee/Pdf/PaySlip/"+invoicePdf;
 
+
             File file = new File(directory, invoicePdf);
             String path = "docs/" + invoicepdfFilename;
             docWriter = PdfWriter.getInstance(doc , new FileOutputStream(file));

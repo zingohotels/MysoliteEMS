@@ -20,7 +20,6 @@ import app.zingo.mysolite.adapter.ShiftAdapter;
 import app.zingo.mysolite.model.WorkingDay;
 import app.zingo.mysolite.ui.Company.WorkingDaysScreen;
 import app.zingo.mysolite.utils.PreferenceHandler;
-import app.zingo.mysolite.utils.ThreadExecuter;
 import app.zingo.mysolite.utils.Util;
 import app.zingo.mysolite.WebApi.OrganizationTimingsAPI;
 import app.zingo.mysolite.R;
@@ -89,64 +88,58 @@ public class ShiftScreenList extends AppCompatActivity {
     }
 
     public void getShiftTimings(final int id) {
-        new ThreadExecuter ().execute( new Runnable() {
+
+        final OrganizationTimingsAPI orgApi = Util.getClient().create(OrganizationTimingsAPI.class);
+        Call<ArrayList< WorkingDay >> getProf = orgApi.getOrganizationTimingByOrgId(id);
+        //Call<ArrayList<Blogs>> getBlog = blogApi.getBlogs();
+
+        getProf.enqueue(new Callback<ArrayList< WorkingDay >>() {
+
             @Override
-            public void run() {
-
-                final OrganizationTimingsAPI orgApi = Util.getClient().create(OrganizationTimingsAPI.class);
-                Call<ArrayList< WorkingDay >> getProf = orgApi.getOrganizationTimingByOrgId(id);
-                //Call<ArrayList<Blogs>> getBlog = blogApi.getBlogs();
-
-                getProf.enqueue(new Callback<ArrayList< WorkingDay >>() {
-
-                    @Override
-                    public void onResponse( Call<ArrayList< WorkingDay >> call, Response<ArrayList< WorkingDay >> response) {
+            public void onResponse( Call<ArrayList< WorkingDay >> call, Response<ArrayList< WorkingDay >> response) {
 
 
 
-                        if (response.code() == 200||response.code() == 201||response.code() == 204)
-                        {
-                            mLoader.setVisibility(View.GONE);
+                if (response.code() == 200||response.code() == 201||response.code() == 204)
+                {
+                    mLoader.setVisibility(View.GONE);
 
-                            ArrayList< WorkingDay > branches = response.body();
+                    ArrayList< WorkingDay > branches = response.body();
 
-                            if(branches!=null&&branches.size()!=0){
-
-                                mLoader.setVisibility(View.GONE);
-                                mNoShifts.setVisibility(View.GONE);
-
-                                mShiftsList.removeAllViews();
-
-                                ShiftAdapter adapter = new ShiftAdapter( ShiftScreenList.this,branches);
-                                mShiftsList.setAdapter(adapter);
-
-
-                            }
-
-
-                        }else{
-
-                            mLoader.setVisibility(View.GONE);
-
-                            Toast.makeText( ShiftScreenList.this, "Something went wrong", Toast.LENGTH_SHORT).show();
-
-                        }
-                    }
-
-                    @Override
-                    public void onFailure( Call<ArrayList< WorkingDay >> call, Throwable t) {
+                    if(branches!=null&&branches.size()!=0){
 
                         mLoader.setVisibility(View.GONE);
+                        mNoShifts.setVisibility(View.GONE);
 
+                        mShiftsList.removeAllViews();
 
-                        Toast.makeText( ShiftScreenList.this, "Something went wrong", Toast.LENGTH_SHORT).show();
+                        ShiftAdapter adapter = new ShiftAdapter( ShiftScreenList.this,branches);
+                        mShiftsList.setAdapter(adapter);
+
 
                     }
-                });
 
+
+                }else{
+
+                    mLoader.setVisibility(View.GONE);
+
+                    Toast.makeText( ShiftScreenList.this, "Something went wrong", Toast.LENGTH_SHORT).show();
+
+                }
             }
 
+            @Override
+            public void onFailure( Call<ArrayList< WorkingDay >> call, Throwable t) {
+
+                mLoader.setVisibility(View.GONE);
+
+
+                Toast.makeText( ShiftScreenList.this, "Something went wrong", Toast.LENGTH_SHORT).show();
+
+            }
         });
+
     }
 
     @Override

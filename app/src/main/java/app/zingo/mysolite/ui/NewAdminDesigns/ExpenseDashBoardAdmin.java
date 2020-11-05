@@ -131,7 +131,7 @@ public class ExpenseDashBoardAdmin extends AppCompatActivity {
 
                         String base=employeeImages.getImage();
                         if(base != null && !base.isEmpty()){
-                            Picasso.with( ExpenseDashBoardAdmin.this).load(base).placeholder(R.drawable.profile_image).error(R.drawable.profile_image).into(mProfilePic);
+                            Picasso.get ().load(base).placeholder(R.drawable.profile_image).error(R.drawable.profile_image).into(mProfilePic);
 
 
                         }

@@ -3,6 +3,7 @@ package app.zingo.mysolite.WebApi;
 import java.util.ArrayList;
 
 import app.zingo.mysolite.model.Tasks;
+import io.reactivex.Observable;
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.DELETE;
@@ -37,4 +38,11 @@ public interface TasksAPI {
 
 
 
+    //RxJava
+
+    @GET("Tasks/GetTasksByEmployeeId/{EmployeeId}")
+    Observable <ArrayList<Tasks>> getTasksByEmployeeIdRx ( @Path ("EmployeeId") int EmployeeId );
+
+    @GET("Tasks")
+    Observable <ArrayList<Tasks>> getTasksRx ( );
 }

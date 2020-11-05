@@ -1,100 +1,96 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
+<LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:layout_margin="20dp"
     android:padding="10dp"
-    android:focusableInTouchMode="true"
-    >
-
-    <ScrollView
+    android:orientation="vertical"
+    android:focusableInTouchMode="true">
+    
+    <TextView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-        <androidx.cardview.widget.CardView
-            android:id="@+id/card"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:id="@+id/employee_name"
+        android:textSize="16sp"
+        android:textColor="@color/grey_charcoal"
+        android:textAppearance="@style/Base.TextAppearance.AppCompat.Title"/>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0.5dp"
+        android:layout_margin="10dp"
+        android:background="#bfbebe"/>
+    
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="start"
+            android:id="@+id/call_employee"
+            android:textSize="16sp"
+            android:layout_marginStart="20dp"
+            android:textColor="@color/grey_charcoal"
+            android:drawableStart="@drawable/ic_call"
+            android:drawablePadding="20dp"
+            android:textAppearance="@style/Base.TextAppearance.AppCompat.Title"/>
+
+        <View
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="0.5dp"
+            android:layout_margin="10dp"
+            android:background="#bfbebe"/>
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical">
-
-
-                <app.zingo.mysolite.Custom.MyRegulerText
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:textSize="20dp"
-                    android:layout_margin="5dp"
-                    android:id="@+id/employee_name"
-                    android:text="Contact "
-                    android:textColor="#000000"/>
+    </LinearLayout>
 
 
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginBottom="5dp">
 
-                    <app.zingo.mysolite.Custom.MyRegulerText
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:textSize="20dp"
-                        android:layout_margin="5dp"
-                        android:id="@+id/call_employee"
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="start"
+            android:id="@+id/email_employee"
+            android:textSize="16sp"
+            android:layout_marginStart="20dp"
+            android:drawableStart="@drawable/ic_email"
+            android:drawablePadding="20dp"
+            android:textColor="@color/grey_charcoal"
+            android:textAppearance="@style/Base.TextAppearance.AppCompat.Title"/>
 
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="0.5dp"
+            android:layout_margin="10dp"
+            android:background="#bfbebe"/>
 
-                        android:text="Call "
-                        android:textColor="#000000"/>
+    </LinearLayout>
 
-                    <View
-                        android:layout_width="match_parent"
-                        android:layout_height="2dp"
-                        android:background="#dadada"
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="45dp"
+        android:layout_marginTop="15dp"
+        android:orientation="horizontal">
+        <androidx.appcompat.widget.AppCompatTextView
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:text="@string/cancel"
+            android:id="@+id/cancel"
+            android:textSize="16sp"
+            android:background="@color/colorPrimary"
+            android:layout_weight="1"
+            android:textColor="@color/white"/>
 
-                        />
-
-                </LinearLayout>
-
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-
-                    android:layout_marginBottom="5dp"
-                    >
-
-                    <app.zingo.mysolite.Custom.MyRegulerText
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:textSize="20dp"
-                        android:layout_margin="5dp"
-                        android:id="@+id/email_employee"
-                        android:text="Email "
-
-                        android:textColor="#000000"/>
-
-                    <View
-                        android:layout_width="match_parent"
-                        android:layout_height="2dp"
-                        android:background="#dadada"
-
-                        />
-
-                </LinearLayout>
-
-
-
-
-
-
-
-            </LinearLayout>
-        </androidx.cardview.widget.CardView>
-
-
-    </ScrollView>
-
-</RelativeLayout>
+    </LinearLayout>
+</LinearLayout>

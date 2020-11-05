@@ -163,7 +163,7 @@
                 android:id="@+id/reseller_sign_in_check"
                 android:layout_width="wrap_content"
                 android:layout_height="0dp"
-                android:visibility="visible"
+                android:visibility="gone"
                 android:layout_weight="1"
                 android:checked="false"
                 android:layout_marginTop="5dp"
@@ -185,6 +185,7 @@
         android:orientation="horizontal">
 
         <app.zingo.mysolite.Custom.MyRegulerText
+            android:visibility="visible"
             android:id="@+id/button_get_started"
             android:layout_width="match_parent"
             android:layout_height="50dp"
@@ -203,7 +204,7 @@
             android:layout_weight="1"
             android:layout_width="match_parent"
             android:layout_height="50dp"
-            android:visibility="gone"
+            android:visibility="visible"
             android:background="@drawable/button_primary_dark"
             android:layout_margin="5dp"
             android:textAlignment="center"

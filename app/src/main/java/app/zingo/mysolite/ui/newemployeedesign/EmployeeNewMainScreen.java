@@ -1,14 +1,17 @@
 package app.zingo.mysolite.ui.newemployeedesign;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.ActivityNotFoundException;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
@@ -61,6 +64,7 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -115,9 +119,9 @@ import app.zingo.mysolite.ui.Admin.CreateTaskScreen;
 import app.zingo.mysolite.ui.Common.CustomerCreation;
 import app.zingo.mysolite.ui.Common.PlanExpireScreen;
 import app.zingo.mysolite.ui.landing.InternalServerErrorScreen;
+import app.zingo.mysolite.utils.BaseActivity;
 import app.zingo.mysolite.utils.Constants;
 import app.zingo.mysolite.utils.PreferenceHandler;
-import app.zingo.mysolite.utils.ThreadExecuter;
 import app.zingo.mysolite.utils.TrackGPS;
 import app.zingo.mysolite.utils.Util;
 import app.zingo.mysolite.WebApi.EmployeeApi;
@@ -139,7 +143,7 @@ import uk.co.deanwild.materialshowcaseview.MaterialShowcaseSequence;
 import uk.co.deanwild.materialshowcaseview.MaterialShowcaseView;
 import uk.co.deanwild.materialshowcaseview.ShowcaseTooltip;
 
-public class EmployeeNewMainScreen extends AppCompatActivity implements RapidFloatingActionContentLabelList.OnRapidFloatingActionContentLabelListListener,GoogleApiClient.ConnectionCallbacks,
+public class EmployeeNewMainScreen extends BaseActivity implements RapidFloatingActionContentLabelList.OnRapidFloatingActionContentLabelListListener,GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
         com.google.android.gms.location.LocationListener  {
 
@@ -154,46 +158,30 @@ public class EmployeeNewMainScreen extends AppCompatActivity implements RapidFlo
     CardView  mCardView;
     LinearLayout mWhatsapp;
     MyRegulerText share_card;
-
-
     boolean doubleBackToExitPressedOnce = false;
-
-
     Employee profile;
     EmployeeImages employeeImages;
     int userId=0,imageId=0;
     String appType="",planType="",licensesStartDate="",licenseEndDate="";
     int planId=0;
-
     private int SELECT_FILE = 2;
     String selectedImage;
-
     String currentVersion;
     Dialog dialog;
-
     private static final int REQUEST_PERMISSIONS = 100;
     boolean boolean_permission,boolean_permissions,boolean_permissiont;
     private static final int REQUEST= 112;
     private static final int REQUESTS= 113;
-
     Context mContext = this;
-
     public static final int MEDIA_TYPE_IMAGE = 1;
     private Uri fileUri;
     private String mImageFileLocation = "";
     public static final String IMAGE_DIRECTORY_NAME = "Android File Upload";
     private String postPath;
-
-
-
-
     int pos;
     boolean con = true;
-
     private static final String SHOWCASE_ID = "Tools";
-
     private RapidFloatingActionHelper rfabHelper;
-
     //meeting
     ImageView mImageView;
     File file;
@@ -203,31 +191,24 @@ public class EmployeeNewMainScreen extends AppCompatActivity implements RapidFlo
     signature mSignature;
     Button  mClear, mGetSigns, mCancel;
     Bitmap bitmap;
-
     // Creating Separate Directory for saving Generated Images
     String DIRECTORY = Environment.getExternalStorageDirectory().getPath() + "/Mysolite Apps/";
     String pic_name = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(new Date());
     String StoredPath = DIRECTORY + pic_name + ".png";
     String StoredPathSelfie = DIRECTORY + pic_name+"selfie" + ".png";
-
     static final int REQUEST_IMAGE_CAPTURE = 1;
-
     Meetings loginDetails;
     MeetingDetailsNotificationManagers md;
     boolean methodAdd = false;
-
     ArrayList< Employee > customerArrayList;
     Spinner customerSpinner;
     LinearLayout ClientNameLayout;
     int clientId = 0;
-
     private GoogleApiClient mLocationClient;
     Location currentLocation;
-
     //Location
     TrackGPS gps;
     double latitude, longitude;
-
     private static final int REQUEST_TAKE_PHOTO = 0;
     private static final int REQUEST_PICK_PHOTO = 2;
     private static final int CAMERA_PIC_REQUEST = 1111;
@@ -235,25 +216,17 @@ public class EmployeeNewMainScreen extends AppCompatActivity implements RapidFlo
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         try{
-
             setContentView(R.layout.activity_employee_new_main_screen);
-/*
-            if(Build.VERSION.SDK_INT>25){
-                Util.schedulerJob(getApplicationContext());
-            }
-*/
-
             Bundle extras = getIntent().getExtras();
             if(extras != null) {
                 pos = extras.getInt("viewpager_position");
                 con = extras.getBoolean("Condition");
 
             }
+
             gps = new TrackGPS ( EmployeeNewMainScreen.this);
             PreferenceHandler.getInstance( EmployeeNewMainScreen.this).setFirstCheck(con);
-
             RapidFloatingActionLayout rfaLayout = findViewById ( R.id.rfab_group_sample_fragment_a_rfal );
             RapidFloatingActionButton rfaButton = findViewById ( R.id.label_list_sample_rfab );
 
@@ -270,29 +243,20 @@ public class EmployeeNewMainScreen extends AppCompatActivity implements RapidFlo
             share_card = findViewById(R.id.share_card);
 
             mCardView.setDrawingCacheEnabled(true);
-
             if (mLocationClient == null) {
-
                 mLocationClient = new GoogleApiClient.Builder(this)
                         .addConnectionCallbacks(this)
                         .addOnConnectionFailedListener(this)
                         .addApi(LocationServices.API)
-                        .build();
-            }
-
+                        .build();}
 
             setupData();
-
-            getCurrentVersion();
-
+           // getCurrentVersion();
 
             mWhatsapp.setOnClickListener( view -> {
-
                 String message = "Hi I'm "+ PreferenceHandler.getInstance( EmployeeNewMainScreen.this).getUserFullName()+",\n My Organization Name is "+ PreferenceHandler.getInstance( EmployeeNewMainScreen.this).getCompanyName()+".I am writing about the feedback of Mysolite app Ver: "+ BuildConfig.VERSION_NAME+".";
-
                 PackageManager packageManager = getPackageManager();
                 Intent i = new Intent(Intent.ACTION_VIEW);
-
                 try {
                     String url = "https://api.whatsapp.com/send?phone=+919986128021" + "&text=" + URLEncoder.encode(message, "UTF-8");
                     i.setPackage("com.whatsapp");
@@ -304,23 +268,14 @@ public class EmployeeNewMainScreen extends AppCompatActivity implements RapidFlo
                     e.printStackTrace();
                     Toast.makeText( EmployeeNewMainScreen.this, "WhatsApp not installed.", Toast.LENGTH_SHORT).show();
                 }
-
-
-
             } );
 
             fn_permission();
-
             String meetingStatus = PreferenceHandler.getInstance( EmployeeNewMainScreen.this).getMeetingLoginStatus();
-
             String meeting ;
-
             if (meetingStatus != null && meetingStatus.equalsIgnoreCase("Login")) {
-
                 meeting = "Meeting Check-Out";
-
             }else{
-
                 meeting = "Meeting Check-In";
             }
 
@@ -360,14 +315,13 @@ public class EmployeeNewMainScreen extends AppCompatActivity implements RapidFlo
                     .setIconNormalColor(0xff283593)
                     .setIconPressedColor(0xff1a237e)
                     .setLabelColor(0xff283593)
-                    .setWrapper(3)
-            );
+                    .setWrapper(3));
+
             rfaContent
                     .setItems(items)
                     .setIconShadowRadius( RFABTextUtil.dip2px(this, 5))
                     .setIconShadowColor(0xff888888)
-                    .setIconShadowDy( RFABTextUtil.dip2px(this, 5))
-            ;
+                    .setIconShadowDy( RFABTextUtil.dip2px(this, 5));
 
             rfabHelper = new RapidFloatingActionHelper (
                     this,
@@ -376,17 +330,12 @@ public class EmployeeNewMainScreen extends AppCompatActivity implements RapidFlo
                     rfaContent
             ).build();
 
-
         }catch(Exception e){
             e.printStackTrace();
         }
-
     }
 
-
-
     private void fn_permission() {
-
         if (Build.VERSION.SDK_INT >= 23) {
             Log.d("TAG","@@@ IN IF Build.VERSION.SDK_INT >= 23");
             String[] PERMISSIONS = {
@@ -395,55 +344,40 @@ public class EmployeeNewMainScreen extends AppCompatActivity implements RapidFlo
                     Manifest.permission.ACCESS_COARSE_LOCATION,
                     Manifest.permission.ACCESS_FINE_LOCATION,
                     Manifest.permission.ACCESS_WIFI_STATE
-
             };
-
-
             if (!hasPermissions(mContext, PERMISSIONS)) {
                 ActivityCompat.requestPermissions((Activity) mContext, PERMISSIONS, REQUEST_PERMISSIONS );
             } else {
                 boolean_permission = true;
             }
         }
-
     }
-
     private void fn_permission_photo() {
-
         if (Build.VERSION.SDK_INT >= 23) {
             String[] PERMISSIONS = {
                     Manifest.permission.CAMERA,
                     Manifest.permission.READ_EXTERNAL_STORAGE,
                     Manifest.permission.WRITE_EXTERNAL_STORAGE
-
             };
-
-
             if (!hasPermissions(mContext, PERMISSIONS)) {
                 ActivityCompat.requestPermissions((Activity) mContext, PERMISSIONS, REQUEST );
             } else {
                 boolean_permissions = true;
             }
         }
-
     }
 
     private void fn_permission_telephony() {
-
         if (Build.VERSION.SDK_INT >= 23) {
             String[] PERMISSIONS = {
                     Manifest.permission.READ_PHONE_STATE
-
             };
-
-
             if (!hasPermissions(mContext, PERMISSIONS)) {
                 ActivityCompat.requestPermissions((Activity) mContext, PERMISSIONS, REQUESTS );
             } else {
                 boolean_permissiont = true;
             }
         }
-
     }
 
     @RequiresApi (api = Build.VERSION_CODES.M)
@@ -451,31 +385,22 @@ public class EmployeeNewMainScreen extends AppCompatActivity implements RapidFlo
     public void onRequestPermissionsResult( int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-
             switch (requestCode) {
                 case REQUEST_PERMISSIONS: {
                     boolean_permission = true;
                 }
                 break;
-
                 case REQUEST: {
                     boolean_permissions = true;
                 }
                 break;
-
                 case REQUESTS: {
                     boolean_permissiont = true;
                 }
                 break;
-
-
             }
-
         }
-
     }
-
-
 
 
     class ViewPagerAdapter extends FragmentPagerAdapter {
@@ -503,8 +428,6 @@ public class EmployeeNewMainScreen extends AppCompatActivity implements RapidFlo
             return this.mFragmentTitleList.get(i);
         }
     }
-
-
 
     private void setupTabIcons(TabLayout tabLayout) {
         Objects.requireNonNull ( tabLayout.getTabAt ( 4 ) ).setIcon(R.drawable.white_navigation);
@@ -543,16 +466,12 @@ public class EmployeeNewMainScreen extends AppCompatActivity implements RapidFlo
         }
     }
 
-
-
     protected void onStart() {
         super.onStart ();
         if (mLocationClient != null) {
             mLocationClient.connect ();
         }
     }
-
-
 
     public void setupData() {
         TextView organizationName = findViewById(R.id.organizationName);
@@ -589,8 +508,7 @@ public class EmployeeNewMainScreen extends AppCompatActivity implements RapidFlo
                         .itemsCallback( ( dialog , view , which , text ) -> {
                             switch (which) {
                                 case 0:
-                                    Intent galleryIntent = new Intent(Intent.ACTION_PICK,
-                                            MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                                    Intent galleryIntent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
                                     startActivityForResult(galleryIntent, REQUEST_PICK_PHOTO);
                                     break;
                                 case 1:
@@ -648,7 +566,7 @@ public class EmployeeNewMainScreen extends AppCompatActivity implements RapidFlo
             }
             String imageLogo = PreferenceHandler.getInstance( EmployeeNewMainScreen.this).getLogo();
             if(imageLogo!=null&&!imageLogo.isEmpty()){
-                Picasso.with( EmployeeNewMainScreen.this).load(imageLogo).placeholder(R.drawable.profile_image).error(R.drawable.profile_image).into(mCardLogo);
+               Picasso.get ().load(imageLogo).placeholder(R.drawable.profile_image).error(R.drawable.profile_image).into(mCardLogo);
             }
             mCardMobile.setText(PreferenceHandler.getInstance( EmployeeNewMainScreen.this).getPhoneNumber());
             mCardEmail.setText(PreferenceHandler.getInstance( EmployeeNewMainScreen.this).getUserEmail());
@@ -662,7 +580,7 @@ public class EmployeeNewMainScreen extends AppCompatActivity implements RapidFlo
                     imageId = employeeImages.getEmployeeImageId();
                     String base=employeeImages.getImage();
                     if(base != null && !base.isEmpty()){
-                        Picasso.with( EmployeeNewMainScreen.this).load(base).placeholder(R.drawable.ic_account_circle_black).
+                       Picasso.get ().load(base).placeholder(R.drawable.ic_account_circle_black).
                                 error(R.drawable.ic_account_circle_black).into(mProfileImage);
                     }
                 }
@@ -761,7 +679,7 @@ public class EmployeeNewMainScreen extends AppCompatActivity implements RapidFlo
                         String imageLogo = PreferenceHandler.getInstance( EmployeeNewMainScreen.this).getLogo();
                         if(imageLogo!=null&&!imageLogo.isEmpty()){
 
-                            Picasso.with( EmployeeNewMainScreen.this).load(imageLogo).placeholder(R.drawable.profile_image).error(R.drawable.profile_image).into(mCardLogo);
+                           Picasso.get ().load(imageLogo).placeholder(R.drawable.profile_image).error(R.drawable.profile_image).into(mCardLogo);
                         }
 
 
@@ -774,7 +692,7 @@ public class EmployeeNewMainScreen extends AppCompatActivity implements RapidFlo
                                 imageId = employeeImages.getEmployeeImageId();
                                 String base=employeeImages.getImage();
                                 if(base != null && !base.isEmpty()){
-                                    Picasso.with( EmployeeNewMainScreen.this).load(base).placeholder(R.drawable.ic_account_circle_black).
+                                   Picasso.get ().load(base).placeholder(R.drawable.ic_account_circle_black).
                                             error(R.drawable.ic_account_circle_black).into(mProfileImage);
 
                                 }
@@ -1057,17 +975,13 @@ public class EmployeeNewMainScreen extends AppCompatActivity implements RapidFlo
         return cursor.getString(idx);
     }
 
-    public void addImage(Bitmap bitmap)
-    {
+    public void addImage(Bitmap bitmap) {
         try{
-           if(bitmap != null)
-            {
+           if(bitmap != null) {
                 mProfileImage.setImageBitmap(bitmap);
-                if(selectedImage != null && !selectedImage.isEmpty())
-                {
+                if(selectedImage != null && !selectedImage.isEmpty()) {
                     File file = new File(selectedImage);
-                    if(file.length() <= 1024*1024)
-                    {
+                    if(file.length() <= 1024*1024) {
                         FileOutputStream out = null;
                         String[] filearray = selectedImage.split("/");
                         final String filename = getFilename(filearray[filearray.length-1]);
@@ -1077,8 +991,7 @@ public class EmployeeNewMainScreen extends AppCompatActivity implements RapidFlo
                         myBitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
                         uploadImage(filename,profile);
                     }
-                    else
-                    {
+                    else {
                         compressImage(selectedImage,profile);
                     }
                 }
@@ -1088,19 +1001,15 @@ public class EmployeeNewMainScreen extends AppCompatActivity implements RapidFlo
         }
     }
 
-    private void uploadImage(final String filePath,final Employee employee)
-    {
+    private void uploadImage(final String filePath,final Employee employee) {
         final File file = new File(filePath);
         int size = 1*1024*1024;
-        if(file != null)
-        {
-            if(file.length() > size)
-            {
+        if(file != null) {
+            if(file.length() > size) {
                 System.out.println(file.length());
                 compressImage(filePath,employee);
             }
-            else
-            {
+            else {
                 final ProgressDialog dialog = new ProgressDialog( EmployeeNewMainScreen.this);
                 dialog.setCancelable(false);
                 dialog.setTitle("Uploading Image..");
@@ -1295,241 +1204,211 @@ public class EmployeeNewMainScreen extends AppCompatActivity implements RapidFlo
         dialog.setCancelable(false);
         dialog.setTitle("Updating Image..");
         dialog.show();
-
-        new ThreadExecuter ().execute( new Runnable() {
+        EmployeeImageAPI auditApi = Util.getClient().create( EmployeeImageAPI.class);
+        Call< EmployeeImages > response = auditApi.updateEmployeeImage(employeeImages.getEmployeeImageId(),employeeImages);
+        response.enqueue(new Callback< EmployeeImages >() {
             @Override
-            public void run() {
-                EmployeeImageAPI auditApi = Util.getClient().create( EmployeeImageAPI.class);
-                Call< EmployeeImages > response = auditApi.updateEmployeeImage(employeeImages.getEmployeeImageId(),employeeImages);
-                response.enqueue(new Callback< EmployeeImages >() {
-                    @Override
-                    public void onResponse( Call< EmployeeImages > call, Response< EmployeeImages > response) {
-                        if(response.code() == 201||response.code() == 200||response.code() == 204)
-                        {
-                            if(dialog != null)
-                            {
-                                dialog.dismiss();
-                            }
-                            System.out.println(response.code());
-                               // mProfileImage.setImageBitmap(bitmap);
-                                Toast.makeText( EmployeeNewMainScreen.this,"Profile Image Updated",Toast.LENGTH_SHORT).show();
-                            }
-                            else
-                            {
-                                Toast.makeText( EmployeeNewMainScreen.this,response.message(),Toast.LENGTH_SHORT).show();
-                            }
+            public void onResponse( Call< EmployeeImages > call, Response< EmployeeImages > response) {
+                if(response.code() == 201||response.code() == 200||response.code() == 204)
+                {
+                    if(dialog != null)
+                    {
+                        dialog.dismiss();
                     }
+                    System.out.println(response.code());
+                    // mProfileImage.setImageBitmap(bitmap);
+                    Toast.makeText( EmployeeNewMainScreen.this,"Profile Image Updated",Toast.LENGTH_SHORT).show();
+                }
+                else
+                {
+                    Toast.makeText( EmployeeNewMainScreen.this,response.message(),Toast.LENGTH_SHORT).show();
+                }
+            }
 
-                    @Override
-                    public void onFailure( Call< EmployeeImages > call, Throwable t) {
-                        if(dialog != null)
-                        {
-                            dialog.dismiss();
-                        }
+            @Override
+            public void onFailure( Call< EmployeeImages > call, Throwable t) {
+                if(dialog != null)
+                {
+                    dialog.dismiss();
+                }
 
-                    }
-                });
             }
         });
     }
 
     private void addProfileImage(final EmployeeImages employeeImages) {
-
         final ProgressDialog dialog = new ProgressDialog(this);
         dialog.setCancelable(false);
         dialog.setTitle("Updating Image..");
         dialog.show();
-
-        new ThreadExecuter ().execute( new Runnable() {
+        EmployeeImageAPI auditApi = Util.getClient().create( EmployeeImageAPI.class);
+        Call< EmployeeImages > response = auditApi.addEmployeeImage(employeeImages);
+        response.enqueue(new Callback< EmployeeImages >() {
             @Override
-            public void run() {
-                EmployeeImageAPI auditApi = Util.getClient().create( EmployeeImageAPI.class);
-                Call< EmployeeImages > response = auditApi.addEmployeeImage(employeeImages);
-                response.enqueue(new Callback< EmployeeImages >() {
-                    @Override
-                    public void onResponse( Call< EmployeeImages > call, Response< EmployeeImages > response) {
-                        if(dialog != null)
-                        {
-                            dialog.dismiss();
-                        }
-                        System.out.println(response.code());
-                        mProfileImage.setImageBitmap(bitmap);
+            public void onResponse( Call< EmployeeImages > call, Response< EmployeeImages > response) {
+                if(dialog != null)
+                {
+                    dialog.dismiss();
+                }
+                System.out.println(response.code());
+                mProfileImage.setImageBitmap(bitmap);
 
-                        if(response.code() == 201||response.code() == 200||response.code() == 204)
-                        {
-                            Toast.makeText( EmployeeNewMainScreen.this,"Profile Image Updated",Toast.LENGTH_SHORT).show();
-                        }
-                        else
-                        {
-                            Toast.makeText( EmployeeNewMainScreen.this,response.message(),Toast.LENGTH_SHORT).show();
-                        }
-                    }
+                if(response.code() == 201||response.code() == 200||response.code() == 204)
+                {
+                    Toast.makeText( EmployeeNewMainScreen.this,"Profile Image Updated",Toast.LENGTH_SHORT).show();
+                }
+                else
+                {
+                    Toast.makeText( EmployeeNewMainScreen.this,response.message(),Toast.LENGTH_SHORT).show();
+                }
+            }
 
-                    @Override
-                    public void onFailure( Call< EmployeeImages > call, Throwable t) {
-                        if(dialog != null)
-                        {
-                            dialog.dismiss();
-                        }
+            @Override
+            public void onFailure( Call< EmployeeImages > call, Throwable t) {
+                if(dialog != null)
+                {
+                    dialog.dismiss();
+                }
 
-                    }
-                });
             }
         });
     }
 
-    public void addDeviceId(final EmployeeDeviceMapping pf)
-    {
-        new ThreadExecuter ().execute( new Runnable() {
+    public void addDeviceId(final EmployeeDeviceMapping pf) {
+        EmployeeDeviceApi hotelOperation = Util.getClient().create( EmployeeDeviceApi.class);
+        Call<EmployeeDeviceMapping> response = hotelOperation.addProfileDevice(pf);
+        response.enqueue(new Callback<EmployeeDeviceMapping>() {
             @Override
-            public void run() {
+            public void onResponse(Call<EmployeeDeviceMapping> call, Response<EmployeeDeviceMapping> response) {
+                System.out.println("GetHotelByProfileId = "+response.code());
 
 
-                EmployeeDeviceApi hotelOperation = Util.getClient().create( EmployeeDeviceApi.class);
-                Call<EmployeeDeviceMapping> response = hotelOperation.addProfileDevice(pf);
+                if(response.code() == 200||response.code() == 201||response.code() == 202||response.code() == 204)
+                {
+                    try{
+                        System.out.println("registered");
+                        EmployeeDeviceMapping pr = response.body();
 
-                response.enqueue(new Callback<EmployeeDeviceMapping>() {
-                    @Override
-                    public void onResponse(Call<EmployeeDeviceMapping> call, Response<EmployeeDeviceMapping> response) {
-                        System.out.println("GetHotelByProfileId = "+response.code());
+                        System.out.println();
 
-
-                        if(response.code() == 200||response.code() == 201||response.code() == 202||response.code() == 204)
+                        if(pr != null)
                         {
-                            try{
-                                System.out.println("registered");
-                                EmployeeDeviceMapping pr = response.body();
-
-                                System.out.println();
-
-                                if(pr != null)
-                                {
-                                    PreferenceHandler.getInstance( EmployeeNewMainScreen.this).setMappingId(pr.getEmployeeDeviceMappingId());
-                                }
-
-                            }catch (Exception e){
-                                e.printStackTrace();
-                            }
-                        }else if(response.code() == 404){
-                            System.out.println("already registered");
+                            PreferenceHandler.getInstance( EmployeeNewMainScreen.this).setMappingId(pr.getEmployeeDeviceMappingId());
                         }
-                        else
-                        {
 
-                        }
+                    }catch (Exception e){
+                        e.printStackTrace();
                     }
+                }else if(response.code() == 404){
+                    System.out.println("already registered");
+                }
+                else
+                {
 
-                    @Override
-                    public void onFailure(Call<EmployeeDeviceMapping> call, Throwable t) {
+                }
+            }
 
-                    }
-                });
+            @Override
+            public void onFailure(Call<EmployeeDeviceMapping> call, Throwable t) {
+
             }
         });
     }
 
     public void getCompany(final int id) {
-        new ThreadExecuter ().execute( new Runnable() {
+        final OrganizationApi subCategoryAPI = Util.getClient().create( OrganizationApi.class);
+        Call<ArrayList< Organization >> getProf = subCategoryAPI.getOrganizationById(id);
+        getProf.enqueue(new Callback<ArrayList< Organization >>() {
             @Override
-            public void run() {
+            public void onResponse( Call<ArrayList< Organization >> call, Response<ArrayList< Organization >> response) {
 
-                final OrganizationApi subCategoryAPI = Util.getClient().create( OrganizationApi.class);
-                Call<ArrayList< Organization >> getProf = subCategoryAPI.getOrganizationById(id);
-                getProf.enqueue(new Callback<ArrayList< Organization >>() {
-                    @Override
-                    public void onResponse( Call<ArrayList< Organization >> call, Response<ArrayList< Organization >> response) {
+                if (response.code() == 200||response.code() == 201||response.code() == 204&&response.body().size()!=0)
+                {
+                    Organization organization = response.body().get(0);
+                    System.out.println("Inside api");
+                    PreferenceHandler.getInstance( EmployeeNewMainScreen.this).setCompanyId(organization.getOrganizationId());
+                    PreferenceHandler.getInstance( EmployeeNewMainScreen.this).setCompanyName(organization.getOrganizationName());
+                    PreferenceHandler.getInstance( EmployeeNewMainScreen.this).setAppType(organization.getAppType());
 
-                        if (response.code() == 200||response.code() == 201||response.code() == 204&&response.body().size()!=0)
-                        {
-                            Organization organization = response.body().get(0);
-                            System.out.println("Inside api");
-                            PreferenceHandler.getInstance( EmployeeNewMainScreen.this).setCompanyId(organization.getOrganizationId());
-                            PreferenceHandler.getInstance( EmployeeNewMainScreen.this).setCompanyName(organization.getOrganizationName());
-                            PreferenceHandler.getInstance( EmployeeNewMainScreen.this).setAppType(organization.getAppType());
+                    PreferenceHandler.getInstance( EmployeeNewMainScreen.this).setAppType(organization.getAppType());
+                    PreferenceHandler.getInstance( EmployeeNewMainScreen.this).setLicenseStartDate(organization.getLicenseStartDate());
+                    PreferenceHandler.getInstance( EmployeeNewMainScreen.this).setLicenseEndDate(organization.getLicenseEndDate());
+                    PreferenceHandler.getInstance( EmployeeNewMainScreen.this).setSignupDate(organization.getSignupDate());
+                    PreferenceHandler.getInstance( EmployeeNewMainScreen.this).setOrganizationLongi(organization.getLongitude());
+                    PreferenceHandler.getInstance( EmployeeNewMainScreen.this).setOrganizationLati(organization.getLatitude());
+                    PreferenceHandler.getInstance( EmployeeNewMainScreen.this).setPlanType(organization.getPlanType());
+                    PreferenceHandler.getInstance( EmployeeNewMainScreen.this).setEmployeeLimit(organization.getEmployeeLimit());
+                    PreferenceHandler.getInstance( EmployeeNewMainScreen.this).setPlanId(organization.getPlanId());
 
-                            PreferenceHandler.getInstance( EmployeeNewMainScreen.this).setAppType(organization.getAppType());
-                            PreferenceHandler.getInstance( EmployeeNewMainScreen.this).setLicenseStartDate(organization.getLicenseStartDate());
-                            PreferenceHandler.getInstance( EmployeeNewMainScreen.this).setLicenseEndDate(organization.getLicenseEndDate());
-                            PreferenceHandler.getInstance( EmployeeNewMainScreen.this).setSignupDate(organization.getSignupDate());
-                            PreferenceHandler.getInstance( EmployeeNewMainScreen.this).setOrganizationLongi(organization.getLongitude());
-                            PreferenceHandler.getInstance( EmployeeNewMainScreen.this).setOrganizationLati(organization.getLatitude());
-                            PreferenceHandler.getInstance( EmployeeNewMainScreen.this).setPlanType(organization.getPlanType());
-                            PreferenceHandler.getInstance( EmployeeNewMainScreen.this).setEmployeeLimit(organization.getEmployeeLimit());
-                            PreferenceHandler.getInstance( EmployeeNewMainScreen.this).setPlanId(organization.getPlanId());
+                    appType = PreferenceHandler.getInstance( EmployeeNewMainScreen.this).getAppType();
+                    planType = PreferenceHandler.getInstance( EmployeeNewMainScreen.this).getPlanType();
+                    licensesStartDate = PreferenceHandler.getInstance( EmployeeNewMainScreen.this).getLicenseStartDate();
+                    licenseEndDate = PreferenceHandler.getInstance( EmployeeNewMainScreen.this).getLicenseEndDate();
+                    planId = PreferenceHandler.getInstance( EmployeeNewMainScreen.this).getPlanId();
 
-                            appType = PreferenceHandler.getInstance( EmployeeNewMainScreen.this).getAppType();
-                            planType = PreferenceHandler.getInstance( EmployeeNewMainScreen.this).getPlanType();
-                            licensesStartDate = PreferenceHandler.getInstance( EmployeeNewMainScreen.this).getLicenseStartDate();
-                            licenseEndDate = PreferenceHandler.getInstance( EmployeeNewMainScreen.this).getLicenseEndDate();
-                            planId = PreferenceHandler.getInstance( EmployeeNewMainScreen.this).getPlanId();
+                    try{
 
-                            try{
+                        if(appType!=null){
 
-                                if(appType!=null){
+                            if(appType.equalsIgnoreCase("Trial")){
 
-                                    if(appType.equalsIgnoreCase("Trial")){
+                                SimpleDateFormat smdf = new SimpleDateFormat("MM/dd/yyyy");
+                                long days = dateCal(licenseEndDate);
+                                if((smdf.parse(licenseEndDate).getTime()<smdf.parse(smdf.format(new Date())).getTime())){
 
-                                        SimpleDateFormat smdf = new SimpleDateFormat("MM/dd/yyyy");
-                                        long days = dateCal(licenseEndDate);
-                                        if((smdf.parse(licenseEndDate).getTime()<smdf.parse(smdf.format(new Date())).getTime())){
+                                    Toast.makeText( EmployeeNewMainScreen.this, "Your Trial Period is Expired", Toast.LENGTH_SHORT).show();
+                                    PreferenceHandler.getInstance( EmployeeNewMainScreen.this).clear();
 
-                                            Toast.makeText( EmployeeNewMainScreen.this, "Your Trial Period is Expired", Toast.LENGTH_SHORT).show();
-                                            PreferenceHandler.getInstance( EmployeeNewMainScreen.this).clear();
+                                    Intent log = new Intent( EmployeeNewMainScreen.this, PlanExpireScreen.class);
+                                    log.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                                    log.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK|Intent.FLAG_ACTIVITY_NEW_TASK);
+                                    //Toast.makeText(EmployeeNewMainScreen.this,"Logout",Toast.LENGTH_SHORT).show();
+                                    startActivity(log);
+                                    finish();
 
-                                            Intent log = new Intent( EmployeeNewMainScreen.this, PlanExpireScreen.class);
-                                            log.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                                            log.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK|Intent.FLAG_ACTIVITY_NEW_TASK);
-                                            //Toast.makeText(EmployeeNewMainScreen.this,"Logout",Toast.LENGTH_SHORT).show();
-                                            startActivity(log);
-                                            finish();
+                                }else{
+                                    //mTrialMsgInfo.setText("Your Trial version is going to expiry in "+days+" days");
+                                    if(days>=1&&days<=5){
+                                        //popupUpgrade("Hope your enjoying to use our Trial version.Get more features You need to Upgrade App","Your trial period is going to expire in "+days+" days");
+                                    }else if(days==0){
+                                        // popupUpgrade("Hope your enjoying to use our Trial version.Get more features You need to Upgrade App","Today is last day for your free trial");
+                                        // mTrialMsgInfo.setText("Your Trial version is going to expiry in today");
 
-                                        }else{
-                                            //mTrialMsgInfo.setText("Your Trial version is going to expiry in "+days+" days");
-                                            if(days>=1&&days<=5){
-                                                //popupUpgrade("Hope your enjoying to use our Trial version.Get more features You need to Upgrade App","Your trial period is going to expire in "+days+" days");
-                                            }else if(days==0){
-                                                // popupUpgrade("Hope your enjoying to use our Trial version.Get more features You need to Upgrade App","Today is last day for your free trial");
-                                                // mTrialMsgInfo.setText("Your Trial version is going to expiry in today");
+                                    }else if(days<0){
+                                        Toast.makeText( EmployeeNewMainScreen.this, "Your Trial Period is Expired", Toast.LENGTH_SHORT).show();
+                                        PreferenceHandler.getInstance( EmployeeNewMainScreen.this).clear();
 
-                                            }else if(days<0){
-                                                Toast.makeText( EmployeeNewMainScreen.this, "Your Trial Period is Expired", Toast.LENGTH_SHORT).show();
-                                                PreferenceHandler.getInstance( EmployeeNewMainScreen.this).clear();
-
-                                                Intent log = new Intent( EmployeeNewMainScreen.this, PlanExpireScreen.class);
-                                                log.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                                                log.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK|Intent.FLAG_ACTIVITY_NEW_TASK);
-                                                startActivity(log);
-                                                finish();
-                                            }
-                                        }
-                                    }else if(appType.equalsIgnoreCase("Paid")){
-                                        mTrialInfoLay.setVisibility(View.GONE);
+                                        Intent log = new Intent( EmployeeNewMainScreen.this, PlanExpireScreen.class);
+                                        log.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                                        log.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK|Intent.FLAG_ACTIVITY_NEW_TASK);
+                                        startActivity(log);
+                                        finish();
                                     }
                                 }
-
-                            }catch (Exception e){
-                                e.printStackTrace();
+                            }else if(appType.equalsIgnoreCase("Paid")){
+                                mTrialInfoLay.setVisibility(View.GONE);
                             }
-
-                        }else{
-
                         }
+
+                    }catch (Exception e){
+                        e.printStackTrace();
                     }
 
-                    @Override
-                    public void onFailure( Call<ArrayList< Organization >> call, Throwable t) {
+                }else{
 
-                    }
-                });
+                }
+            }
+
+            @Override
+            public void onFailure( Call<ArrayList< Organization >> call, Throwable t) {
+
             }
         });
     }
 
     public long dateCal(String date){
-
         SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy");
         Date fd=null,td=null;
-
         try {
             fd = sdf.parse(""+date);
             td = sdf.parse(""+sdf.format(new Date()));
@@ -1543,30 +1422,20 @@ public class EmployeeNewMainScreen extends AppCompatActivity implements RapidFlo
         }
     }
 
-
-
-
     private void getCurrentVersion(){
-
         PackageManager pm = this.getPackageManager();
         PackageInfo pInfo = null;
-
         try {
-
             pInfo =  pm.getPackageInfo(this.getPackageName(),0);
-
         } catch (PackageManager.NameNotFoundException e1) {
-
             e1.printStackTrace();
         }
          currentVersion = pInfo.versionName;
-        //currentVersion = PreferenceHandler.getInstance ( EmployeeNewMainScreen.this ).getVersionCode ();
-
-
         new GetVersionCode().execute();
 
     }
 
+    @SuppressLint ("StaticFieldLeak")
     class GetVersionCode extends AsyncTask <Void, String, String> {
 
         @Override
@@ -1589,7 +1458,8 @@ public class EmployeeNewMainScreen extends AppCompatActivity implements RapidFlo
                 }
 
             } catch ( Exception e ) {
-                return newVersion;
+               // return newVersion;
+                e.printStackTrace ();
             }
             return newVersion;
         }
@@ -1626,50 +1496,27 @@ public class EmployeeNewMainScreen extends AppCompatActivity implements RapidFlo
                         dialog = builder.show ( );
                     }
                 }
-
-
             }
         }
     }
 
     public void updateProfile(final Employee employee){
-
-
-
-        new ThreadExecuter ().execute( new Runnable() {
+        final EmployeeApi subCategoryAPI = Util.getClient().create( EmployeeApi.class);
+        Call<Employee> getProf = subCategoryAPI.updateEmployee(employee.getEmployeeId(),employee);
+        //Call<ArrayList<Blogs>> getBlog = blogApi.getBlogs();
+        getProf.enqueue(new Callback<Employee>() {
             @Override
-            public void run() {
-
-                final EmployeeApi subCategoryAPI = Util.getClient().create( EmployeeApi.class);
-                Call<Employee> getProf = subCategoryAPI.updateEmployee(employee.getEmployeeId(),employee);
-                //Call<ArrayList<Blogs>> getBlog = blogApi.getBlogs();
-
-                getProf.enqueue(new Callback<Employee>() {
-
-                    @Override
-                    public void onResponse(Call<Employee> call, Response<Employee> response) {
-
-
-                        if (response.code() == 200||response.code()==201||response.code()==204)
-                        {
-
-
-                        }else{
-                            // Toast.makeText(ChangePasswordScreen.this, "Failed due to status code"+response.code(), Toast.LENGTH_SHORT).show();
-                        }
-                    }
-
-                    @Override
-                    public void onFailure(Call<Employee> call, Throwable t) {
-
-
-                        //  Toast.makeText(ChangePasswordScreen.this, "Something went wrong due to "+"Bad Internet Connection", Toast.LENGTH_SHORT).show();
-
-                    }
-                });
-
+            public void onResponse(Call<Employee> call, Response<Employee> response) {
+                if (response.code() == 200||response.code()==201||response.code()==204) {
+                }else{
+                    // Toast.makeText(ChangePasswordScreen.this, "Failed due to status code"+response.code(), Toast.LENGTH_SHORT).show();
+                }
             }
 
+            @Override
+            public void onFailure(Call<Employee> call, Throwable t) {
+                //  Toast.makeText(ChangePasswordScreen.this, "Something went wrong due to "+"Bad Internet Connection", Toast.LENGTH_SHORT).show();
+            }
         });
     }
 
@@ -1724,13 +1571,8 @@ public class EmployeeNewMainScreen extends AppCompatActivity implements RapidFlo
         rfabHelper.toggleContent();
 
         if(position==0){
-
-
-
             String loginStatus = PreferenceHandler.getInstance( EmployeeNewMainScreen.this).getMeetingLoginStatus();
             String masterloginStatus = PreferenceHandler.getInstance( EmployeeNewMainScreen.this).getLoginStatus();
-
-
             if (masterloginStatus.equals("Login")) {
                 if (loginStatus != null && !loginStatus.isEmpty()) {
 
@@ -1759,13 +1601,13 @@ public class EmployeeNewMainScreen extends AppCompatActivity implements RapidFlo
             startActivity(createTask);
 
         }else if(position==2){
-
-            Intent leave = new Intent( EmployeeNewMainScreen.this, ExpenseManageHost.class);
+            Toast.makeText ( mContext , "Expense has Disabled" , Toast.LENGTH_SHORT ).show ( );
+         /*   Intent leave = new Intent( EmployeeNewMainScreen.this, ExpenseManageHost.class);
             Bundle bundle = new Bundle();
             bundle.putInt("EmployeeId",profile.getEmployeeId());
             bundle.putSerializable("Employee",profile);
             leave.putExtras(bundle);
-            startActivity(leave);
+            startActivity(leave);*/
 
         }else if(position==3){
 
@@ -1810,27 +1652,23 @@ public class EmployeeNewMainScreen extends AppCompatActivity implements RapidFlo
             startActivity(createTask);
 
         }else if(position==2){
-
-            Intent leave = new Intent( EmployeeNewMainScreen.this, ExpenseManageHost.class);
+            Toast.makeText ( mContext , "Expense has Disabled" , Toast.LENGTH_SHORT ).show ( );
+        /*    Intent leave = new Intent( EmployeeNewMainScreen.this, ExpenseManageHost.class);
             Bundle bundle = new Bundle();
             bundle.putInt("EmployeeId",profile.getEmployeeId());
             bundle.putSerializable("Employee",profile);
             leave.putExtras(bundle);
-            startActivity(leave);
-
+            startActivity(leave);*/
 
         }else if(position==3){
-
             Intent branch = new Intent( EmployeeNewMainScreen.this, CustomerCreation.class);
             startActivity(branch);
-
         }
     }
 
     private void openScreenshot(File imageFile) {
-
-        String message = "My Contact Details \n Name : "+mCardName.getText().toString()+",\n Designation: "+mCardDesign.getText().toString()+"\n Email: "+mCardEmail.getText().toString()+",\n Mobile: "+mCardMobile.getText().toString()+",\n Address: "+mCardAddress.getText().toString();
-
+       try{
+            String message = "My Contact Details \n Name : "+mCardName.getText().toString()+",\n Designation: "+mCardDesign.getText().toString()+"\n Email: "+mCardEmail.getText().toString()+",\n Mobile: "+mCardMobile.getText().toString()+",\n Address: "+mCardAddress.getText().toString();
         Uri uri = null;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
 
@@ -1848,13 +1686,9 @@ public class EmployeeNewMainScreen extends AppCompatActivity implements RapidFlo
         shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
         startActivity(Intent.createChooser(shareIntent, "send"));
 
-       /* Intent intent = new Intent();
-        intent.setAction(Intent.ACTION_SEND);
-
-
-
-        intent.setDataAndType(uri, "image/*");
-        startActivity(intent);*/
+       }catch(Exception e){
+           e.printStackTrace ();
+       }
     }
 
     private File saveBitMap(Context context, View drawView){
@@ -1904,20 +1738,14 @@ public class EmployeeNewMainScreen extends AppCompatActivity implements RapidFlo
     }
 
     public void meetingloginalert(final String status){
-
         try{
-
             if(locationCheck()){
                 String message = "Login";
                 String option = "Meeting-In";
-
                 if(status.equalsIgnoreCase("Login")){
-
                     message = "Do you want to Check-Out?";
                     option = "Meeting-Out";
-
                 }else if(status.equalsIgnoreCase("Logout")){
-
                     message = "Do you want to Check-In?";
                     option = "Check-In";
                 }
@@ -1927,8 +1755,6 @@ public class EmployeeNewMainScreen extends AppCompatActivity implements RapidFlo
                 View views = inflater.inflate(R.layout.activity_meeting_add_with_sign_screen, null);
 
                 builder.setView(views);
-
-
                 final Button mSave = views.findViewById(R.id.save);
                 mSave.setText(option);
                 final EditText mDetails = views.findViewById(R.id.meeting_remarks);
@@ -1958,25 +1784,19 @@ public class EmployeeNewMainScreen extends AppCompatActivity implements RapidFlo
                 customerSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                     @Override
                     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-
                         if(customerArrayList!=null && customerArrayList.size()!=0){
-
-
-                            if(customerArrayList.get(position).getEmployeeName ()!=null && customerArrayList.get(position).getEmployeeName().equalsIgnoreCase("Others"))
-                            {
+                            if(customerArrayList.get(position).getEmployeeName ()!=null && customerArrayList.get(position).getEmployeeName().equalsIgnoreCase("Others")) {
                                 mClientMobile.setText("");
                                 mClientName.setText("");
                                 mClientMail.setText("");
                                 ClientNameLayout.setVisibility(View.VISIBLE);
-
                             }
                             else {
-                                mClientMobile.setText(""+customerArrayList.get(position).getPhoneNumber ());
-                                mClientName.setText(""+customerArrayList.get(position).getEmployeeName());
-                                mClientMail.setText(""+customerArrayList.get(position).getPrimaryEmailAddress ());
+                                mClientMobile.setText(String.valueOf ( customerArrayList.get(position).getPhoneNumber () ));
+                                mClientName.setText(String.valueOf ( customerArrayList.get(position).getEmployeeName() ));
+                                mClientMail.setText(String.valueOf ( customerArrayList.get(position).getPrimaryEmailAddress () ));
                                 clientId = customerArrayList.get(position).getEmployeeId ();
                                 ClientNameLayout.setVisibility(View.GONE);
-
                             }
                         }
                     }
@@ -1991,36 +1811,24 @@ public class EmployeeNewMainScreen extends AppCompatActivity implements RapidFlo
                     @Override
                     public void onClick(View view) {
 
-                        String client = mClientName.getText().toString();
-                        String purpose = mPurpose.getText().toString();
+                        String client = mClientName.getText().toString ();
+                        String purpose = mPurpose.getText().toString ();
                         String detail = mDetails.getText().toString();
-                        String mobile = mClientMobile.getText().toString();
-                        String email = mClientMail.getText().toString();
-                        String customer = customerSpinner.getSelectedItem().toString();
+                        String mobile = mClientMobile.getText().toString ();
+                        String email = mClientMail.getText().toString ();
+                        String customer = customerSpinner.getSelectedItem().toString ();
 
-                        if(client==null||client.isEmpty()){
-
+                        if(client.isEmpty()){
                             Toast.makeText( EmployeeNewMainScreen.this, "Please mention client name", Toast.LENGTH_SHORT).show();
-
-                        }else if(purpose==null||purpose.isEmpty()){
-
+                        }else if(purpose.isEmpty()){
                             Toast.makeText( EmployeeNewMainScreen.this, "Please mention purpose of meeting", Toast.LENGTH_SHORT).show();
-
-                        }else if(detail==null||detail.isEmpty()){
-
+                        }else if(detail.isEmpty()){
                             Toast.makeText( EmployeeNewMainScreen.this, "Please mention remarks about meeting", Toast.LENGTH_SHORT).show();
-
                         }else{
-
-                            //gps = new TrackGPS(EmployeeNewMainScreen.this);
-
                             if(locationCheck()){
-
                                 if(currentLocation!=null) {
-
                                     latitude = currentLocation.getLatitude();
                                     longitude = currentLocation.getLongitude();
-
                                     LatLng masters = new LatLng(latitude, longitude);
                                     String addresss = null;
                                     try {
@@ -2029,9 +1837,6 @@ public class EmployeeNewMainScreen extends AppCompatActivity implements RapidFlo
                                         e.printStackTrace();
                                     }
 
-                                   /* latLong.setText(addresss);
-                                    centreMapOnLocationWithLatLng(masters, "" + PreferenceHandler.getInstance(EmployeeNewMainScreen.this).getUserFullName());
-*/
                                     SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy");
                                     SimpleDateFormat sdt = new SimpleDateFormat("MMM dd,yyyy hh:mm a");
 
@@ -2134,10 +1939,7 @@ public class EmployeeNewMainScreen extends AppCompatActivity implements RapidFlo
                                         }else{
                                             addMeeting(loginDetails,md);
                                         }
-
                                         dialog.dismiss();
-
-
                                         //   addMeeting(loginDetails,dialog,md);
                                     } catch (Exception e) {
                                         e.printStackTrace();
@@ -2145,11 +1947,8 @@ public class EmployeeNewMainScreen extends AppCompatActivity implements RapidFlo
                                     }
 
                                 }else if(latitude!=0&&longitude!=0){
-
-
-                               /*     latitude = currentLocation.getLatitude();
+                                    /*latitude = currentLocation.getLatitude();
                                     longitude = currentLocation.getLongitude();*/
-
                                     LatLng masters = new LatLng(latitude, longitude);
                                     String addresss = null;
                                     try {
@@ -2287,18 +2086,12 @@ public class EmployeeNewMainScreen extends AppCompatActivity implements RapidFlo
     }
 
     public void addMeeting( final Meetings loginDetails, final MeetingDetailsNotificationManagers md) {
-
-
-
         final ProgressDialog dialog = new ProgressDialog( EmployeeNewMainScreen.this);
         dialog.setMessage("Saving Details..");
         dialog.setCancelable(false);
         dialog.show();
-
         MeetingsAPI apiService = Util.getClient().create( MeetingsAPI.class);
-
         Call< Meetings > call = apiService.addMeeting(loginDetails);
-
         call.enqueue(new Callback< Meetings >() {
             @Override
             public void onResponse( Call< Meetings > call, Response< Meetings > response) {
@@ -2354,81 +2147,77 @@ public class EmployeeNewMainScreen extends AppCompatActivity implements RapidFlo
     }
 
     public void getMeetings(final int id){
-
-        new ThreadExecuter ().execute( new Runnable() {
+        final MeetingsAPI subCategoryAPI = Util.getClient().create( MeetingsAPI.class);
+        Call< Meetings > getProf = subCategoryAPI.getMeetingById(id);
+        getProf.enqueue(new Callback< Meetings >() {
             @Override
-            public void run() {
-                final MeetingsAPI subCategoryAPI = Util.getClient().create( MeetingsAPI.class);
-                Call< Meetings > getProf = subCategoryAPI.getMeetingById(id);
-                getProf.enqueue(new Callback< Meetings >() {
-                    @Override
-                    public void onResponse( Call< Meetings > call, Response< Meetings > response) {
+            public void onResponse( Call< Meetings > call, Response< Meetings > response) {
 
-                        if (response.code() == 200||response.code() == 201||response.code() == 204)
-                        {
-                            System.out.println("Inside api");
+                if (response.code() == 200||response.code() == 201||response.code() == 204)
+                {
+                    System.out.println("Inside api");
 
-                            final Meetings dto = response.body();
+                    final Meetings dto = response.body();
 
-                            if(dto!=null){
+                    if(dto!=null){
 
-                                try{
-                                    if(locationCheck()){
-                                        String message = "Login";
-                                        message = "Do you want to Check-Out?";
-                                        String option = "Meeting-Out";
+                        try{
+                            if(locationCheck()){
+                                String message = "Login";
+                                message = "Do you want to Check-Out?";
+                                String option = "Meeting-Out";
 
 
 
-                                        AlertDialog.Builder builder = new AlertDialog.Builder( EmployeeNewMainScreen.this);
-                                        LayoutInflater inflater = (LayoutInflater) EmployeeNewMainScreen.this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                                        View views = inflater.inflate(R.layout.activity_meeting_add_with_sign_screen, null);
+                                AlertDialog.Builder builder = new AlertDialog.Builder( EmployeeNewMainScreen.this);
+                                LayoutInflater inflater = (LayoutInflater) EmployeeNewMainScreen.this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                                View views = inflater.inflate(R.layout.activity_meeting_add_with_sign_screen, null);
 
-                                        builder.setView(views);
+                                builder.setView(views);
 
-                                        final Button  mSave = views.findViewById(R.id.save);
-                                        mSave.setText(option);
-                                        final  EditText mDetails = views.findViewById(R.id.meeting_remarks);
-                                        final  LinearLayout mSpinnerLay = views.findViewById(R.id.spinner_lay);
-                                        final TextInputEditText mClientName = views.findViewById(R.id.client_name);
-                                        final TextInputEditText mClientMobile = views.findViewById(R.id.client_contact_number);
-                                        final TextInputEditText  mClientMail = views.findViewById(R.id.client_contact_email);
-                                        final TextInputEditText mPurpose = views.findViewById(R.id.purpose_meeting);
-                                        final CheckBox mGetSign = views.findViewById(R.id.get_sign_check);
-                                        final CheckBox mTakeImage = views.findViewById(R.id.get_image_check);
-                                        final ImageView mImageView = views.findViewById(R.id.selfie_pic);
-                                        customerSpinner = views.findViewById(R.id.customer_spinner_adpter);
-                                        ClientNameLayout =  views.findViewById(R.id.client_name_layout);
-                                        mSpinnerLay.setVisibility(View.GONE);
-                                        ClientNameLayout.setVisibility(View.VISIBLE);
-                                        mDetails.setText(""+dto.getMeetingDetails());
-                                        methodAdd = true;
-                                        if(dto.getMeetingPersonDetails().contains("%")){
-                                            String person[] = dto.getMeetingPersonDetails().split("%");
-                                            if(person.length==1){
-                                                mClientName.setText(""+dto.getMeetingPersonDetails());
-                                            }else if(person.length==2){
-                                                mClientName.setText(""+person[0]);
-                                                mClientMail.setText(""+person[1]);
-                                            }else if(person.length==3){
-                                                mClientName.setText(""+person[0]);
-                                                mClientMail.setText(""+person[1]);
-                                                mClientMobile.setText(""+person[2]);
-                                            }
+                                final Button  mSave = views.findViewById(R.id.save);
+                                mSave.setText(option);
+                                final  EditText mDetails = views.findViewById(R.id.meeting_remarks);
+                                final  LinearLayout mSpinnerLay = views.findViewById(R.id.spinner_lay);
+                                final TextInputEditText mClientName = views.findViewById(R.id.client_name);
+                                final TextInputEditText mClientMobile = views.findViewById(R.id.client_contact_number);
+                                final TextInputEditText  mClientMail = views.findViewById(R.id.client_contact_email);
+                                final TextInputEditText mPurpose = views.findViewById(R.id.purpose_meeting);
+                                final CheckBox mGetSign = views.findViewById(R.id.get_sign_check);
+                                final CheckBox mTakeImage = views.findViewById(R.id.get_image_check);
+                                final ImageView mImageView = views.findViewById(R.id.selfie_pic);
+                                customerSpinner = views.findViewById(R.id.customer_spinner_adpter);
+                                ClientNameLayout =  views.findViewById(R.id.client_name_layout);
+                                mSpinnerLay.setVisibility(View.GONE);
+                                ClientNameLayout.setVisibility(View.VISIBLE);
+                                mDetails.setText(""+dto.getMeetingDetails());
+                                methodAdd = true;
+                                if(dto.getMeetingPersonDetails().contains("%")){
+                                    String person[] = dto.getMeetingPersonDetails().split("%");
+                                    if(person.length==1){
+                                        mClientName.setText(""+dto.getMeetingPersonDetails());
+                                    }else if(person.length==2){
+                                        mClientName.setText(""+person[0]);
+                                        mClientMail.setText(""+person[1]);
+                                    }else if(person.length==3){
+                                        mClientName.setText(""+person[0]);
+                                        mClientMail.setText(""+person[1]);
+                                        mClientMobile.setText(""+person[2]);
+                                    }
 
-                                        }else{
-                                            mClientName.setText(""+dto.getMeetingPersonDetails());
-                                        }
+                                }else{
+                                    mClientName.setText(""+dto.getMeetingPersonDetails());
+                                }
 
-                                        mPurpose.setText(""+dto.getMeetingAgenda());
+                                mPurpose.setText(""+dto.getMeetingAgenda());
 
-                                        if(dto.getEndPlaceID()!=null&&!dto.getEndPlaceID().isEmpty()){
-                                            Picasso.with( EmployeeNewMainScreen.this).load(dto.getEndPlaceID()).placeholder(R.drawable.profile_image).error(R.drawable.no_image).into(mImageView);
-                                        }
+                                if(dto.getEndPlaceID()!=null&&!dto.getEndPlaceID().isEmpty()){
+                                   Picasso.get ().load(dto.getEndPlaceID()).placeholder(R.drawable.profile_image).error(R.drawable.no_image).into(mImageView);
+                                }
 
-                                        final AlertDialog dialog = builder.create();
-                                        dialog.show();
-                                        dialog.setCanceledOnTouchOutside(true);
+                                final AlertDialog dialog = builder.create();
+                                dialog.show();
+                                dialog.setCanceledOnTouchOutside(true);
 
                                         /*customerSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                                             @Override
@@ -2469,77 +2258,77 @@ public class EmployeeNewMainScreen extends AppCompatActivity implements RapidFlo
                                             getCustomersWithId(PreferenceHandler.getInstance(EmployeeNewMainScreen.this).getCompanyId(),0);
                                         }*/
 
-                                        mSave.setOnClickListener(new View.OnClickListener() {
-                                            @Override
-                                            public void onClick(View view) {
+                                mSave.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View view) {
 
-                                                String client = mClientName.getText().toString();
-                                                String purpose = mPurpose.getText().toString();
-                                                String detail = mDetails.getText().toString();
-                                                String mobile = mClientMobile.getText().toString();
-                                                String email = mClientMail.getText().toString();
-                                                // String customer = customerSpinner.getSelectedItem().toString();
+                                        String client = mClientName.getText().toString();
+                                        String purpose = mPurpose.getText().toString();
+                                        String detail = mDetails.getText().toString();
+                                        String mobile = mClientMobile.getText().toString();
+                                        String email = mClientMail.getText().toString();
+                                        // String customer = customerSpinner.getSelectedItem().toString();
 
-                                                if(client==null||client.isEmpty()){
+                                        if(client==null||client.isEmpty()){
 
-                                                    Toast.makeText( EmployeeNewMainScreen.this, "Please mention client name", Toast.LENGTH_SHORT).show();
+                                            Toast.makeText( EmployeeNewMainScreen.this, "Please mention client name", Toast.LENGTH_SHORT).show();
 
-                                                }else if(purpose==null||purpose.isEmpty()){
+                                        }else if(purpose==null||purpose.isEmpty()){
 
-                                                    Toast.makeText( EmployeeNewMainScreen.this, "Please mention purpose of meeting", Toast.LENGTH_SHORT).show();
+                                            Toast.makeText( EmployeeNewMainScreen.this, "Please mention purpose of meeting", Toast.LENGTH_SHORT).show();
 
-                                                }else if(detail==null||detail.isEmpty()){
+                                        }else if(detail==null||detail.isEmpty()){
 
-                                                    Toast.makeText( EmployeeNewMainScreen.this, "Please mention remarks about meeting", Toast.LENGTH_SHORT).show();
+                                            Toast.makeText( EmployeeNewMainScreen.this, "Please mention remarks about meeting", Toast.LENGTH_SHORT).show();
 
-                                                }else{
+                                        }else{
 
-                                                    //gps = new TrackGPS(EmployeeNewMainScreen.this);
+                                            //gps = new TrackGPS(EmployeeNewMainScreen.this);
 
-                                                    if(locationCheck()){
+                                            if(locationCheck()){
 
-                                                        if(currentLocation!=null) {
+                                                if(currentLocation!=null) {
 
-                                                            if(gps.isMockLocationOn(currentLocation, EmployeeNewMainScreen.this)){
-
-
-                                                            }
-
-                                                            latitude = currentLocation.getLatitude();
-                                                            longitude = currentLocation.getLongitude();
-
-                                                            LatLng masters = new LatLng(latitude, longitude);
-                                                            String addresss = null;
-                                                            try {
-                                                                addresss = getAddress(masters);
-                                                            } catch (Exception e) {
-                                                                e.printStackTrace();
-                                                            }
+                                                    if(gps.isMockLocationOn(currentLocation, EmployeeNewMainScreen.this)){
 
 
+                                                    }
 
-                                                            SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy");
-                                                            SimpleDateFormat sdt = new SimpleDateFormat("MMM dd,yyyy hh:mm a");
+                                                    latitude = currentLocation.getLatitude();
+                                                    longitude = currentLocation.getLongitude();
 
-                                                            LatLng master = new LatLng(latitude,longitude);
-                                                            String address = null;
-                                                            try {
-                                                                address = getAddress(master);
-                                                            } catch (Exception e) {
-                                                                e.printStackTrace();
-                                                            }
+                                                    LatLng masters = new LatLng(latitude, longitude);
+                                                    String addresss = null;
+                                                    try {
+                                                        addresss = getAddress(masters);
+                                                    } catch (Exception e) {
+                                                        e.printStackTrace();
+                                                    }
 
-                                                            loginDetails = dto;
-                                                            loginDetails.setEmployeeId(PreferenceHandler.getInstance( EmployeeNewMainScreen.this).getUserId());
 
-                                                            loginDetails.setEndLatitude(""+latitude);
-                                                            loginDetails.setEndLongitude(""+longitude);
-                                                            loginDetails.setEndLocation(""+address);
-                                                            loginDetails.setEndTime(""+sdt.format(new Date()));
-                                                            loginDetails.setMeetingDate(""+sdf.format(new Date()));
-                                                            loginDetails.setMeetingAgenda(purpose);
-                                                            loginDetails.setMeetingDetails(detail);
-                                                            loginDetails.setStatus("Completed");
+
+                                                    SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy");
+                                                    SimpleDateFormat sdt = new SimpleDateFormat("MMM dd,yyyy hh:mm a");
+
+                                                    LatLng master = new LatLng(latitude,longitude);
+                                                    String address = null;
+                                                    try {
+                                                        address = getAddress(master);
+                                                    } catch (Exception e) {
+                                                        e.printStackTrace();
+                                                    }
+
+                                                    loginDetails = dto;
+                                                    loginDetails.setEmployeeId(PreferenceHandler.getInstance( EmployeeNewMainScreen.this).getUserId());
+
+                                                    loginDetails.setEndLatitude(""+latitude);
+                                                    loginDetails.setEndLongitude(""+longitude);
+                                                    loginDetails.setEndLocation(""+address);
+                                                    loginDetails.setEndTime(""+sdt.format(new Date()));
+                                                    loginDetails.setMeetingDate(""+sdf.format(new Date()));
+                                                    loginDetails.setMeetingAgenda(purpose);
+                                                    loginDetails.setMeetingDetails(detail);
+                                                    loginDetails.setStatus("Completed");
 
                                                             /*if(customer!=null&&!customer.equalsIgnoreCase("Others")){
 
@@ -2548,61 +2337,61 @@ public class EmployeeNewMainScreen extends AppCompatActivity implements RapidFlo
 
                                                             }*/
 
-                                                            String contact = "";
+                                                    String contact = "";
 
-                                                            if(email!=null&&!email.isEmpty()){
-                                                                contact = contact+"%"+email;
+                                                    if(email!=null&&!email.isEmpty()){
+                                                        contact = contact+"%"+email;
+                                                    }
+
+                                                    if(mobile!=null&&!mobile.isEmpty()){
+                                                        contact = contact+"%"+mobile;
+                                                    }
+
+                                                    if(contact!=null&&!contact.isEmpty()){
+                                                        loginDetails.setMeetingPersonDetails(client+""+contact);
+                                                    }else{
+                                                        loginDetails.setMeetingPersonDetails(client);
+                                                    }
+
+                                                    try {
+
+                                                        md = new MeetingDetailsNotificationManagers();
+                                                        md.setTitle("Meeting Details from "+ PreferenceHandler.getInstance( EmployeeNewMainScreen.this).getUserFullName());
+                                                        md.setMessage("Meeting with "+client+" for "+purpose);
+                                                        md.setLocation(address);
+                                                        md.setLongitude(""+longitude);
+                                                        md.setLatitude(""+latitude);
+                                                        md.setMeetingDate(""+sdt.format(new Date()));
+                                                        md.setStatus("Completed");
+                                                        md.setEmployeeId(PreferenceHandler.getInstance( EmployeeNewMainScreen.this).getUserId());
+                                                        md.setManagerId(PreferenceHandler.getInstance( EmployeeNewMainScreen.this).getManagerId());
+                                                        md.setMeetingPerson(client);
+                                                        md.setMeetingsId(loginDetails.getMeetingsId());
+                                                        md.setMeetingsDetails(purpose);
+                                                        md.setMeetingComments(detail);
+
+                                                        if (mGetSign.isChecked()&&!mTakeImage.isChecked()){
+                                                            // Method to create Directory, if the Directory doesn't exists
+                                                            file = new File(DIRECTORY);
+                                                            if (!file.exists()) {
+                                                                file.mkdir();
                                                             }
 
-                                                            if(mobile!=null&&!mobile.isEmpty()){
-                                                                contact = contact+"%"+mobile;
+                                                            // Dialog Function
+                                                            dialogs = new Dialog( EmployeeNewMainScreen.this);
+                                                            // Removing the features of Normal Dialogs
+                                                            dialogs.requestWindowFeature(Window.FEATURE_NO_TITLE);
+                                                            dialogs.setContentView(R.layout.dialog_signature);
+                                                            dialogs.setCancelable(true);
+
+                                                            dialog_action(loginDetails,md,"null",dialog);
+
+                                                        }else if (!mGetSign.isChecked()&&mTakeImage.isChecked()){
+
+                                                            file = new File(DIRECTORY);
+                                                            if (!file.exists()) {
+                                                                file.mkdir();
                                                             }
-
-                                                            if(contact!=null&&!contact.isEmpty()){
-                                                                loginDetails.setMeetingPersonDetails(client+""+contact);
-                                                            }else{
-                                                                loginDetails.setMeetingPersonDetails(client);
-                                                            }
-
-                                                            try {
-
-                                                                md = new MeetingDetailsNotificationManagers();
-                                                                md.setTitle("Meeting Details from "+ PreferenceHandler.getInstance( EmployeeNewMainScreen.this).getUserFullName());
-                                                                md.setMessage("Meeting with "+client+" for "+purpose);
-                                                                md.setLocation(address);
-                                                                md.setLongitude(""+longitude);
-                                                                md.setLatitude(""+latitude);
-                                                                md.setMeetingDate(""+sdt.format(new Date()));
-                                                                md.setStatus("Completed");
-                                                                md.setEmployeeId(PreferenceHandler.getInstance( EmployeeNewMainScreen.this).getUserId());
-                                                                md.setManagerId(PreferenceHandler.getInstance( EmployeeNewMainScreen.this).getManagerId());
-                                                                md.setMeetingPerson(client);
-                                                                md.setMeetingsId(loginDetails.getMeetingsId());
-                                                                md.setMeetingsDetails(purpose);
-                                                                md.setMeetingComments(detail);
-
-                                                                if (mGetSign.isChecked()&&!mTakeImage.isChecked()){
-                                                                    // Method to create Directory, if the Directory doesn't exists
-                                                                    file = new File(DIRECTORY);
-                                                                    if (!file.exists()) {
-                                                                        file.mkdir();
-                                                                    }
-
-                                                                    // Dialog Function
-                                                                    dialogs = new Dialog( EmployeeNewMainScreen.this);
-                                                                    // Removing the features of Normal Dialogs
-                                                                    dialogs.requestWindowFeature(Window.FEATURE_NO_TITLE);
-                                                                    dialogs.setContentView(R.layout.dialog_signature);
-                                                                    dialogs.setCancelable(true);
-
-                                                                    dialog_action(loginDetails,md,"null",dialog);
-
-                                                                }else if (!mGetSign.isChecked()&&mTakeImage.isChecked()){
-
-                                                                    file = new File(DIRECTORY);
-                                                                    if (!file.exists()) {
-                                                                        file.mkdir();
-                                                                    }
 
                                                                        /* // Dialog Function
                                                                         dialog = new Dialog(MeetingAddWithSignScreen.this);
@@ -2611,153 +2400,153 @@ public class EmployeeNewMainScreen extends AppCompatActivity implements RapidFlo
                                                                         dialog.setContentView(R.layout.dialog_signature);
                                                                         dialog.setCancelable(true);*/
 
-                                                                    dispatchTakePictureIntent();
-                                                                    dialog.dismiss();
+                                                            dispatchTakePictureIntent();
+                                                            dialog.dismiss();
 
-                                                                    //dialog_action(loginDetails,md,"Selfie");
+                                                            //dialog_action(loginDetails,md,"Selfie");
 
-                                                                }else if (mGetSign.isChecked()&&mTakeImage.isChecked()){
+                                                        }else if (mGetSign.isChecked()&&mTakeImage.isChecked()){
 
-                                                                    file = new File(DIRECTORY);
-                                                                    if (!file.exists()) {
-                                                                        file.mkdir();
-                                                                    }
-
-                                                                    // Dialog Function
-                                                                    dialogs = new Dialog( EmployeeNewMainScreen.this);
-                                                                    // Removing the features of Normal Dialogs
-                                                                    dialogs.requestWindowFeature(Window.FEATURE_NO_TITLE);
-                                                                    dialogs.setContentView(R.layout.dialog_signature);
-                                                                    dialogs.setCancelable(true);
-
-                                                                    dialog_action(loginDetails,md,"Selfie",dialog);
-
-                                                                }else{
-                                                                    updateMeeting(loginDetails,md);
-                                                                }
-
-                                                                dialog.dismiss();
-
-
-                                                            } catch (Exception e) {
-                                                                e.printStackTrace();
+                                                            file = new File(DIRECTORY);
+                                                            if (!file.exists()) {
+                                                                file.mkdir();
                                                             }
-                                                        }else if(latitude!=0&&longitude!=0){
+
+                                                            // Dialog Function
+                                                            dialogs = new Dialog( EmployeeNewMainScreen.this);
+                                                            // Removing the features of Normal Dialogs
+                                                            dialogs.requestWindowFeature(Window.FEATURE_NO_TITLE);
+                                                            dialogs.setContentView(R.layout.dialog_signature);
+                                                            dialogs.setCancelable(true);
+
+                                                            dialog_action(loginDetails,md,"Selfie",dialog);
+
+                                                        }else{
+                                                            updateMeeting(loginDetails,md);
+                                                        }
+
+                                                        dialog.dismiss();
+
+
+                                                    } catch (Exception e) {
+                                                        e.printStackTrace();
+                                                    }
+                                                }else if(latitude!=0&&longitude!=0){
 
 
 
                                                           /*  latitude = currentLocation.getLatitude();
                                                             longitude = currentLocation.getLongitude();*/
 
-                                                            LatLng masters = new LatLng(latitude, longitude);
-                                                            String addresss = null;
-                                                            try {
-                                                                addresss = getAddress(masters);
-                                                            } catch (Exception e) {
-                                                                e.printStackTrace();
-                                                            }
+                                                    LatLng masters = new LatLng(latitude, longitude);
+                                                    String addresss = null;
+                                                    try {
+                                                        addresss = getAddress(masters);
+                                                    } catch (Exception e) {
+                                                        e.printStackTrace();
+                                                    }
 
                                                            /* latLong.setText(addresss);
                                                             centreMapOnLocationWithLatLng(masters, "" + PreferenceHandler.getInstance(EmployeeNewMainScreen.this).getUserFullName());
 */
 
-                                                            SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy");
-                                                            SimpleDateFormat sdt = new SimpleDateFormat("MMM dd,yyyy hh:mm a");
+                                                    SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy");
+                                                    SimpleDateFormat sdt = new SimpleDateFormat("MMM dd,yyyy hh:mm a");
 
-                                                            LatLng master = new LatLng(latitude,longitude);
-                                                            String address = null;
-                                                            try {
-                                                                address = getAddress(master);
-                                                            } catch (Exception e) {
-                                                                e.printStackTrace();
-                                                            }
+                                                    LatLng master = new LatLng(latitude,longitude);
+                                                    String address = null;
+                                                    try {
+                                                        address = getAddress(master);
+                                                    } catch (Exception e) {
+                                                        e.printStackTrace();
+                                                    }
 
-                                                            loginDetails = dto;
-                                                            loginDetails.setEmployeeId(PreferenceHandler.getInstance( EmployeeNewMainScreen.this).getUserId());
+                                                    loginDetails = dto;
+                                                    loginDetails.setEmployeeId(PreferenceHandler.getInstance( EmployeeNewMainScreen.this).getUserId());
                                                           /*  loginDetails.setStartLatitude(""+latitude);
                                                             loginDetails.setStartLongitude(""+longitude);
                                                             loginDetails.setStartLocation(""+address);
                                                             loginDetails.setStartTime(""+sdt.format(new Date()));*/
-                                                            loginDetails.setEndLatitude(""+latitude);
-                                                            loginDetails.setEndLongitude(""+longitude);
-                                                            loginDetails.setEndLocation(""+address);
-                                                            loginDetails.setEndTime(""+sdt.format(new Date()));
-                                                            loginDetails.setMeetingDate(""+sdf.format(new Date()));
-                                                            loginDetails.setMeetingAgenda(purpose);
-                                                            loginDetails.setMeetingDetails(detail);
-                                                            loginDetails.setStatus("Completed");
+                                                    loginDetails.setEndLatitude(""+latitude);
+                                                    loginDetails.setEndLongitude(""+longitude);
+                                                    loginDetails.setEndLocation(""+address);
+                                                    loginDetails.setEndTime(""+sdt.format(new Date()));
+                                                    loginDetails.setMeetingDate(""+sdf.format(new Date()));
+                                                    loginDetails.setMeetingAgenda(purpose);
+                                                    loginDetails.setMeetingDetails(detail);
+                                                    loginDetails.setStatus("Completed");
 
-                                                            String contact = "";
+                                                    String contact = "";
 
-                                                            if(email!=null&&!email.isEmpty()){
-                                                                contact = contact+"%"+email;
+                                                    if(email!=null&&!email.isEmpty()){
+                                                        contact = contact+"%"+email;
+                                                    }
+
+                                                    if(mobile!=null&&!mobile.isEmpty()){
+                                                        contact = contact+"%"+mobile;
+                                                    }
+
+                                                    if(contact!=null&&!contact.isEmpty()){
+                                                        loginDetails.setMeetingPersonDetails(client+""+contact);
+                                                    }else{
+                                                        loginDetails.setMeetingPersonDetails(client);
+                                                    }
+
+                                                    try {
+
+                                                        md = new MeetingDetailsNotificationManagers();
+                                                        md.setTitle("Meeting Details from "+ PreferenceHandler.getInstance( EmployeeNewMainScreen.this).getUserFullName());
+                                                        md.setMessage("Meeting with "+client+" for "+purpose);
+                                                        md.setLocation(address);
+                                                        md.setLongitude(""+longitude);
+                                                        md.setLatitude(""+latitude);
+                                                        md.setMeetingDate(""+sdt.format(new Date()));
+                                                        md.setStatus("Completed");
+                                                        md.setEmployeeId(PreferenceHandler.getInstance( EmployeeNewMainScreen.this).getUserId());
+                                                        md.setManagerId(PreferenceHandler.getInstance( EmployeeNewMainScreen.this).getManagerId());
+                                                        md.setMeetingPerson(client);
+                                                        md.setMeetingsId(loginDetails.getMeetingsId());
+                                                        md.setMeetingsDetails(purpose);
+                                                        md.setMeetingComments(detail);
+
+                                                        if (mGetSign.isChecked()&&!mTakeImage.isChecked()){
+                                                            // Method to create Directory, if the Directory doesn't exists
+                                                            file = new File(DIRECTORY);
+                                                            if (!file.exists()) {
+                                                                file.mkdir();
                                                             }
 
-                                                            if(mobile!=null&&!mobile.isEmpty()){
-                                                                contact = contact+"%"+mobile;
+                                                            // Dialog Function
+                                                            dialogs = new Dialog( EmployeeNewMainScreen.this);
+                                                            // Removing the features of Normal Dialogs
+                                                            dialogs.requestWindowFeature(Window.FEATURE_NO_TITLE);
+                                                            dialogs.setContentView(R.layout.dialog_signature);
+                                                            dialogs.setCancelable(true);
+
+                                                            dialog_action(loginDetails,md,"null",dialog);
+
+                                                        }else if (mGetSign.isChecked()&&mTakeImage.isChecked()){
+
+                                                            file = new File(DIRECTORY);
+                                                            if (!file.exists()) {
+                                                                file.mkdir();
                                                             }
 
-                                                            if(contact!=null&&!contact.isEmpty()){
-                                                                loginDetails.setMeetingPersonDetails(client+""+contact);
-                                                            }else{
-                                                                loginDetails.setMeetingPersonDetails(client);
+                                                            // Dialog Function
+                                                            dialogs = new Dialog( EmployeeNewMainScreen.this);
+                                                            // Removing the features of Normal Dialogs
+                                                            dialogs.requestWindowFeature(Window.FEATURE_NO_TITLE);
+                                                            dialogs.setContentView(R.layout.dialog_signature);
+                                                            dialogs.setCancelable(true);
+
+                                                            dialog_action(loginDetails,md,"Selfie",dialog);
+
+                                                        }else if (!mGetSign.isChecked()&&mTakeImage.isChecked()){
+
+                                                            file = new File(DIRECTORY);
+                                                            if (!file.exists()) {
+                                                                file.mkdir();
                                                             }
-
-                                                            try {
-
-                                                                md = new MeetingDetailsNotificationManagers();
-                                                                md.setTitle("Meeting Details from "+ PreferenceHandler.getInstance( EmployeeNewMainScreen.this).getUserFullName());
-                                                                md.setMessage("Meeting with "+client+" for "+purpose);
-                                                                md.setLocation(address);
-                                                                md.setLongitude(""+longitude);
-                                                                md.setLatitude(""+latitude);
-                                                                md.setMeetingDate(""+sdt.format(new Date()));
-                                                                md.setStatus("Completed");
-                                                                md.setEmployeeId(PreferenceHandler.getInstance( EmployeeNewMainScreen.this).getUserId());
-                                                                md.setManagerId(PreferenceHandler.getInstance( EmployeeNewMainScreen.this).getManagerId());
-                                                                md.setMeetingPerson(client);
-                                                                md.setMeetingsId(loginDetails.getMeetingsId());
-                                                                md.setMeetingsDetails(purpose);
-                                                                md.setMeetingComments(detail);
-
-                                                                if (mGetSign.isChecked()&&!mTakeImage.isChecked()){
-                                                                    // Method to create Directory, if the Directory doesn't exists
-                                                                    file = new File(DIRECTORY);
-                                                                    if (!file.exists()) {
-                                                                        file.mkdir();
-                                                                    }
-
-                                                                    // Dialog Function
-                                                                    dialogs = new Dialog( EmployeeNewMainScreen.this);
-                                                                    // Removing the features of Normal Dialogs
-                                                                    dialogs.requestWindowFeature(Window.FEATURE_NO_TITLE);
-                                                                    dialogs.setContentView(R.layout.dialog_signature);
-                                                                    dialogs.setCancelable(true);
-
-                                                                    dialog_action(loginDetails,md,"null",dialog);
-
-                                                                }else if (mGetSign.isChecked()&&mTakeImage.isChecked()){
-
-                                                                    file = new File(DIRECTORY);
-                                                                    if (!file.exists()) {
-                                                                        file.mkdir();
-                                                                    }
-
-                                                                    // Dialog Function
-                                                                    dialogs = new Dialog( EmployeeNewMainScreen.this);
-                                                                    // Removing the features of Normal Dialogs
-                                                                    dialogs.requestWindowFeature(Window.FEATURE_NO_TITLE);
-                                                                    dialogs.setContentView(R.layout.dialog_signature);
-                                                                    dialogs.setCancelable(true);
-
-                                                                    dialog_action(loginDetails,md,"Selfie",dialog);
-
-                                                                }else if (!mGetSign.isChecked()&&mTakeImage.isChecked()){
-
-                                                                    file = new File(DIRECTORY);
-                                                                    if (!file.exists()) {
-                                                                        file.mkdir();
-                                                                    }
 
                                                                        /* // Dialog Function
                                                                         dialog = new Dialog(MeetingAddWithSignScreen.this);
@@ -2766,18 +2555,18 @@ public class EmployeeNewMainScreen extends AppCompatActivity implements RapidFlo
                                                                         dialog.setContentView(R.layout.dialog_signature);
                                                                         dialog.setCancelable(true);*/
 
-                                                                    dispatchTakePictureIntent();
-                                                                    dialog.dismiss();
-                                                                    //dialog_action(loginDetails,md,"Selfie");
-                                                                }else{
-                                                                    updateMeeting(loginDetails,md);
-                                                                }
-                                                                dialog.dismiss();
-                                                            } catch (Exception e) {
-                                                                e.printStackTrace();
-                                                            }
+                                                            dispatchTakePictureIntent();
+                                                            dialog.dismiss();
+                                                            //dialog_action(loginDetails,md,"Selfie");
+                                                        }else{
+                                                            updateMeeting(loginDetails,md);
                                                         }
+                                                        dialog.dismiss();
+                                                    } catch (Exception e) {
+                                                        e.printStackTrace();
                                                     }
+                                                }
+                                            }
                                                    /* if(gps!=null&&gps.canGetLocation())
                                                     {
                                                         System.out.println("Long and lat Rev"+gps.getLatitude()+" = "+gps.getLongitude());
@@ -2788,30 +2577,28 @@ public class EmployeeNewMainScreen extends AppCompatActivity implements RapidFlo
                                                     {
 
                                                     }*/
-                                                }
-                                            }
-                                        });
-
-                                    }else{
-
+                                        }
                                     }
+                                });
 
-                                }catch (Exception e){
-                                    e.printStackTrace();
-                                }
+                            }else{
+
                             }
 
-                        }else{
-
-                            //meet
+                        }catch (Exception e){
+                            e.printStackTrace();
                         }
                     }
 
-                    @Override
-                    public void onFailure( Call< Meetings > call, Throwable t) {
+                }else{
 
-                    }
-                });
+                    //meet
+                }
+            }
+
+            @Override
+            public void onFailure( Call< Meetings > call, Throwable t) {
+
             }
         });
     }
@@ -3031,31 +2818,8 @@ public class EmployeeNewMainScreen extends AppCompatActivity implements RapidFlo
         }
     }
 
-    private String getAddress(LatLng latLng) {
-        Geocoder geocoder = new Geocoder( EmployeeNewMainScreen.this, Locale.getDefault());
-        String result = null;
-        try {
-            List<Address> addressList = geocoder.getFromLocation(latLng.latitude, latLng.longitude, 1);
-            if (addressList != null && addressList.size() > 0) {
-                Address address = addressList.get(0);
-                StringBuilder sb = new StringBuilder();
-                for (int i = 0; i < address.getMaxAddressLineIndex(); i++) {
-                    sb.append(address.getAddressLine(i)).append(",");
-                }
-
-                result = address.getAddressLine(0);
-
-                return result;
-            }
-            return result;
-        } catch (IOException e) {
-            Log.e("MapLocation", "Unable connect to Geocoder", e);
-            return result;
-        }
-    }
 
     public void getCustomers(final int id) {
-
         final EmployeeApi orgApi = Util.getClient().create( EmployeeApi.class);
         Call<ArrayList< Employee >> getProf = orgApi.getEmployeesByOrgId (id);
         getProf.enqueue(new Callback<ArrayList< Employee >>() {
@@ -3165,6 +2929,7 @@ public class EmployeeNewMainScreen extends AppCompatActivity implements RapidFlo
             paint.setStrokeWidth(STROKE_WIDTH);
         }
 
+        @SuppressLint ("WrongThread")
         public void save( View v, String StoredPath, final Meetings loginDetails, final MeetingDetailsNotificationManagers md, final String type, final AlertDialog alertDialog) {
             Log.v("log_tag", "Width: " + v.getWidth());
             Log.v("log_tag", "Height: " + v.getHeight());
@@ -3626,6 +3391,5 @@ public class EmployeeNewMainScreen extends AppCompatActivity implements RapidFlo
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
 
     }
-
 
 }

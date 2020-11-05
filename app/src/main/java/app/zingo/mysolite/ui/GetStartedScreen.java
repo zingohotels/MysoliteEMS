@@ -153,20 +153,14 @@ public class GetStartedScreen extends AppCompatActivity implements PaymentResult
 
             fn_permission();
             if (boolean_permission){
-
                 if (mLocationClient == null) {
-
-
-
                     mLocationClient = new GoogleApiClient.Builder( GetStartedScreen.this)
                             .addConnectionCallbacks(this)
                             .addOnConnectionFailedListener(this)
                             .addApi(LocationServices.API)
                             .build();
                 }
-
             }
-
 
             String currentYear = new SimpleDateFormat("yyyyy").format(new Date());
 
@@ -588,6 +582,7 @@ public class GetStartedScreen extends AppCompatActivity implements PaymentResult
         String build = mBuildYear.getText().toString();
         String web = mWebsite.getText().toString();
         String employeeCount = mNoEmployee.getText().toString();
+        String resellerCode = "Dumm30";
         //boolean value = checkcondition();
 
         if(company.isEmpty()){
@@ -597,6 +592,14 @@ public class GetStartedScreen extends AppCompatActivity implements PaymentResult
         }else if(address.isEmpty()){
 
             Toast.makeText( GetStartedScreen.this, "Address required", Toast.LENGTH_SHORT).show();
+
+        }else if(build.isEmpty()){
+
+            Toast.makeText(GetStartedScreen.this, "Build year required", Toast.LENGTH_SHORT).show();
+
+        }else if(employeeCount.isEmpty()){
+
+            Toast.makeText( GetStartedScreen.this, "Total Employee required", Toast.LENGTH_SHORT).show();
 
         }/*else if(about.isEmpty()){
 
@@ -684,11 +687,8 @@ public class GetStartedScreen extends AppCompatActivity implements PaymentResult
 
                 ArrayList< Departments > depList = new ArrayList<>();
                 depList.add(departments);
-
                 organization.setDepartment(depList);
-
-                String resellerCode = mResellerCode.getText().toString();
-
+                //String resellerCode = mResellerCode.getText().toString();
                 if(resellerCode!=null&&!resellerCode.isEmpty()){
 
                     organization.setReferralCodeOfReseller(resellerCode);
@@ -762,7 +762,7 @@ public class GetStartedScreen extends AppCompatActivity implements PaymentResult
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-//        super.onActivityResult(requestCode, resultCode, data);
+        super.onActivityResult(requestCode, resultCode, data);
         try{
             if (requestCode == PLACE_AUTOCOMPLETE_REQUEST_CODE) {
                 if (resultCode == RESULT_OK) {
@@ -907,10 +907,6 @@ public class GetStartedScreen extends AppCompatActivity implements PaymentResult
                                 PreferenceHandler.getInstance( GetStartedScreen.this).setDepartmentId(response.body().getDepartment().get(0).getDepartmentId());
 
                             }
-
-
-
-
                             //addDepartments(s,departments,payment);
 
                             if(payment!=null&&payment.equalsIgnoreCase("Payment")){
@@ -939,22 +935,16 @@ public class GetStartedScreen extends AppCompatActivity implements PaymentResult
                                 startActivity(profile);
                                 GetStartedScreen.this.finish();
                             }
-
-
                         }
-
-
 
 
                     }else {
                         Toast.makeText( GetStartedScreen.this, "Failed Due to "+response.message(), Toast.LENGTH_SHORT).show();
                     }
                 }
-                catch (Exception ex)
-                {
+                catch (Exception ex) {
 
-                    if(dialog != null && dialog.isShowing())
-                    {
+                    if(dialog != null && dialog.isShowing()) {
                         dialog.dismiss();
                     }
                     ex.printStackTrace();

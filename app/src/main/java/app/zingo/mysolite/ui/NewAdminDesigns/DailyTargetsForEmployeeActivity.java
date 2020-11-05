@@ -31,7 +31,6 @@ import app.zingo.mysolite.model.Employee;
 import app.zingo.mysolite.model.Tasks;
 import app.zingo.mysolite.ui.Admin.CreateTaskScreen;
 import app.zingo.mysolite.ui.Admin.EmployeeTaskMapScreen;
-import app.zingo.mysolite.utils.ThreadExecuter;
 import app.zingo.mysolite.utils.Util;
 import app.zingo.mysolite.WebApi.TasksAPI;
 import app.zingo.mysolite.R;
@@ -133,7 +132,6 @@ public class DailyTargetsForEmployeeActivity extends AppCompatActivity {
             floatingActionButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-
                     Intent createTask = new Intent( DailyTargetsForEmployeeActivity.this, CreateTaskScreen.class);
                     createTask.putExtra("EmployeeId", mEmployeeId);
                     startActivity(createTask);
@@ -396,16 +394,6 @@ public class DailyTargetsForEmployeeActivity extends AppCompatActivity {
     }*/
 
     private void getTasks(final int employeeId,final String dateValue){
-
-
-        final ProgressDialog progressDialog = new ProgressDialog(this);
-        progressDialog.setTitle("Loading Details..");
-        progressDialog.setCancelable(false);
-        progressDialog.show();
-
-        new ThreadExecuter ().execute( new Runnable() {
-            @Override
-            public void run() {
                 TasksAPI apiService = Util.getClient().create( TasksAPI.class);
                 Call<ArrayList<Tasks>> call = apiService.getTasksByEmployeeId(employeeId);
 
@@ -414,10 +402,6 @@ public class DailyTargetsForEmployeeActivity extends AppCompatActivity {
                     public void onResponse(Call<ArrayList<Tasks>> call, Response<ArrayList<Tasks>> response) {
                         int statusCode = response.code();
                         if (statusCode == 200 || statusCode == 201 || statusCode == 203 || statusCode == 204) {
-
-
-                            if (progressDialog != null&&progressDialog.isShowing())
-                                progressDialog.dismiss();
                             ArrayList<Tasks> list = response.body();
                             employeeTasks = new ArrayList<>();
                             pendingTasks = new ArrayList<>();
@@ -436,28 +420,13 @@ public class DailyTargetsForEmployeeActivity extends AppCompatActivity {
 
                             try {
                                 date = new SimpleDateFormat("yyyy-MM-dd").parse(dateValue);
-
-
                             } catch (Exception e) {
                                 e.printStackTrace();
                             }
 
-
-
                             if (list !=null && list.size()!=0) {
-
-
-
                                 for (Tasks task:list) {
-
-
-                                    if(task.getCategory()==null){
-
-
-
-
-
-
+                                    if(task.getCategory()==null||!task.getCategory ().equalsIgnoreCase ( "Order") ){
                                         employeeTasks.add(task);
                                         total = total+1;
 
@@ -471,10 +440,6 @@ public class DailyTargetsForEmployeeActivity extends AppCompatActivity {
                                             closedTasks.add(task);
                                             closed = closed+1;
                                         }
-
-
-
-
                                         String froms = task.getStartDate();
                                         String tos = task.getEndDate();
 
@@ -492,16 +457,11 @@ public class DailyTargetsForEmployeeActivity extends AppCompatActivity {
                                                 } catch (ParseException e) {
                                                     e.printStackTrace();
                                                 }
-
-
                                             }
-
                                         }
 
                                         if(tos!=null&&!tos.isEmpty()){
-
                                             if(tos.contains("T")){
-
                                                 String dojs[] = tos.split("T");
 
                                                 try {
@@ -509,19 +469,13 @@ public class DailyTargetsForEmployeeActivity extends AppCompatActivity {
                                                 } catch (ParseException e) {
                                                     e.printStackTrace();
                                                 }
-
                                             }
-
                                         }
 
                                         if(afromDate!=null&&atoDate!=null){
-
                                             if(date.getTime() >= afromDate.getTime() && date.getTime() <= atoDate.getTime()){
-
-
                                                 dayemployeeTasks.add(task);
                                                 daytotal = daytotal+1;
-
                                                 if(task.getStatus().equalsIgnoreCase("Completed")){
                                                     daycompletedTasks.add(task);
                                                     daycomplete = daycomplete+1;
@@ -532,13 +486,9 @@ public class DailyTargetsForEmployeeActivity extends AppCompatActivity {
                                                     dayclosedTasks.add(task);
                                                     dayclosed = dayclosed+1;
                                                 }
-
                                             }
                                         }
-
                                     }
-
-
                                 }
 
                                 if(dayemployeeTasks!=null&&dayemployeeTasks.size()!=0){
@@ -558,47 +508,26 @@ public class DailyTargetsForEmployeeActivity extends AppCompatActivity {
                                     mTaskList.setVisibility(View.GONE);
                                 }
 
-
-
                             }else{
-
                                 mNoRecord.setVisibility(View.VISIBLE);
                                 mTaskList.setVisibility(View.GONE);
-
                                 Toast.makeText( DailyTargetsForEmployeeActivity.this, "No Tasks given for this employee ", Toast.LENGTH_SHORT).show();
-
                             }
 
                         }else {
-
-                            if (progressDialog != null&&progressDialog.isShowing())
-                                progressDialog.dismiss();
-
                             Toast.makeText( DailyTargetsForEmployeeActivity.this, "Failed due to : "+response.message(), Toast.LENGTH_SHORT).show();
                         }
                     }
 
                     @Override
                     public void onFailure(Call<ArrayList<Tasks>> call, Throwable t) {
-                        // Log error here since request failed
-                        if (progressDialog != null&&progressDialog.isShowing())
-                            progressDialog.dismiss();
-                        mNoRecord.setVisibility(View.VISIBLE);
-                        mTaskList.setVisibility(View.GONE);
-                        Log.e("TAG", t.toString());
-                    }
-                });
             }
-
-
         });
     }
 
 
     public void taskFilter(final String dateValue){
-
         if(employeeTasks!=null&&employeeTasks.size()!=0){
-
             mNoRecord.setVisibility(View.VISIBLE);
             mTaskList.setVisibility(View.GONE);
             mTaskList.removeAllViews();
@@ -740,5 +669,18 @@ public class DailyTargetsForEmployeeActivity extends AppCompatActivity {
             mTaskList.removeAllViews();
         }
     }
-
+    @Override
+    protected void onResume ( ) {
+        super.onResume ( );
+        final Calendar calendar = Calendar.getInstance();
+        Date date2 = calendar.getTime();
+        getTasks(mEmployeeId,new SimpleDateFormat("yyyy-MM-dd").format(date2));
+    }
+    @Override
+    protected void onRestart ( ) {
+        super.onRestart ( );
+        final Calendar calendar = Calendar.getInstance();
+        Date date2 = calendar.getTime();
+        getTasks(mEmployeeId,new SimpleDateFormat("yyyy-MM-dd").format(date2));
+    }
 }

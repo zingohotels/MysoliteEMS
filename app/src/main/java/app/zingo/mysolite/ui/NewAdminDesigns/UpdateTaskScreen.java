@@ -6,14 +6,21 @@ import android.app.ProgressDialog;
 import android.app.TimePickerDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
-import android.os.Bundle;
+import com.google.android.libraries.places.api.Places;
+import com.google.android.libraries.places.api.model.Place;
+import com.google.android.libraries.places.widget.Autocomplete;
+import com.google.android.libraries.places.widget.AutocompleteActivity;
+import com.google.android.libraries.places.widget.model.AutocompleteActivityMode;
 import com.google.android.material.textfield.TextInputEditText;
 import androidx.core.app.ActivityCompat;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatButton;
+
+import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -27,12 +34,7 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
-
-import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
-import com.google.android.gms.common.GooglePlayServicesRepairableException;
 import com.google.android.gms.common.api.Status;
-import com.google.android.gms.location.places.Place;
-import com.google.android.gms.location.places.ui.PlaceAutocomplete;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapsInitializer;
@@ -44,9 +46,11 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.io.IOException;
+import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -54,6 +58,8 @@ import java.util.Locale;
 
 import app.zingo.mysolite.Custom.MapViewScroll;
 import app.zingo.mysolite.model.Tasks;
+import app.zingo.mysolite.utils.Constants;
+import app.zingo.mysolite.utils.PreferenceHandler;
 import app.zingo.mysolite.utils.TrackGPS;
 import app.zingo.mysolite.utils.Util;
 import app.zingo.mysolite.WebApi.TasksAPI;
@@ -87,7 +93,7 @@ public class UpdateTaskScreen extends AppCompatActivity {
     public String TAG = "MAPLOCATION",placeId;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate( Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         try {
             setContentView(R.layout.activity_update_task_screen);
@@ -117,6 +123,12 @@ public class UpdateTaskScreen extends AppCompatActivity {
             if (bundle != null) {
                 updateTask = (Tasks)bundle.getSerializable("Task");
                 ADAPTER_POSITION = bundle.getInt("Position");
+            }
+
+            try{
+                Places.initialize(getApplicationContext(), Constants.locationApiKey);
+            }catch ( Exception e ){
+                e.printStackTrace ();
             }
 
             if(updateTask!=null){
@@ -302,14 +314,6 @@ public class UpdateTaskScreen extends AppCompatActivity {
                     mTimePicker.show();
                 }
             });
-           /* mDead.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-
-                    openDatePicker(mDead);
-                }
-            });
-*/
             mCreate.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -343,16 +347,12 @@ public class UpdateTaskScreen extends AppCompatActivity {
                 @Override
                 public void onClick(View v) {
                     try {
-                        Intent intent =
-                                new PlaceAutocomplete.IntentBuilder(PlaceAutocomplete.MODE_OVERLAY/*MODE_FULLSCREEN*/)
-                                        .build( UpdateTaskScreen.this);
+                        List< com.google.android.libraries.places.api.model.Place.Field> fields = Arrays.asList( com.google.android.libraries.places.api.model.Place.Field.ID, com.google.android.libraries.places.api.model.Place.Field.LAT_LNG, com.google.android.libraries.places.api.model.Place.Field.NAME, com.google.android.libraries.places.api.model.Place.Field.ADDRESS);
+                        Intent intent = new Autocomplete.IntentBuilder( AutocompleteActivityMode.FULLSCREEN, fields).build(getApplicationContext());
                         startActivityForResult(intent, PLACE_AUTOCOMPLETE_REQUEST_CODE);
-                    } catch (GooglePlayServicesRepairableException e) {
+                    } catch (Exception e) {
                         e.printStackTrace();
                         // TODO: Handle the error.
-                    } catch (GooglePlayServicesNotAvailableException e) {
-                        // TODO: Handle the error.
-                        e.printStackTrace();
                     }
                 }
             });
@@ -526,10 +526,30 @@ public class UpdateTaskScreen extends AppCompatActivity {
                     tasks.setLongitude(lngi+"");
                 }
                 tasks.setDepartmentId(0);
-                try {
+                if( PreferenceHandler.getInstance ( this ).getUserRoleUniqueID ()==2 ){
                     updateTasks(tasks);
-                } catch (Exception e) {
-                    e.printStackTrace();
+                }else{
+                    try {
+                        SimpleDateFormat dateFormatter = new SimpleDateFormat("MM/dd/yyyy");
+                        Date taskEndDate = new SimpleDateFormat("MM/dd/yyyy").parse(tasks.getEndDate ());
+                        Date currentDate = dateFormatter.parse ( dateFormatter.format ( new Date ( ) ) );
+                        if(taskEndDate.getTime ()>currentDate.getTime ()&&tasks.getStatus ().equalsIgnoreCase ( "Completed" )){
+                            Toast.makeText ( this , "Can`t Complete task before Task End date" , Toast.LENGTH_SHORT ).show ( );
+                            return;
+                        }if(taskEndDate.getTime ()>currentDate.getTime ()&&tasks.getStatus ().equalsIgnoreCase ( "Closed" )){
+                            Toast.makeText ( this , "Can`t Closed task before Task End date" , Toast.LENGTH_SHORT ).show ( );
+                            return;
+                        }if(taskEndDate.getTime ()<=currentDate.getTime ()&&tasks.getStatus ().equalsIgnoreCase ( "Completed" )){
+                            updateTasks(tasks);
+                        }if(taskEndDate.getTime ()<=currentDate.getTime ()&&tasks.getStatus ().equalsIgnoreCase ( "Closed" )) {
+                            updateTasks(tasks);
+                        }else{
+                            updateTasks(tasks);
+                        }
+
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
                 }
             }catch (Exception e){
                 e.printStackTrace();
@@ -541,8 +561,7 @@ public class UpdateTaskScreen extends AppCompatActivity {
         Geocoder geocoder = new Geocoder( UpdateTaskScreen.this, Locale.getDefault());
         String result = null;
         try {
-            List<Address> addressList = geocoder.getFromLocation(
-                    latLng.latitude, latLng.longitude, 1);
+            List<Address> addressList = geocoder.getFromLocation( latLng.latitude, latLng.longitude, 1);
             if (addressList != null && addressList.size() > 0) {
                 Address address = addressList.get(0);
                 StringBuilder sb = new StringBuilder();
@@ -562,11 +581,11 @@ public class UpdateTaskScreen extends AppCompatActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-//        super.onActivityResult(requestCode, resultCode, data);
+        super.onActivityResult(requestCode, resultCode, data);
         try{
             if (requestCode == PLACE_AUTOCOMPLETE_REQUEST_CODE) {
                 if (resultCode == RESULT_OK) {
-                    Place place = PlaceAutocomplete.getPlace(this, data);
+                    Place place = Autocomplete.getPlaceFromIntent ( data );
                     //System.out.println(place.getLatLng());
                     location.setText(place.getName()+","+place.getAddress());
                     //location.setText(""+place.getId());
@@ -589,8 +608,8 @@ public class UpdateTaskScreen extends AppCompatActivity {
                     }
                     //address.setText(place.getAddress());*/
                     Log.i(TAG, "Place: " + place.getName());
-                } else if (resultCode == PlaceAutocomplete.RESULT_ERROR) {
-                    Status status = PlaceAutocomplete.getStatus(this, data);
+                } else if (resultCode == AutocompleteActivity.RESULT_ERROR) {
+                    Status status = Autocomplete.getStatusFromIntent ( data );
                     // TODO: Handle the error.
                     Log.i(TAG, status.getStatusMessage());
 
@@ -630,7 +649,7 @@ public class UpdateTaskScreen extends AppCompatActivity {
 
 
                         Toast.makeText( UpdateTaskScreen.this, "Update Task succesfully", Toast.LENGTH_SHORT).show();
-
+                        UpdateTaskScreen.this.finish ();
                       //  AdminDashBoardFragment.mTaskList.getAdapter().notifyDataSetChanged();
 
                     }else {

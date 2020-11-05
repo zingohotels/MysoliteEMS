@@ -25,7 +25,6 @@ import app.zingo.mysolite.model.Organization;
 import app.zingo.mysolite.ui.NewAdminDesigns.AdminNewMainScreen;
 import app.zingo.mysolite.ui.NewAdminDesigns.BranchOptionScreen;
 import app.zingo.mysolite.utils.PreferenceHandler;
-import app.zingo.mysolite.utils.ThreadExecuter;
 import app.zingo.mysolite.utils.Util;
 import app.zingo.mysolite.WebApi.EmployeeApi;
 import retrofit2.Call;
@@ -170,74 +169,67 @@ public class BranchAdapter extends RecyclerView.Adapter< BranchAdapter.ViewHolde
         progressDialog.setCancelable(false);
         progressDialog.show();
 
-        new ThreadExecuter ().execute( new Runnable() {
+        EmployeeApi apiService = Util.getClient().create( EmployeeApi.class);
+        Call<ArrayList<Employee>> call = apiService.getEmployeesByDepId(deptId);
+
+        call.enqueue(new Callback<ArrayList<Employee>>() {
             @Override
-            public void run() {
-                EmployeeApi apiService = Util.getClient().create( EmployeeApi.class);
-                Call<ArrayList<Employee>> call = apiService.getEmployeesByDepId(deptId);
+            public void onResponse(Call<ArrayList<Employee>> call, Response<ArrayList<Employee>> response) {
+                int statusCode = response.code();
 
-                call.enqueue(new Callback<ArrayList<Employee>>() {
-                    @Override
-                    public void onResponse(Call<ArrayList<Employee>> call, Response<ArrayList<Employee>> response) {
-                        int statusCode = response.code();
-
-                        if (progressDialog != null&&progressDialog.isShowing())
-                            progressDialog.dismiss();
-                        if (statusCode == 200 || statusCode == 201 || statusCode == 203 || statusCode == 204) {
+                if (progressDialog != null&&progressDialog.isShowing())
+                    progressDialog.dismiss();
+                if (statusCode == 200 || statusCode == 201 || statusCode == 203 || statusCode == 204) {
 
 
 
-                            ArrayList<Employee> list = response.body();
+                    ArrayList<Employee> list = response.body();
 
 
-                            if (list !=null && list.size()!=0) {
+                    if (list !=null && list.size()!=0) {
 
-                                ArrayList<Employee> employees = new ArrayList<>();
-                                for(int i=0;i<list.size();i++){
+                        ArrayList<Employee> employees = new ArrayList<>();
+                        for(int i=0;i<list.size();i++){
 
-                                    if(list.get(i).getEmployeeId()!= PreferenceHandler.getInstance(context).getUserId()){
+                            if(list.get(i).getEmployeeId()!= PreferenceHandler.getInstance(context).getUserId()){
 
-                                        employees.add(list.get(i));
+                                employees.add(list.get(i));
 
-                                    }
-                                }
-
-                                if(employees!=null&&employees.size()!=0){
-                                    Collections.sort(employees, Employee.compareEmployee);
-
-                                    EmployeeUpdateAdapter adapter = new EmployeeUpdateAdapter (context, employees,"Update");
-                                    mEmpList.setAdapter(adapter);
-
-                                }else{
-                                    Toast.makeText(context,"No Employees added",Toast.LENGTH_LONG).show();
-                                }
-
-
-                                //}
-
-                            }else{
-                                Toast.makeText(context,"No Employees added",Toast.LENGTH_LONG).show();
                             }
-
-                        }else {
-
-
-                            Toast.makeText(context, "Failed due to : "+response.message(), Toast.LENGTH_SHORT).show();
                         }
+
+                        if(employees!=null&&employees.size()!=0){
+                            Collections.sort(employees, Employee.compareEmployee);
+
+                            EmployeeUpdateAdapter adapter = new EmployeeUpdateAdapter (context, employees,"Update");
+                            mEmpList.setAdapter(adapter);
+
+                        }else{
+                            Toast.makeText(context,"No Employees added",Toast.LENGTH_LONG).show();
+                        }
+
+
+                        //}
+
+                    }else{
+                        Toast.makeText(context,"No Employees added",Toast.LENGTH_LONG).show();
                     }
 
-                    @Override
-                    public void onFailure(Call<ArrayList<Employee>> call, Throwable t) {
-                        // Log error here since request failed
-                        if (progressDialog != null&&progressDialog.isShowing())
-                            progressDialog.dismiss();
+                }else {
 
-                        Log.e("TAG", t.toString());
-                    }
-                });
+
+                    Toast.makeText(context, "Failed due to : "+response.message(), Toast.LENGTH_SHORT).show();
+                }
             }
 
+            @Override
+            public void onFailure(Call<ArrayList<Employee>> call, Throwable t) {
+                // Log error here since request failed
+                if (progressDialog != null&&progressDialog.isShowing())
+                    progressDialog.dismiss();
 
+                Log.e("TAG", t.toString());
+            }
         });
     }
 }

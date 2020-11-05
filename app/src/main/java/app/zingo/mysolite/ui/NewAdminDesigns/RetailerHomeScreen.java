@@ -28,12 +28,9 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class RetailerHomeScreen extends AppCompatActivity {
-
     private ProgressBar mProgressBar;
     GridView mCategoryGrid;
-
     DrawerLayout drawer;
-
     ArrayList< StockCategoryModel > categoriesArrayList = new ArrayList <> (  );
 
     @Override

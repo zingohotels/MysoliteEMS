@@ -44,7 +44,6 @@ import app.zingo.mysolite.model.Departments;
 import app.zingo.mysolite.model.Organization;
 import app.zingo.mysolite.ui.landing.InternalServerErrorScreen;
 import app.zingo.mysolite.utils.PreferenceHandler;
-import app.zingo.mysolite.utils.ThreadExecuter;
 import app.zingo.mysolite.utils.Util;
 import app.zingo.mysolite.WebApi.DepartmentApi;
 import app.zingo.mysolite.WebApi.OrganizationApi;
@@ -210,174 +209,157 @@ public class BranchInfoScreen extends AppCompatActivity {
 
 
     public void getCompany(final int id) {
+        final OrganizationApi subCategoryAPI = Util.getClient().create(OrganizationApi.class);
+        Call<ArrayList<Organization>> getProf = subCategoryAPI.getOrganizationById(id);
+        //Call<ArrayList<Blogs>> getBlog = blogApi.getBlogs();
 
-        new ThreadExecuter().execute(new Runnable() {
+        getProf.enqueue(new Callback<ArrayList<Organization>>() {
+
             @Override
-            public void run() {
+            public void onResponse(Call<ArrayList<Organization>> call, Response<ArrayList<Organization>> response) {
 
-                final OrganizationApi subCategoryAPI = Util.getClient().create(OrganizationApi.class);
-                Call<ArrayList<Organization>> getProf = subCategoryAPI.getOrganizationById(id);
-                //Call<ArrayList<Blogs>> getBlog = blogApi.getBlogs();
+                if (response.code() == 200||response.code() == 201||response.code() == 204)
+                {
+                    organization = response.body().get(0);
 
-                getProf.enqueue(new Callback<ArrayList<Organization>>() {
+                    if(organization!=null){
 
-                    @Override
-                    public void onResponse(Call<ArrayList<Organization>> call, Response<ArrayList<Organization>> response) {
-
-                        if (response.code() == 200||response.code() == 201||response.code() == 204)
-                        {
-                            organization = response.body().get(0);
-
-                            if(organization!=null){
-
-                                mName.setText(""+organization.getOrganizationName());
-                                mAbout.setText(""+organization.getAboutUs());
-                                mAddress.setText(""+organization.getAddress()+"\n"+organization.getCity()+"\n"+organization.getState());
+                        mName.setText(""+organization.getOrganizationName());
+                        mAbout.setText(""+organization.getAboutUs());
+                        mAddress.setText(""+organization.getAddress()+"\n"+organization.getCity()+"\n"+organization.getState());
 
 
 
 
-                                if(organization.isWorking()){
+                        if(organization.isWorking()){
 
-                                    locationTrack.setChecked(true);
+                            locationTrack.setChecked(true);
 
-                                }else{
+                        }else{
 
-                                    locationTrack.setChecked(false);
+                            locationTrack.setChecked(false);
 
 
+                        }
+
+
+                        mMap.clear();
+
+                        LatLng latlng = new LatLng(Double.parseDouble(organization.getLatitude()),Double.parseDouble(organization.getLongitude()));
+                        marker = mMap.addMarker(new MarkerOptions()
+                                .position(latlng)
+                                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)));
+                        CameraPosition cameraPosition = new CameraPosition.Builder().zoom(14).target(latlng).build();
+                        mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+
+                        //Only for founder
+
+                        if(organization.getDepartment()!=null&&organization.getDepartment().size()!=0){
+
+
+                            ArrayList<Departments> departmentsArrayList = new ArrayList<>();
+
+                            for(int i=0;i<organization.getDepartment().size();i++){
+
+                                if(!organization.getDepartment().get(i).getDepartmentName().equalsIgnoreCase("Founders")){
+
+                                    departmentsArrayList.add(organization.getDepartment().get(i));
                                 }
-
-
-                                mMap.clear();
-
-                                LatLng latlng = new LatLng(Double.parseDouble(organization.getLatitude()),Double.parseDouble(organization.getLongitude()));
-                                marker = mMap.addMarker(new MarkerOptions()
-                                        .position(latlng)
-                                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)));
-                                CameraPosition cameraPosition = new CameraPosition.Builder().zoom(14).target(latlng).build();
-                                mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
-
-                                //Only for founder
-
-                                if(organization.getDepartment()!=null&&organization.getDepartment().size()!=0){
-
-
-                                    ArrayList<Departments> departmentsArrayList = new ArrayList<>();
-
-                                    for(int i=0;i<organization.getDepartment().size();i++){
-
-                                        if(!organization.getDepartment().get(i).getDepartmentName().equalsIgnoreCase("Founders")){
-
-                                            departmentsArrayList.add(organization.getDepartment().get(i));
-                                        }
-                                    }
-
-                                    if(departmentsArrayList!=null&&departmentsArrayList.size()!=0){
-
-                                        mDepartmentCount.setText(""+departmentsArrayList.size());
-                                        DepartmentAdapter adapter = new DepartmentAdapter( BranchInfoScreen.this,departmentsArrayList);
-                                        mDepartmentList.setAdapter(adapter);
-                                    }
-
-
-
-                                }else{
-
-                                    getDepartment(organization.getOrganizationId());
-                                }
-
-
-                            }else{
-                                Toast.makeText( BranchInfoScreen.this, "Something went wrong", Toast.LENGTH_SHORT).show();
                             }
+
+                            if(departmentsArrayList!=null&&departmentsArrayList.size()!=0){
+
+                                mDepartmentCount.setText(""+departmentsArrayList.size());
+                                DepartmentAdapter adapter = new DepartmentAdapter( BranchInfoScreen.this,departmentsArrayList);
+                                mDepartmentList.setAdapter(adapter);
+                            }
+
 
 
                         }else{
 
-                            Toast.makeText( BranchInfoScreen.this, "Something went wrong", Toast.LENGTH_SHORT).show();
-
+                            getDepartment(organization.getOrganizationId());
                         }
-                    }
 
-                    @Override
-                    public void onFailure(Call<ArrayList<Organization>> call, Throwable t) {
 
+                    }else{
                         Toast.makeText( BranchInfoScreen.this, "Something went wrong", Toast.LENGTH_SHORT).show();
-
                     }
-                });
 
+
+                }else{
+
+                    Toast.makeText( BranchInfoScreen.this, "Something went wrong", Toast.LENGTH_SHORT).show();
+
+                }
             }
 
+            @Override
+            public void onFailure(Call<ArrayList<Organization>> call, Throwable t) {
+
+                Toast.makeText( BranchInfoScreen.this, "Something went wrong", Toast.LENGTH_SHORT).show();
+
+            }
         });
     }
 
     private void getDepartment(final int id){
+        DepartmentApi apiService =
+                Util.getClient().create(DepartmentApi.class);
 
-        new ThreadExecuter().execute(new Runnable() {
+        Call<ArrayList<Departments>> call = apiService.getDepartmentByOrganization(id);
+
+        call.enqueue(new Callback<ArrayList<Departments>>() {
             @Override
-            public void run() {
-
-
-                DepartmentApi apiService =
-                        Util.getClient().create(DepartmentApi.class);
-
-                Call<ArrayList<Departments>> call = apiService.getDepartmentByOrganization(id);
-
-                call.enqueue(new Callback<ArrayList<Departments>>() {
-                    @Override
-                    public void onResponse(Call<ArrayList<Departments>> call, Response<ArrayList<Departments>> response) {
+            public void onResponse(Call<ArrayList<Departments>> call, Response<ArrayList<Departments>> response) {
 //                List<RouteDTO.Routes> list = new ArrayList<RouteDTO.Routes>();
-                        int statusCode = response.code();
+                int statusCode = response.code();
 
-                        if(statusCode == 200 || statusCode == 204)
-                        {
-                            ArrayList<Departments> departmentsList = response.body();
-                            if(departmentsList != null && departmentsList.size()!=0 )
-                            {
+                if(statusCode == 200 || statusCode == 204)
+                {
+                    ArrayList<Departments> departmentsList = response.body();
+                    if(departmentsList != null && departmentsList.size()!=0 )
+                    {
 
-                                ArrayList<Departments> departmentsArrayList = new ArrayList<>();
+                        ArrayList<Departments> departmentsArrayList = new ArrayList<>();
 
-                                for(int i=0;i<departmentsList.size();i++){
+                        for(int i=0;i<departmentsList.size();i++){
 
-                                    if(!departmentsList.get(i).getDepartmentName().equalsIgnoreCase("Founders")){
+                            if(!departmentsList.get(i).getDepartmentName().equalsIgnoreCase("Founders")){
 
-                                        departmentsArrayList.add(departmentsList.get(i));
-                                    }
-                                }
-
-                                if(departmentsArrayList!=null&&departmentsArrayList.size()!=0){
-
-                                    mDepartmentCount.setText(""+departmentsArrayList.size());
-                                    DepartmentAdapter adapter = new DepartmentAdapter( BranchInfoScreen.this,departmentsArrayList);
-                                    mDepartmentList.setAdapter(adapter);
-                                }
-
-
-
-                            }
-                            else
-                            {
-
-
+                                departmentsArrayList.add(departmentsList.get(i));
                             }
                         }
-                        else
-                        {
 
-                            Toast.makeText( BranchInfoScreen.this,response.message(),Toast.LENGTH_SHORT).show();
+                        if(departmentsArrayList!=null&&departmentsArrayList.size()!=0){
+
+                            mDepartmentCount.setText(""+departmentsArrayList.size());
+                            DepartmentAdapter adapter = new DepartmentAdapter( BranchInfoScreen.this,departmentsArrayList);
+                            mDepartmentList.setAdapter(adapter);
                         }
+
+
+
+                    }
+                    else
+                    {
+
+
+                    }
+                }
+                else
+                {
+
+                    Toast.makeText( BranchInfoScreen.this,response.message(),Toast.LENGTH_SHORT).show();
+                }
 //                callGetStartEnd();
-                    }
+            }
 
-                    @Override
-                    public void onFailure(Call<ArrayList<Departments>> call, Throwable t) {
-                        // Log error here since request failed
+            @Override
+            public void onFailure(Call<ArrayList<Departments>> call, Throwable t) {
+                // Log error here since request failed
 
-                        Log.e("TAG", t.toString());
-                    }
-                });
+                Log.e("TAG", t.toString());
             }
         });
     }

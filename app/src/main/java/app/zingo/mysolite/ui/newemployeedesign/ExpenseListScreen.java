@@ -12,7 +12,6 @@ import java.util.ArrayList;
 import app.zingo.mysolite.adapter.ExpenseListAdapter;
 import app.zingo.mysolite.model.Expenses;
 import app.zingo.mysolite.utils.PreferenceHandler;
-import app.zingo.mysolite.utils.ThreadExecuter;
 import app.zingo.mysolite.utils.Util;
 import app.zingo.mysolite.WebApi.ExpensesApi;
 import app.zingo.mysolite.R;
@@ -63,56 +62,49 @@ public class ExpenseListScreen extends AppCompatActivity {
         progressDialog.setCancelable(false);
         progressDialog.show();
 
-        new ThreadExecuter ().execute( new Runnable() {
+        ExpensesApi apiService = Util.getClient().create(ExpensesApi.class);
+        Call<ArrayList<Expenses>> call = apiService.getExpenseByEmployeeIdAndOrganizationId(PreferenceHandler.getInstance( ExpenseListScreen.this).getCompanyId(),employeeId);
+
+        call.enqueue(new Callback<ArrayList<Expenses>>() {
             @Override
-            public void run() {
-                ExpensesApi apiService = Util.getClient().create(ExpensesApi.class);
-                Call<ArrayList<Expenses>> call = apiService.getExpenseByEmployeeIdAndOrganizationId(PreferenceHandler.getInstance( ExpenseListScreen.this).getCompanyId(),employeeId);
-
-                call.enqueue(new Callback<ArrayList<Expenses>>() {
-                    @Override
-                    public void onResponse(Call<ArrayList<Expenses>> call, Response<ArrayList<Expenses>> response) {
-                        int statusCode = response.code();
-                        if (statusCode == 200 || statusCode == 201 || statusCode == 203 || statusCode == 204) {
+            public void onResponse(Call<ArrayList<Expenses>> call, Response<ArrayList<Expenses>> response) {
+                int statusCode = response.code();
+                if (statusCode == 200 || statusCode == 201 || statusCode == 203 || statusCode == 204) {
 
 
-                            if (progressDialog != null&&progressDialog.isShowing())
-                                progressDialog.dismiss();
-                            ArrayList<Expenses> list = response.body();
+                    if (progressDialog != null&&progressDialog.isShowing())
+                        progressDialog.dismiss();
+                    ArrayList<Expenses> list = response.body();
 
 
 
-                            if (list !=null && list.size()!=0) {
+                    if (list !=null && list.size()!=0) {
 
-                                ExpenseListAdapter adapter = new ExpenseListAdapter( ExpenseListScreen.this,list);
-                                mExpenseList.setAdapter(adapter);
+                        ExpenseListAdapter adapter = new ExpenseListAdapter( ExpenseListScreen.this,list);
+                        mExpenseList.setAdapter(adapter);
 
-                            }else{
+                    }else{
 
-                                Toast.makeText( ExpenseListScreen.this, "No Expenses ", Toast.LENGTH_SHORT).show();
+                        Toast.makeText( ExpenseListScreen.this, "No Expenses ", Toast.LENGTH_SHORT).show();
 
-                            }
-
-                        }else {
-
-                            if (progressDialog != null&&progressDialog.isShowing())
-                                progressDialog.dismiss();
-
-                            Toast.makeText( ExpenseListScreen.this, "Failed due to : "+response.message(), Toast.LENGTH_SHORT).show();
-                        }
                     }
 
-                    @Override
-                    public void onFailure(Call<ArrayList<Expenses>> call, Throwable t) {
-                        // Log error here since request failed
-                        if (progressDialog != null&&progressDialog.isShowing())
-                            progressDialog.dismiss();
-                        Log.e("TAG", t.toString());
-                    }
-                });
+                }else {
+
+                    if (progressDialog != null&&progressDialog.isShowing())
+                        progressDialog.dismiss();
+
+                    Toast.makeText( ExpenseListScreen.this, "Failed due to : "+response.message(), Toast.LENGTH_SHORT).show();
+                }
             }
 
-
+            @Override
+            public void onFailure(Call<ArrayList<Expenses>> call, Throwable t) {
+                // Log error here since request failed
+                if (progressDialog != null&&progressDialog.isShowing())
+                    progressDialog.dismiss();
+                Log.e("TAG", t.toString());
+            }
         });
     }
 }

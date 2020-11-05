@@ -133,7 +133,7 @@ public class EmployeesDashBoard extends AppCompatActivity {
 
                         String base=employeeImages.getImage();
                         if(base != null && !base.isEmpty()){
-                            Picasso.with( EmployeesDashBoard.this).load(base).placeholder(R.drawable.profile_image).
+                            Picasso.get ().load(base).placeholder(R.drawable.profile_image).
                                     error(R.drawable.profile_image).into(collapsingToolbarImageView);
 
 

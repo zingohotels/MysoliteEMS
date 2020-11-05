@@ -44,7 +44,6 @@ import app.zingo.mysolite.model.Organization;
 import app.zingo.mysolite.model.PaySlips;
 import app.zingo.mysolite.ui.landing.InternalServerErrorScreen;
 import app.zingo.mysolite.utils.PreferenceHandler;
-import app.zingo.mysolite.utils.ThreadExecuter;
 import app.zingo.mysolite.utils.Util;
 import app.zingo.mysolite.WebApi.DepartmentApi;
 import app.zingo.mysolite.WebApi.DesignationsAPI;
@@ -871,154 +870,129 @@ public class CreatePaySlip extends AppCompatActivity {
     }
 
     public void getDepartment(final int id,final int employeeId){
+        final DepartmentApi subCategoryAPI = Util.getClient().create(DepartmentApi.class);
+        Call<Departments> getProf = subCategoryAPI.getDepartmentById(id);
+        //Call<ArrayList<Blogs>> getBlog = blogApi.getBlogs();
 
-        new ThreadExecuter ().execute( new Runnable() {
+        getProf.enqueue(new Callback<Departments>() {
+
             @Override
-            public void run() {
+            public void onResponse(Call<Departments> call, Response<Departments> response) {
 
-                final DepartmentApi subCategoryAPI = Util.getClient().create(DepartmentApi.class);
-                Call<Departments> getProf = subCategoryAPI.getDepartmentById(id);
-                //Call<ArrayList<Blogs>> getBlog = blogApi.getBlogs();
+                if (response.code() == 200||response.code() == 201||response.code() == 204)
+                {
 
-                getProf.enqueue(new Callback<Departments>() {
+                    if(response.body()!=null){
+                        mDepartment.setText(""+response.body().getDepartmentName());
+                    }
+                    try {
+                        getCompany(response.body().getOrganizationId());
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        Intent i = new Intent( CreatePaySlip.this, InternalServerErrorScreen.class);
 
-                    @Override
-                    public void onResponse(Call<Departments> call, Response<Departments> response) {
+                        startActivity(i);
+                    }
 
-                        if (response.code() == 200||response.code() == 201||response.code() == 204)
-                        {
+                    String company = PreferenceHandler.getInstance( CreatePaySlip.this).getCompanyName();
 
-                            if(response.body()!=null){
-                                mDepartment.setText(""+response.body().getDepartmentName());
-                            }
-                            try {
-                                getCompany(response.body().getOrganizationId());
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                                Intent i = new Intent( CreatePaySlip.this, InternalServerErrorScreen.class);
+                    if(company!=null&&!company.isEmpty()){
+                        if(company.length()<2){
+                            //return str;
+                            mEId.setText(company+""+employeeId);
+                        }
+                        else{
+                            mEId.setText(company.substring(0,2)+""+employeeId);
+                        }
+                    }else{
+                        try {
+                            getCompany(response.body().getOrganizationId());
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                            Intent i = new Intent( CreatePaySlip.this, InternalServerErrorScreen.class);
 
-                                startActivity(i);
-                            }
-
-                            String company = PreferenceHandler.getInstance( CreatePaySlip.this).getCompanyName();
-
-                            if(company!=null&&!company.isEmpty()){
-                                if(company.length()<2){
-                                    //return str;
-                                    mEId.setText(company+""+employeeId);
-                                }
-                                else{
-                                    mEId.setText(company.substring(0,2)+""+employeeId);
-                                }
-                            }else{
-                                try {
-                                    getCompany(response.body().getOrganizationId());
-                                } catch (Exception e) {
-                                    e.printStackTrace();
-                                    Intent i = new Intent( CreatePaySlip.this, InternalServerErrorScreen.class);
-
-                                    startActivity(i);
-                                }
-                            }
-
-
-                        }else{
-
-
+                            startActivity(i);
                         }
                     }
 
-                    @Override
-                    public void onFailure(Call<Departments> call, Throwable t) {
 
-                    }
-                });
+                }else{
 
+
+                }
             }
 
+            @Override
+            public void onFailure(Call<Departments> call, Throwable t) {
+
+            }
         });
+
     }
 
     public void getDesignation(final int id){
+        final DesignationsAPI subCategoryAPI = Util.getClient().create(DesignationsAPI.class);
+        Call<Designations> getProf = subCategoryAPI.getDesignationById(id);
+        //Call<ArrayList<Blogs>> getBlog = blogApi.getBlogs();
 
-        new ThreadExecuter ().execute( new Runnable() {
+        getProf.enqueue(new Callback<Designations>() {
+
             @Override
-            public void run() {
+            public void onResponse(Call<Designations> call, Response<Designations> response) {
 
-                final DesignationsAPI subCategoryAPI = Util.getClient().create(DesignationsAPI.class);
-                Call<Designations> getProf = subCategoryAPI.getDesignationById(id);
-                //Call<ArrayList<Blogs>> getBlog = blogApi.getBlogs();
+                if (response.code() == 200||response.code() == 201||response.code() == 204)
+                {
 
-                getProf.enqueue(new Callback<Designations>() {
-
-                    @Override
-                    public void onResponse(Call<Designations> call, Response<Designations> response) {
-
-                        if (response.code() == 200||response.code() == 201||response.code() == 204)
-                        {
-
-                            if(response.body()!=null){
-                                mDesignation.setText(""+response.body().getDesignationTitle());
-                            }
-
-
-
-                        }else{
-
-
-                        }
+                    if(response.body()!=null){
+                        mDesignation.setText(""+response.body().getDesignationTitle());
                     }
 
-                    @Override
-                    public void onFailure(Call<Designations> call, Throwable t) {
 
-                    }
-                });
 
+                }else{
+
+
+                }
             }
 
+            @Override
+            public void onFailure(Call<Designations> call, Throwable t) {
+
+            }
         });
+
     }
 
     public void getCompany(final int id) {
+        final OrganizationApi subCategoryAPI = Util.getClient().create( OrganizationApi.class);
+        Call<ArrayList< Organization >> getProf = subCategoryAPI.getOrganizationById(id);
+        //Call<ArrayList<Blogs>> getBlog = blogApi.getBlogs();
 
-        new ThreadExecuter ().execute( new Runnable() {
+        getProf.enqueue(new Callback<ArrayList< Organization >>() {
+
             @Override
-            public void run() {
+            public void onResponse( Call<ArrayList< Organization >> call, Response<ArrayList< Organization >> response) {
 
-                final OrganizationApi subCategoryAPI = Util.getClient().create( OrganizationApi.class);
-                Call<ArrayList< Organization >> getProf = subCategoryAPI.getOrganizationById(id);
-                //Call<ArrayList<Blogs>> getBlog = blogApi.getBlogs();
-
-                getProf.enqueue(new Callback<ArrayList< Organization >>() {
-
-                    @Override
-                    public void onResponse( Call<ArrayList< Organization >> call, Response<ArrayList< Organization >> response) {
-
-                        if (response.code() == 200||response.code() == 201||response.code() == 204)
-                        {
+                if (response.code() == 200||response.code() == 201||response.code() == 204)
+                {
 
 
-                            companyName = response.body().get(0).getOrganizationName();
-                            city = response.body().get(0).getCity();
-                            state = response.body().get(0).getState();
-                            websites = response.body().get(0).getWebsite();
+                    companyName = response.body().get(0).getOrganizationName();
+                    city = response.body().get(0).getCity();
+                    state = response.body().get(0).getState();
+                    websites = response.body().get(0).getWebsite();
 
 
-                        }else{
+                }else{
 
 
-                        }
-                    }
-
-                    @Override
-                    public void onFailure( Call<ArrayList< Organization >> call, Throwable t) {
-
-                    }
-                });
-
+                }
             }
 
+            @Override
+            public void onFailure( Call<ArrayList< Organization >> call, Throwable t) {
+
+            }
         });
     }
 
@@ -1051,175 +1025,168 @@ public class CreatePaySlip extends AppCompatActivity {
         progressDialog.setCancelable(false);
         progressDialog.show();
 
-        new ThreadExecuter ().execute( new Runnable() {
+        LeaveAPI apiService = Util.getClient().create(LeaveAPI.class);
+        Call<ArrayList<Leaves>> call = apiService.getLeavesByStatusAndEmployeeId("Pending",employeeId);
+
+        call.enqueue(new Callback<ArrayList<Leaves>>() {
             @Override
-            public void run() {
-                LeaveAPI apiService = Util.getClient().create(LeaveAPI.class);
-                Call<ArrayList<Leaves>> call = apiService.getLeavesByStatusAndEmployeeId("Pending",employeeId);
-
-                call.enqueue(new Callback<ArrayList<Leaves>>() {
-                    @Override
-                    public void onResponse(Call<ArrayList<Leaves>> call, Response<ArrayList<Leaves>> response) {
-                        int statusCode = response.code();
-                        if (statusCode == 200 || statusCode == 201 || statusCode == 203 || statusCode == 204) {
+            public void onResponse(Call<ArrayList<Leaves>> call, Response<ArrayList<Leaves>> response) {
+                int statusCode = response.code();
+                if (statusCode == 200 || statusCode == 201 || statusCode == 203 || statusCode == 204) {
 
 
-                            int daysInMonth = 0;
+                    int daysInMonth = 0;
 
-                            if (progressDialog!=null)
-                                progressDialog.dismiss();
+                    if (progressDialog!=null)
+                        progressDialog.dismiss();
 
-                            try{
+                    try{
 
-                                ArrayList<Leaves> list = response.body();
-                                ArrayList<Leaves> approvedLeave = new ArrayList<>();
+                        ArrayList<Leaves> list = response.body();
+                        ArrayList<Leaves> approvedLeave = new ArrayList<>();
 
-                                String month = mMonth.getText().toString();
-                               //String year = mYear.getText().toString();
+                        String month = mMonth.getText().toString();
+                        //String year = mYear.getText().toString();
 
 
 
-                                Date date = new Date();
-                                Date adate = new Date();
-                                Date edate = new Date();
+                        Date date = new Date();
+                        Date adate = new Date();
+                        Date edate = new Date();
 
-                                if(month!=null&&!month.isEmpty()&&year!=null&&!year.isEmpty()){
+                        if(month!=null&&!month.isEmpty()&&year!=null&&!year.isEmpty()){
 
-                                    try {
-                                        date = new SimpleDateFormat("MMM yyyy").parse(month+" "+year);
-                                        adate = new SimpleDateFormat("yyyy-MMM-dd").parse(year+"-"+month+"-01");
-                                        //edate = new SimpleDateFormat("yyyy-MMM-dd").parse(year+"-"+month+"-0");
-                                        Date edates = new SimpleDateFormat("MMM").parse(month+"");
+                            try {
+                                date = new SimpleDateFormat("MMM yyyy").parse(month+" "+year);
+                                adate = new SimpleDateFormat("yyyy-MMM-dd").parse(year+"-"+month+"-01");
+                                //edate = new SimpleDateFormat("yyyy-MMM-dd").parse(year+"-"+month+"-0");
+                                Date edates = new SimpleDateFormat("MMM").parse(month+"");
 
-                                        Calendar calendar = Calendar.getInstance();
-                                        calendar.set(Calendar.YEAR, Integer.parseInt(year));
-                                        calendar.set(Calendar.MONTH, (Integer.parseInt(new SimpleDateFormat("MM").format(edates))-1));
-                                        daysInMonth = calendar.getActualMaximum(Calendar.DATE);
-                                        edate = new SimpleDateFormat("yyyy-MMM-dd").parse(year+"-"+month+"-"+daysInMonth);
+                                Calendar calendar = Calendar.getInstance();
+                                calendar.set(Calendar.YEAR, Integer.parseInt(year));
+                                calendar.set(Calendar.MONTH, (Integer.parseInt(new SimpleDateFormat("MM").format(edates))-1));
+                                daysInMonth = calendar.getActualMaximum(Calendar.DATE);
+                                edate = new SimpleDateFormat("yyyy-MMM-dd").parse(year+"-"+month+"-"+daysInMonth);
 
-                                        System.out.println("Day countr "+daysInMonth);
-                                    } catch (ParseException e) {
-                                        e.printStackTrace();
-                                    }
-
-
-                                }
-
-
-
-                                if (list !=null && list.size()!=0) {
-
-
-                                    for (Leaves leaves:list) {
-
-                                        String froms = leaves.getFromDate();
-                                        String tos = leaves.getToDate();
-                                        Date fromDate = null;
-                                        Date toDate = null;
-                                        Date afromDate = null;
-                                        Date atoDate = null;
-
-                                        if(froms!=null&&!froms.isEmpty()){
-
-                                            if(froms.contains("T")){
-
-                                                String dojs[] = froms.split("T");
-
-                                                afromDate = new SimpleDateFormat("yyyy-MM-dd").parse(dojs[0]);
-                                                String parse = new SimpleDateFormat("MMM yyyy").format(afromDate);
-                                                fromDate = new SimpleDateFormat("MMM yyyy").parse(parse);
-
-                                            }
-
-                                        }
-
-                                        if(tos!=null&&!tos.isEmpty()){
-
-                                            if(tos.contains("T")){
-
-                                                String dojs[] = tos.split("T");
-
-                                                atoDate = new SimpleDateFormat("yyyy-MM-dd").parse(dojs[0]);
-                                                String parse = new SimpleDateFormat("MMM yyyy").format(atoDate);
-                                                toDate = new SimpleDateFormat("MMM yyyy").parse(parse);
-
-                                            }
-
-                                        }
-
-                                        if(fromDate!=null&&toDate!=null){
-
-                                            if(date.getTime() == fromDate.getTime() && date.getTime() == toDate.getTime()){
-
-                                                approvedLeave.add(leaves);
-                                                leaveCount = leaveCount+leaves.getNoOfDays();
-                                                System.out.println("Leaves id "+leaves.getLeaveId());
-
-                                            }else if(date.getTime() != fromDate.getTime() && date.getTime() == toDate.getTime()){
-
-                                                long diff = atoDate.getTime() - adate.getTime();
-                                                long diffDays = diff / (24 * 60 * 60 * 1000);
-
-                                                if(diffDays==0){
-                                                    leaveCount = leaveCount+1;
-                                                }else{
-                                                    leaveCount = leaveCount+(int) diffDays;
-                                                }
-
-
-                                            }else if(date.getTime() == fromDate.getTime() && date.getTime() != toDate.getTime()){
-
-                                                long diff = edate.getTime() - afromDate.getTime();
-                                                long diffDays = diff / (24 * 60 * 60 * 1000);
-                                                leaveCount = leaveCount+(int) diffDays;
-
-                                            }
-                                        }
-
-
-
-
-                                    }
-
-                                    System.out.println("No of Leavs "+leaveCount);
-                                    mLeaveTaken.setText(""+leaveCount);
-
-                                    double leaveReduce = salary/(daysInMonth*1.0);
-                                    mLeaves.setText(""+new DecimalFormat("#.##").format(leaveReduce*leaveCount));
-
-
-
-
-                                }else{
-
-                                    Toast.makeText( CreatePaySlip.this, "No leaves ", Toast.LENGTH_SHORT).show();
-
-                                }
-                            }catch (Exception e){
+                                System.out.println("Day countr "+daysInMonth);
+                            } catch (ParseException e) {
                                 e.printStackTrace();
                             }
 
 
-                        }else {
-
-                            if (progressDialog!=null)
-                                progressDialog.dismiss();
-
-                            Toast.makeText( CreatePaySlip.this, "Failed due to : "+response.message(), Toast.LENGTH_SHORT).show();
                         }
+
+
+
+                        if (list !=null && list.size()!=0) {
+
+
+                            for (Leaves leaves:list) {
+
+                                String froms = leaves.getFromDate();
+                                String tos = leaves.getToDate();
+                                Date fromDate = null;
+                                Date toDate = null;
+                                Date afromDate = null;
+                                Date atoDate = null;
+
+                                if(froms!=null&&!froms.isEmpty()){
+
+                                    if(froms.contains("T")){
+
+                                        String dojs[] = froms.split("T");
+
+                                        afromDate = new SimpleDateFormat("yyyy-MM-dd").parse(dojs[0]);
+                                        String parse = new SimpleDateFormat("MMM yyyy").format(afromDate);
+                                        fromDate = new SimpleDateFormat("MMM yyyy").parse(parse);
+
+                                    }
+
+                                }
+
+                                if(tos!=null&&!tos.isEmpty()){
+
+                                    if(tos.contains("T")){
+
+                                        String dojs[] = tos.split("T");
+
+                                        atoDate = new SimpleDateFormat("yyyy-MM-dd").parse(dojs[0]);
+                                        String parse = new SimpleDateFormat("MMM yyyy").format(atoDate);
+                                        toDate = new SimpleDateFormat("MMM yyyy").parse(parse);
+
+                                    }
+
+                                }
+
+                                if(fromDate!=null&&toDate!=null){
+
+                                    if(date.getTime() == fromDate.getTime() && date.getTime() == toDate.getTime()){
+
+                                        approvedLeave.add(leaves);
+                                        leaveCount = leaveCount+leaves.getNoOfDays();
+                                        System.out.println("Leaves id "+leaves.getLeaveId());
+
+                                    }else if(date.getTime() != fromDate.getTime() && date.getTime() == toDate.getTime()){
+
+                                        long diff = atoDate.getTime() - adate.getTime();
+                                        long diffDays = diff / (24 * 60 * 60 * 1000);
+
+                                        if(diffDays==0){
+                                            leaveCount = leaveCount+1;
+                                        }else{
+                                            leaveCount = leaveCount+(int) diffDays;
+                                        }
+
+
+                                    }else if(date.getTime() == fromDate.getTime() && date.getTime() != toDate.getTime()){
+
+                                        long diff = edate.getTime() - afromDate.getTime();
+                                        long diffDays = diff / (24 * 60 * 60 * 1000);
+                                        leaveCount = leaveCount+(int) diffDays;
+
+                                    }
+                                }
+
+
+
+
+                            }
+
+                            System.out.println("No of Leavs "+leaveCount);
+                            mLeaveTaken.setText(""+leaveCount);
+
+                            double leaveReduce = salary/(daysInMonth*1.0);
+                            mLeaves.setText(""+new DecimalFormat("#.##").format(leaveReduce*leaveCount));
+
+
+
+
+                        }else{
+
+                            Toast.makeText( CreatePaySlip.this, "No leaves ", Toast.LENGTH_SHORT).show();
+
+                        }
+                    }catch (Exception e){
+                        e.printStackTrace();
                     }
 
-                    @Override
-                    public void onFailure(Call<ArrayList<Leaves>> call, Throwable t) {
-                        // Log error here since request failed
-                        if (progressDialog!=null)
-                            progressDialog.dismiss();
-                        Log.e("TAG", t.toString());
-                    }
-                });
+
+                }else {
+
+                    if (progressDialog!=null)
+                        progressDialog.dismiss();
+
+                    Toast.makeText( CreatePaySlip.this, "Failed due to : "+response.message(), Toast.LENGTH_SHORT).show();
+                }
             }
 
-
+            @Override
+            public void onFailure(Call<ArrayList<Leaves>> call, Throwable t) {
+                // Log error here since request failed
+                if (progressDialog!=null)
+                    progressDialog.dismiss();
+                Log.e("TAG", t.toString());
+            }
         });
     }
 

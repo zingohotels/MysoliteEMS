@@ -17,7 +17,6 @@ import java.util.Set;
 
 import app.zingo.mysolite.adapter.LoginDetailsAdapter;
 import app.zingo.mysolite.model.LoginDetails;
-import app.zingo.mysolite.utils.ThreadExecuter;
 import app.zingo.mysolite.utils.Util;
 import app.zingo.mysolite.WebApi.LoginDetailsAPI;
 import app.zingo.mysolite.R;
@@ -67,87 +66,80 @@ public class WorkedDaysListScreen extends AppCompatActivity {
         progressDialog.setCancelable(false);
         progressDialog.show();
 
-        new ThreadExecuter ().execute( new Runnable() {
+        LoginDetailsAPI apiService = Util.getClient().create( LoginDetailsAPI.class);
+        Call<ArrayList< LoginDetails >> call = apiService.getLoginByEmployeeId(employeeId);
+
+        call.enqueue(new Callback<ArrayList< LoginDetails >>() {
             @Override
-            public void run() {
-                LoginDetailsAPI apiService = Util.getClient().create( LoginDetailsAPI.class);
-                Call<ArrayList< LoginDetails >> call = apiService.getLoginByEmployeeId(employeeId);
-
-                call.enqueue(new Callback<ArrayList< LoginDetails >>() {
-                    @Override
-                    public void onResponse( Call<ArrayList< LoginDetails >> call, Response<ArrayList< LoginDetails >> response) {
-                        int statusCode = response.code();
-                        if (statusCode == 200 || statusCode == 201 || statusCode == 203 || statusCode == 204) {
+            public void onResponse( Call<ArrayList< LoginDetails >> call, Response<ArrayList< LoginDetails >> response) {
+                int statusCode = response.code();
+                if (statusCode == 200 || statusCode == 201 || statusCode == 203 || statusCode == 204) {
 
 
-                            if (progressDialog != null&&progressDialog.isShowing())
-                                progressDialog.dismiss();
-                            ArrayList< LoginDetails > list = response.body();
-                            long hours=0;
+                    if (progressDialog != null&&progressDialog.isShowing())
+                        progressDialog.dismiss();
+                    ArrayList< LoginDetails > list = response.body();
+                    long hours=0;
 
 
-                            if (list !=null && list.size()!=0) {
+                    if (list !=null && list.size()!=0) {
 
-                                Collections.sort(list, LoginDetails.compareLogin);
-                                LoginDetailsAdapter adapter = new LoginDetailsAdapter ( WorkedDaysListScreen.this,list);
-                                mWorkedDayList.setAdapter(adapter);
+                        Collections.sort(list, LoginDetails.compareLogin);
+                        LoginDetailsAdapter adapter = new LoginDetailsAdapter ( WorkedDaysListScreen.this,list);
+                        mWorkedDayList.setAdapter(adapter);
 
-                                ArrayList<String> dateList = new ArrayList<>();
-                                for(int i=0;i<list.size();i++){
+                        ArrayList<String> dateList = new ArrayList<>();
+                        for(int i=0;i<list.size();i++){
 
-                                    if(list.get(i).getLoginDate().contains("T")){
+                            if(list.get(i).getLoginDate().contains("T")){
 
 
 
 
 
-                                        String date[] = list.get(i).getLoginDate().split("T");
-                                        Date dates = null;
-                                        try {
-                                            dates = new SimpleDateFormat("yyyy-MM-dd").parse(date[0]);
-                                            String dateValue = new SimpleDateFormat("MMM dd,yyyy").format(dates);
+                                String date[] = list.get(i).getLoginDate().split("T");
+                                Date dates = null;
+                                try {
+                                    dates = new SimpleDateFormat("yyyy-MM-dd").parse(date[0]);
+                                    String dateValue = new SimpleDateFormat("MMM dd,yyyy").format(dates);
 
 
-                                        } catch (ParseException e) {
-                                            e.printStackTrace();
-                                        }
-                                        dateList.add(date[0]);
-                                    }
-
+                                } catch (ParseException e) {
+                                    e.printStackTrace();
                                 }
-
-                                if(dateList!=null&&dateList.size()!=0){
-
-                                    Set<String> s = new LinkedHashSet<String>(dateList);
-
-
-                                }
-
-
-                            }else{
-
+                                dateList.add(date[0]);
                             }
 
-                        }else {
-
-                            if (progressDialog != null&&progressDialog.isShowing())
-                                progressDialog.dismiss();
-
-                            Toast.makeText( WorkedDaysListScreen.this, "Failed due to : "+response.message(), Toast.LENGTH_SHORT).show();
                         }
+
+                        if(dateList!=null&&dateList.size()!=0){
+
+                            Set<String> s = new LinkedHashSet<String>(dateList);
+
+
+                        }
+
+
+                    }else{
+
                     }
 
-                    @Override
-                    public void onFailure( Call<ArrayList< LoginDetails >> call, Throwable t) {
-                        // Log error here since request failed
-                        if (progressDialog!=null)
-                            progressDialog.dismiss();
-                        Log.e("TAG", t.toString());
-                    }
-                });
+                }else {
+
+                    if (progressDialog != null&&progressDialog.isShowing())
+                        progressDialog.dismiss();
+
+                    Toast.makeText( WorkedDaysListScreen.this, "Failed due to : "+response.message(), Toast.LENGTH_SHORT).show();
+                }
             }
 
-
+            @Override
+            public void onFailure( Call<ArrayList< LoginDetails >> call, Throwable t) {
+                // Log error here since request failed
+                if (progressDialog!=null)
+                    progressDialog.dismiss();
+                Log.e("TAG", t.toString());
+            }
         });
     }
 }

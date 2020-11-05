@@ -29,4 +29,5 @@
     <!--Ripple Diamention-->
     <dimen name="rippleStrokeWidth">2dp</dimen>
     <dimen name="rippleRadius">64dp</dimen>
+    <dimen name="view_width_small">1dp</dimen>
 </resources>

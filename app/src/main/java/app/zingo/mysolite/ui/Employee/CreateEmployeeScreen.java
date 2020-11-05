@@ -1,29 +1,25 @@
 package app.zingo.mysolite.ui.Employee;
+import android.annotation.SuppressLint;
 import android.app.DatePickerDialog;
-import android.app.ProgressDialog;
 import android.os.Bundle;
 import com.google.android.material.textfield.TextInputEditText;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.AppCompatButton;
+import androidx.annotation.NonNull;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.CheckBox;
-import android.widget.CompoundButton;
-import android.widget.DatePicker;
-import android.widget.EditText;
 import android.widget.RadioButton;
 import android.widget.Spinner;
 import android.widget.Switch;
-import android.widget.Toast;
+import android.widget.TextView;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
+import java.util.Objects;
 import app.zingo.mysolite.adapter.DepartmentSpinnerAdapter;
 import app.zingo.mysolite.adapter.ManagerSpinnerAdapter;
 import app.zingo.mysolite.adapter.ShiftSpinnerAdapter;
@@ -32,24 +28,26 @@ import app.zingo.mysolite.model.Departments;
 import app.zingo.mysolite.model.Designations;
 import app.zingo.mysolite.model.Employee;
 import app.zingo.mysolite.model.WorkingDay;
+import app.zingo.mysolite.utils.NetworkUtil;
 import app.zingo.mysolite.utils.PreferenceHandler;
+import app.zingo.mysolite.utils.ProgressBarUtil;
 import app.zingo.mysolite.utils.Util;
 import app.zingo.mysolite.WebApi.DepartmentApi;
 import app.zingo.mysolite.WebApi.EmployeeApi;
 import app.zingo.mysolite.WebApi.OrganizationTimingsAPI;
 import app.zingo.mysolite.R;
+import app.zingo.mysolite.utils.ValidationClass;
+import app.zingo.mysolite.utils.ValidationConst;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class CreateEmployeeScreen extends AppCompatActivity {
-    private TextInputEditText mName,mPrimaryEmail,mSecondaryEmail, mMobile,mPassword,mConfirm,mDesignation,mSalary;
-    private EditText mAddress;
+public class CreateEmployeeScreen extends ValidationClass {
+    private TextInputEditText mName,mPrimaryEmail,mSecondaryEmail, mMobile,mPassword,mConfirm,mDesignation,mSalary,mAddress;
     private MyEditText mDob,mDoj;
     private Spinner mDepartment,mtoReport,mShift;
     private RadioButton mMale,mFemale,mOthers;
     private CheckBox mLocationCondition,mCheckTime;
-    private AppCompatButton mCreate;
     private Switch mAdmin;
     private ArrayList<Departments> departmentData;
     private ArrayList<Employee> employees;
@@ -58,19 +56,25 @@ public class CreateEmployeeScreen extends AppCompatActivity {
     private String ddmmyyyy = "DDMMYYYY";
     private Calendar cal = Calendar.getInstance();
     private int orgId;
+    private ProgressBarUtil progressBarUtil;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_create_employee_screen);
+        Objects.requireNonNull ( getSupportActionBar ( ) ).setHomeButtonEnabled(true);
+        Objects.requireNonNull ( getSupportActionBar ( ) ).setDisplayHomeAsUpEnabled(true);
+        Objects.requireNonNull ( getSupportActionBar ( ) ).setTitle("Create Employee");
+        Bundle bun = getIntent().getExtras();
+        if(bun!=null){
+            orgId = bun.getInt("BranchId",0);
+        }
+
+        initViews();
+    }
+    private void initViews ( ) {
         try{
-            setContentView(R.layout.activity_create_employee_screen);
-            getSupportActionBar().setHomeButtonEnabled(true);
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            setTitle("Create Employee");
-            Bundle bun = getIntent().getExtras();
-            if(bun!=null){
-                orgId = bun.getInt("BranchId",0);
-            }
+            progressBarUtil = new ProgressBarUtil ( this );
             mAdmin = findViewById(R.id.admin_switch);
             mName = findViewById(R.id.name);
             mDob = findViewById(R.id.dob);
@@ -91,16 +95,16 @@ public class CreateEmployeeScreen extends AppCompatActivity {
             mMale = findViewById(R.id.founder_male);
             mFemale = findViewById(R.id.founder_female);
             mOthers = findViewById(R.id.founder_other);
-            mCreate = findViewById(R.id.createFounder);
-            mAdmin.setTextOff("No");
-            mAdmin.setTextOn("Yes");
+            TextView mCreate = findViewById ( R.id.createFounder );
+            mAdmin.setTextOff(getResources ().getString ( R.string.no ));
+            mAdmin.setTextOn(getResources ().getString ( R.string.yes));
 
             mDob.addTextChangedListener(new TextWatcher() {
                 @Override
                 public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
                 }
 
+                @SuppressLint ("DefaultLocale")
                 @Override
                 public void onTextChanged(CharSequence s, int start, int before, int count) {
                     if (!s.toString().equals(current)) {
@@ -124,7 +128,7 @@ public class CreateEmployeeScreen extends AppCompatActivity {
                             int mon  = Integer.parseInt(clean.substring(2,4));
                             int year = Integer.parseInt(clean.substring(4,8));
 
-                            String currentYear = new SimpleDateFormat("yyyy").format(new Date());
+                            @SuppressLint ("SimpleDateFormat") String currentYear = new SimpleDateFormat("yyyy").format(new Date());
 
                             int years = Integer.parseInt(currentYear);
 
@@ -138,6 +142,7 @@ public class CreateEmployeeScreen extends AppCompatActivity {
 
                             day = (day > cal.getActualMaximum(Calendar.DATE))? cal.getActualMaximum(Calendar.DATE):day;
                             clean = String.format("%02d%02d%02d",day, mon, year);
+
                         }
 
                         clean = String.format("%s/%s/%s", clean.substring(0, 2),
@@ -158,12 +163,12 @@ public class CreateEmployeeScreen extends AppCompatActivity {
             });
 
             mDoj.addTextChangedListener(new TextWatcher() {
-
                 @Override
                 public void beforeTextChanged(CharSequence s, int start, int count, int after) {
 
                 }
 
+                @SuppressLint ("DefaultLocale")
                 @Override
                 public void onTextChanged(CharSequence s, int start, int before, int count) {
                     if (!s.toString().equals(current)) {
@@ -184,7 +189,7 @@ public class CreateEmployeeScreen extends AppCompatActivity {
                             int day  = Integer.parseInt(clean.substring(0,2));
                             int mon  = Integer.parseInt(clean.substring(2,4));
                             int year = Integer.parseInt(clean.substring(4,8));
-                            String currentYear = new SimpleDateFormat("yyyy").format(new Date());
+                            @SuppressLint ("SimpleDateFormat") String currentYear = new SimpleDateFormat("yyyy").format(new Date());
                             int years = Integer.parseInt(currentYear);
                             mon = mon < 1 ? 1 : mon > 12 ? 12 : mon;
                             cal.set(Calendar.MONTH, mon-1);
@@ -215,236 +220,172 @@ public class CreateEmployeeScreen extends AppCompatActivity {
                 }
             });
 
-            mCreate.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    try{
-                        validate();
-                    }catch (Exception e){
-                        e.printStackTrace();
+            mCreate.setOnClickListener( view -> {
+                try{
+                    if(isEmployeeValidated ( CreateEmployeeScreen.this, mName, mDob ,mDoj,mPrimaryEmail,mSecondaryEmail,mMobile,mDesignation,mSalary,mPassword,mConfirm,mAddress) ) {
+                        if ( NetworkUtil.checkInternetConnection ( CreateEmployeeScreen.this ) ) {
+                            setEmployeeModel ( );
+                        } else {
+                            noInternetConnection ();
+                        }
                     }
+                }catch (Exception e){
+                    e.printStackTrace();
                 }
-            });
+            } );
 
             if(mLocationCondition.isChecked()){
-                mLocationCondition.setText("Check-in Location (If Checked Employee has to Check-in from Office Only)");
+                mLocationCondition.setText(getResources ().getString ( R.string.check_in_with_location ));
             }else{
-                mLocationCondition.setText("Check-in Location");
+                mLocationCondition.setText(getResources ().getString ( R.string.check_in_location ));
             }
 
             if(mCheckTime.isChecked()){
-                mCheckTime.setText("Check-in Time (If Checked Employee has to Check-in within Office Check-in Hours only)");
+                mCheckTime.setText(getResources ().getString ( R.string.check_in_with_time ));
             }else{
-                mCheckTime.setText("Check-in Time");
+                mCheckTime.setText(getResources ().getString ( R.string.check_in_time ));
             }
-            mLocationCondition.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-                @Override
-                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                    if(isChecked){
-                        mLocationCondition.setText("Check-in Location (If Checked Employee has to Check-in from Office Only)");
-                    }else{
-                        mLocationCondition.setText("Check-in Location");
-                    }
+            mLocationCondition.setOnCheckedChangeListener( ( buttonView , isChecked ) -> {
+                if(isChecked){
+                    mLocationCondition.setText(getResources ().getString ( R.string.check_in_with_location ));
+                }else{
+                    mLocationCondition.setText(getResources ().getString ( R.string.check_in_location ));
                 }
-            });
+            } );
 
-            mCheckTime.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-                @Override
-                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                    if(isChecked){
-                        mCheckTime.setText("Check-in Time (If Checked Employee has to Check-in within Office Check-in Hours only)");
-                    }else{
-                        mCheckTime.setText("Check-in Time");
-                    }
+            mCheckTime.setOnCheckedChangeListener( ( buttonView , isChecked ) -> {
+                if(isChecked){
+                    mCheckTime.setText(getResources ().getString ( R.string.check_in_with_time ));
+                }else{
+                    mCheckTime.setText(getResources ().getString ( R.string.check_in_time ));
                 }
-            });
+            } );
             if(orgId!=0){
-                getDepartment(orgId);
-                getmanagerProfile(orgId);
-                getShiftTimings(orgId);
+                if ( NetworkUtil.checkInternetConnection ( CreateEmployeeScreen.this ) ) {
+                    getDepartment(orgId);
+                    getmanagerProfile(orgId);
+                    getShiftTimings(orgId);
+                }else{
+                    noInternetConnection ();
+                }
+
             }else{
-                getDepartment(PreferenceHandler.getInstance( CreateEmployeeScreen.this).getCompanyId());
-                getmanagerProfile(PreferenceHandler.getInstance( CreateEmployeeScreen.this).getCompanyId());
-                getShiftTimings(PreferenceHandler.getInstance( CreateEmployeeScreen.this).getCompanyId());
+                if ( NetworkUtil.checkInternetConnection ( CreateEmployeeScreen.this ) ) {
+                    getDepartment(PreferenceHandler.getInstance( CreateEmployeeScreen.this).getCompanyId());
+                    getmanagerProfile(PreferenceHandler.getInstance( CreateEmployeeScreen.this).getCompanyId());
+                    getShiftTimings(PreferenceHandler.getInstance( CreateEmployeeScreen.this).getCompanyId());
+                }else{
+                    noInternetConnection ();
+                }
             }
         }catch (Exception e){
             e.printStackTrace();
         }
     }
-
-    public void openDatePicker(final TextInputEditText tv) {
-        final Calendar c = Calendar.getInstance();
-        int mYear  = c.get(Calendar.YEAR);
-        int mMonth = c.get(Calendar.MONTH);
-        int mDay   = c.get(Calendar.DAY_OF_MONTH);
-        DatePickerDialog datePickerDialog = new DatePickerDialog(this,
-                new DatePickerDialog.OnDateSetListener() {
-                    @Override
-                    public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
-                        try {
-                            Log.d("Date", "DATE SELECTED "+dayOfMonth + "-" + (monthOfYear + 1) + "-" + year);
-                            Calendar newDate = Calendar.getInstance();
-                            newDate.set(year,monthOfYear,dayOfMonth);
-                            String date1 = (monthOfYear + 1)  + "/" + (dayOfMonth) + "/" + year;
-                            SimpleDateFormat sdf = new SimpleDateFormat("MMM dd,yyyy");
-                            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MM/dd/yyyy");
-                            try {
-                                Date fdate = simpleDateFormat.parse(date1);
-                                String from1 = sdf.format(fdate);
-                                tv.setText(from1);
-                            } catch (ParseException e) {
-                                e.printStackTrace();
-                            }
-                        }
-                        catch (Exception ex) {
-                            ex.printStackTrace();
-                        }
-                    }
-                }, mYear, mMonth, mDay);
-        datePickerDialog.show();
-    }
-
-    public void validate() {
-        String name = mName.getText().toString();
-        String dob = mDob.getText().toString();
-        String doj = mDoj.getText().toString();
-        String designation = mDesignation.getText().toString();
-        String salary = mSalary.getText().toString();
-        String primary = mPrimaryEmail.getText().toString();
-        String secondary = mSecondaryEmail.getText().toString();
-        String mobile = mMobile.getText().toString();
-        String password = mPassword.getText().toString();
-        String confirm = mConfirm.getText().toString();
-        String address = mAddress.getText().toString();
-        if(name.isEmpty()){
-            Toast.makeText(this, "Name is required", Toast.LENGTH_SHORT).show();
-        }else if(dob.isEmpty()){
-            Toast.makeText(this, "DOB is required", Toast.LENGTH_SHORT).show();
-        }else if(doj.isEmpty()){
-            Toast.makeText(this, "Founded date is required", Toast.LENGTH_SHORT).show();
-        }else if(primary.isEmpty()){
-            Toast.makeText(this, "Primary Email is required", Toast.LENGTH_SHORT).show();
-        }else if(mobile.isEmpty()){
-            Toast.makeText(this, "Mobile is required", Toast.LENGTH_SHORT).show();
-        }else if(designation.isEmpty()){
-            Toast.makeText(this, "Designation is required", Toast.LENGTH_SHORT).show();
-        }else if(salary.isEmpty()){
-            Toast.makeText(this, "Salary is required", Toast.LENGTH_SHORT).show();
-        }else if(password.isEmpty()){
-            Toast.makeText(this, "Password is required", Toast.LENGTH_SHORT).show();
-        }else if(confirm.isEmpty()){
-            Toast.makeText(this, "Confirm Password is required", Toast.LENGTH_SHORT).show();
-        }else if(!password.isEmpty()&&!confirm.isEmpty()&&!password.equals(confirm)){
-            Toast.makeText(this, "Confirm password should be same as Password", Toast.LENGTH_SHORT).show();
-        }else if(!mMale.isChecked()&&!mFemale.isChecked()&&!mOthers.isChecked()){
-            Toast.makeText(this, "Please Select Gender", Toast.LENGTH_SHORT).show();
-        }else{
-            Employee employee = new Employee();
-            employee.setEmployeeName(name);
-            if(address!=null&&!address.isEmpty()){
-                employee.setAddress(address);
-            }
-
-            if(mLocationCondition.isChecked()){
-                employee.setLocationOn(false);
-            }else{
-                employee.setLocationOn(true);
-            }
-
-            if(mCheckTime.isChecked()){
-                employee.setDataOn(false);
-            }else{
-                employee.setDataOn(true);
-            }
-            if(mMale.isChecked()){
-                employee.setGender("Male");
-            }else if(mFemale.isChecked()){
-                employee.setGender("Female");
-            }else if(mOthers.isChecked()){
-                employee.setGender("Others");
-            }
-            SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
-            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MM/dd/yyyy");
-            try {
-                Date fdate = sdf.parse(dob);
-                String from1 = simpleDateFormat.format(fdate);
-                employee.setDateOfBirth(from1);
-                fdate = sdf.parse(doj);
-                from1 = simpleDateFormat.format(fdate);
-                employee.setDateOfJoining(from1);
-            } catch (ParseException e) {
-                e.printStackTrace();
-            }
-            employee.setPrimaryEmailAddress(primary);
-            employee.setSalary(Double.parseDouble(salary));
-            if(secondary!=null&&!secondary.isEmpty()){
-                employee.setAlternateEmailAddress(secondary);
-            }
-            employee.setPhoneNumber(mobile);
-            employee.setPassword(password);
-            employee.setDepartmentId(departmentData.get(mDepartment.getSelectedItemPosition()).getDepartmentId());
-            if(employees!=null&&employees.size()!=0){
-                employee.setManagerId(employees.get(mtoReport.getSelectedItemPosition()).getEmployeeId());
-            }else{
-                employee.setManagerId(0);
-            }
-            if(workingDays!=null&&workingDays.size()!=0){
-                employee.setDeviceModel(""+workingDays.get(mShift.getSelectedItemPosition()).getOrganizationTimingId());
-            }else{
-                employee.setDeviceModel(""+0);
-            }
-            employee.setStatus("Active");
-            if(mAdmin.isChecked()){
-                employee.setUserRoleId(9);
-            }else{
-                employee.setUserRoleId(1);
-            }
-            Designations designations = new Designations ();
-            designations.setDesignationTitle(designation);
-            designations.setDescription(designation);
-            checkUserByEmailId(employee,designations);
+    private void setEmployeeModel ( ) {
+        Employee employee = new Employee();
+        employee.setEmployeeName( Objects.requireNonNull ( mName.getText ( ) ).toString ());
+        Objects.requireNonNull ( mAddress.getText ( ) ).toString ( );
+        if( ! mAddress.getText().toString().isEmpty() ){
+            employee.setAddress(Objects.requireNonNull ( mAddress.getText().toString()));
         }
+
+        if(mLocationCondition.isChecked()){
+            employee.setLocationOn(false);
+        }else{
+            employee.setLocationOn(true);
+        }
+
+        if(mCheckTime.isChecked()){
+            employee.setDataOn(false);
+        }else{
+            employee.setDataOn(true);
+        }
+        if(mMale.isChecked()){
+            employee.setGender(getResources ().getString ( R.string.male ));
+        }else if(mFemale.isChecked()){
+            employee.setGender(getResources ().getString ( R.string.female));
+        }else if(mOthers.isChecked()){
+            employee.setGender(getResources ().getString ( R.string.other ));
+        }
+        @SuppressLint ("SimpleDateFormat") SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+        @SuppressLint ("SimpleDateFormat")SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MM/dd/yyyy");
+        try {
+            Date fdate = sdf.parse( Objects.requireNonNull ( mDob.getText ( ) ).toString ());
+            String from1 = null;
+            if ( fdate != null ) {
+                from1 = simpleDateFormat.format(fdate);
+            }
+            employee.setDateOfBirth(from1);
+            fdate = sdf.parse(Objects.requireNonNull ( mDoj.getText ( ) ).toString ());
+            if ( fdate != null ) {
+                from1 = simpleDateFormat.format(fdate);
+            }
+            employee.setDateOfJoining(from1);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        employee.setPrimaryEmailAddress(Objects.requireNonNull ( mPrimaryEmail.getText ( ) ).toString ());
+        employee.setSalary(Double.parseDouble(Objects.requireNonNull ( mSalary.getText ( ) ).toString ()));
+        if(!Objects.requireNonNull ( mSecondaryEmail.getText ( ) ).toString ().isEmpty()){
+            employee.setAlternateEmailAddress(Objects.requireNonNull ( mSecondaryEmail.getText ( ) ).toString ());
+        }
+        employee.setPhoneNumber(Objects.requireNonNull ( mMobile.getText ( ) ).toString ());
+        employee.setPassword(Objects.requireNonNull ( mPassword.getText ( ) ).toString ());
+        employee.setDepartmentId(departmentData.get(mDepartment.getSelectedItemPosition()).getDepartmentId());
+        if(employees!=null&&employees.size()!=0){
+            employee.setManagerId(employees.get(mtoReport.getSelectedItemPosition()).getEmployeeId());
+        }else{
+            employee.setManagerId(0);
+        }
+        if(workingDays!=null&&workingDays.size()!=0){
+            employee.setDeviceModel(""+workingDays.get(mShift.getSelectedItemPosition()).getOrganizationTimingId());
+        }else{
+            employee.setDeviceModel(""+0);
+        }
+        employee.setStatus("Active");
+        if(mAdmin.isChecked()){
+            employee.setUserRoleId(9);
+        }else{
+            employee.setUserRoleId(1);
+        }
+        Designations designations = new Designations ();
+        designations.setDesignationTitle(Objects.requireNonNull ( mDesignation.getText ( ) ).toString ());
+        designations.setDescription(Objects.requireNonNull ( mDesignation.getText ( ) ).toString ());
+        checkUserByEmailId(employee,designations);
     }
 
     public void addEmployee(final Employee employee) {
-        final ProgressDialog dialog = new ProgressDialog(this);
-        dialog.setMessage("Saving Details..");
-        dialog.setCancelable(false);
-        dialog.show();
+        progressBarUtil.showProgress ( "Loading..." );
         EmployeeApi apiService = Util.getClient().create( EmployeeApi.class);
         Call<Employee> call = apiService.addEmployee(employee);
         call.enqueue(new Callback<Employee>() {
             @Override
-            public void onResponse(Call<Employee> call, Response<Employee> response) {
+            public void onResponse( @NonNull Call<Employee> call, @NonNull  Response<Employee> response) {
                 try {
-                    if(dialog != null && dialog.isShowing()) {
-                        dialog.dismiss();
-                    }
                     int statusCode = response.code();
                     if (statusCode == 200 || statusCode == 201) {
+                        progressBarUtil.hideProgress ();
                         Employee s = response.body();
                         if(s!=null){
-                            Toast.makeText( CreateEmployeeScreen.this, "Employee Added Success fully", Toast.LENGTH_SHORT).show();
+                            ShowToast ( ValidationConst.EMPLOYEE_ADDED_SUCCESSFULLY );
                             CreateEmployeeScreen.this.finish();
                         }
                     }else {
-                        Toast.makeText( CreateEmployeeScreen.this, "Failed Due to "+response.message(), Toast.LENGTH_SHORT).show();
+                        ShowToast ( ValidationConst.FAILES_DUE_TO+statusCode );
+                        progressBarUtil.hideProgress ();
                     }
                 }
                 catch (Exception ex) {
-                    if(dialog != null && dialog.isShowing()) {
-                        dialog.dismiss();
-                    }
+                    progressBarUtil.hideProgress ();
                     ex.printStackTrace();
                 }
             }
 
             @Override
-            public void onFailure(Call<Employee> call, Throwable t) {
-                if(dialog != null && dialog.isShowing()) {
-                    dialog.dismiss();
-                }
-                Toast.makeText( CreateEmployeeScreen.this , "Failed due to Bad Internet Connection" , Toast.LENGTH_SHORT ).show( );
+            public void onFailure(@NonNull Call<Employee> call, @NonNull Throwable t) {
+                progressBarUtil.hideProgress ();
+                noInternetConnection ();
                 Log.e("TAG", t.toString());
             }
         });
@@ -452,39 +393,32 @@ public class CreateEmployeeScreen extends AppCompatActivity {
 
     private void checkUserByEmailId(final Employee userProfile, final Designations designations){
         userProfile.setEmail(userProfile.getPrimaryEmailAddress());
-        final ProgressDialog dialog = new ProgressDialog(this);
-        dialog.setCancelable(false);
-        dialog.setTitle("Please wait..");
-        dialog.show();
         EmployeeApi apiService = Util.getClient().create( EmployeeApi.class);
         Call<ArrayList<Employee>> call = apiService.getUserByEmail(userProfile);
         call.enqueue(new Callback<ArrayList<Employee>>() {
             @Override
-            public void onResponse(Call<ArrayList<Employee>> call, Response<ArrayList<Employee>> response) {
+            public void onResponse( @NonNull Call<ArrayList<Employee>> call,  @NonNull Response<ArrayList<Employee>> response) {
                 int statusCode = response.code();
-                if(dialog != null) {
-                    dialog.dismiss();
-                }
                 if(statusCode == 200 || statusCode == 204) {
                     ArrayList<Employee> responseProfile = response.body();
                     if(responseProfile != null && responseProfile.size()!=0 ) {
                         mPrimaryEmail.setError("Email Exists");
-                        Toast.makeText( CreateEmployeeScreen.this, "Email already Exists", Toast.LENGTH_SHORT).show();
+                        ShowToast ( ValidationConst.EMAIL_ALREADY_EXIST );
                     }
                     else {
                         checkUserByPhone(userProfile,designations);
                     }
                 }
                 else {
-                    Toast.makeText( CreateEmployeeScreen.this,response.message(),Toast.LENGTH_SHORT).show();
+                    ShowToast ( ValidationConst.FAILES_DUE_TO+statusCode );
+                    progressBarUtil.hideProgress ();
                 }
             }
 
             @Override
-            public void onFailure(Call<ArrayList<Employee>> call, Throwable t) {
-                if(dialog != null) {
-                    dialog.dismiss();
-                }
+            public void onFailure( @NonNull Call<ArrayList<Employee>> call, @NonNull  Throwable t) {
+                progressBarUtil.hideProgress ();
+                noInternetConnection ();
                 Log.e("TAG", t.toString());
             }
         });
@@ -495,13 +429,13 @@ public class CreateEmployeeScreen extends AppCompatActivity {
         Call<ArrayList<Employee>> call = apiService.getUserByPhone(userProfile.getPhoneNumber());
         call.enqueue(new Callback<ArrayList<Employee>>() {
             @Override
-            public void onResponse(Call<ArrayList<Employee>> call, Response<ArrayList<Employee>> response) {
+            public void onResponse( @NonNull Call<ArrayList<Employee>> call,  @NonNull Response<ArrayList<Employee>> response) {
                 int statusCode = response.code();
                 if(statusCode == 200 || statusCode == 204) {
                     ArrayList<Employee> responseProfile = response.body();
                     if(responseProfile != null && responseProfile.size()!=0 ) {
                         mMobile.setError("Number Already Exists");
-                        Toast.makeText( CreateEmployeeScreen.this, "Mobile already Exists", Toast.LENGTH_SHORT).show();
+                        ShowToast ( ValidationConst.MOBILE_ALREADY_EXIST );
                     }
                     else {
                         try {
@@ -513,24 +447,24 @@ public class CreateEmployeeScreen extends AppCompatActivity {
                     }
                 }
                 else {
-                    Toast.makeText( CreateEmployeeScreen.this,response.message(),Toast.LENGTH_SHORT).show();
+                    ShowToast ( ValidationConst.FAILES_DUE_TO+statusCode );
                 }
             }
 
             @Override
-            public void onFailure(Call<ArrayList<Employee>> call, Throwable t) {
+            public void onFailure( @NonNull Call<ArrayList<Employee>> call,  @NonNull Throwable t) {
+                noInternetConnection ();
                 Log.e("TAG", t.toString());
             }
         });
     }
-
 
     private void getDepartment(final int id){
         DepartmentApi apiService = Util.getClient().create( DepartmentApi.class);
         Call<ArrayList<Departments>> call = apiService.getDepartmentByOrganization(id);
         call.enqueue(new Callback<ArrayList<Departments>>() {
             @Override
-            public void onResponse(Call<ArrayList<Departments>> call, Response<ArrayList<Departments>> response) {
+            public void onResponse( @NonNull Call<ArrayList<Departments>> call,  @NonNull Response<ArrayList<Departments>> response) {
                 int statusCode = response.code();
                 if(statusCode == 200 || statusCode == 204) {
                     ArrayList<Departments> departmentsList = response.body();
@@ -547,69 +481,55 @@ public class CreateEmployeeScreen extends AppCompatActivity {
                             mDepartment.setAdapter(arrayAdapter);
                         }
                     }
-                    else {
-                    }
                 }
                 else {
-                    Toast.makeText( CreateEmployeeScreen.this,response.message(),Toast.LENGTH_SHORT).show();
+                    ShowToast ( ValidationConst.FAILES_DUE_TO+statusCode );
                 }
             }
 
             @Override
-            public void onFailure(Call<ArrayList<Departments>> call, Throwable t) {
+            public void onFailure( @NonNull Call<ArrayList<Departments>> call,  @NonNull Throwable t) {
+                noInternetConnection ();
                 Log.e("TAG", t.toString());
             }
         });
     }
 
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
-        switch (id) {
-            case android.R.id.home:
-                CreateEmployeeScreen.this.finish();
-        }
-        return super.onOptionsItemSelected(item);
-    }
-
     private void getmanagerProfile(final int id){
-        final ProgressDialog progressDialog = new ProgressDialog(this);
-        progressDialog.setTitle("Loading...");
-        progressDialog.setCancelable(false);
-        progressDialog.show();
+        progressBarUtil.showProgress ( "Loading..." );
         EmployeeApi apiService = Util.getClient().create( EmployeeApi.class);
         Call<ArrayList<Employee>> call = apiService.getEmployeesByOrgId(id);
         call.enqueue(new Callback<ArrayList<Employee>>() {
             @Override
-            public void onResponse(Call<ArrayList<Employee>> call, Response<ArrayList<Employee>> response) {
+            public void onResponse( @NonNull Call<ArrayList<Employee>> call,  @NonNull Response<ArrayList<Employee>> response) {
                 int statusCode = response.code();
                 if (statusCode == 200 || statusCode == 201 || statusCode == 203 || statusCode == 204) {
-                    if (progressDialog != null&&progressDialog.isShowing())
-                        progressDialog.dismiss();
+                    progressBarUtil.hideProgress ();
                     ArrayList<Employee> list = response.body();
                     if (list !=null && list.size()!=0) {
                         employees = list;
-                        if(employees!=null&&employees.size()!=0){
+                        if(employees.size()!=0){
                             Collections.sort(employees, Employee.compareEmployee);
                             ManagerSpinnerAdapter arrayAdapter = new ManagerSpinnerAdapter( CreateEmployeeScreen.this, employees);
                             mtoReport.setAdapter(arrayAdapter);
                         }else {
-                            Toast.makeText ( CreateEmployeeScreen.this , "No Employees added" , Toast.LENGTH_LONG ).show ( );
+                            ShowToast ( ValidationConst.NO_EMPLOYEE_ADDED+statusCode );
+                            progressBarUtil.hideProgress ();
                         }
                     }else{
-                        Toast.makeText( CreateEmployeeScreen.this,"No Employees added",Toast.LENGTH_LONG).show();
+                        ShowToast ( ValidationConst.NO_EMPLOYEE_ADDED+statusCode );
+                        progressBarUtil.hideProgress ();
                     }
 
                 }else {
-                    Toast.makeText( CreateEmployeeScreen.this, "Failed due to : "+response.message(), Toast.LENGTH_SHORT).show();
+                    ShowToast ( ValidationConst.FAILES_DUE_TO+statusCode );
                 }
             }
 
             @Override
-            public void onFailure(Call<ArrayList<Employee>> call, Throwable t) {
-                if (progressDialog != null&&progressDialog.isShowing())
-                    progressDialog.dismiss();
+            public void onFailure( @NonNull Call<ArrayList<Employee>> call,  @NonNull Throwable t) {
+                noInternetConnection ();
+                progressBarUtil.hideProgress ();
                 Log.e("TAG", t.toString());
             }
         });
@@ -620,22 +540,65 @@ public class CreateEmployeeScreen extends AppCompatActivity {
         Call<ArrayList< WorkingDay >> getProf = orgApi.getOrganizationTimingByOrgId(id);
         getProf.enqueue(new Callback<ArrayList< WorkingDay >>() {
             @Override
-            public void onResponse( Call<ArrayList< WorkingDay >> call, Response<ArrayList< WorkingDay >> response) {
-                if (response.code() == 200||response.code() == 201||response.code() == 204) {
+            public void onResponse( @NonNull  Call<ArrayList< WorkingDay >> call,  @NonNull Response<ArrayList< WorkingDay >> response) {
+                int statusCode = response.code ();
+                if (statusCode == 200||statusCode == 201||statusCode == 204) {
                     workingDays = response.body();
                     if(workingDays!=null&&workingDays.size()!=0){
                         ShiftSpinnerAdapter arrayAdapter = new ShiftSpinnerAdapter( CreateEmployeeScreen.this, workingDays);
                         mShift.setAdapter(arrayAdapter);
                     }
                 }else{
-                    Toast.makeText( CreateEmployeeScreen.this, "Something went wrong", Toast.LENGTH_SHORT).show();
+                    ShowToast ( ValidationConst.FAILES_DUE_TO+statusCode );
                 }
             }
 
             @Override
-            public void onFailure( Call<ArrayList< WorkingDay >> call, Throwable t) {
-                Toast.makeText( CreateEmployeeScreen.this, "Something went wrong", Toast.LENGTH_SHORT).show();
+            public void onFailure( @NonNull  Call<ArrayList< WorkingDay >> call, @NonNull  Throwable t) {
+                noInternetConnection ();
             }
         });
+    }
+
+    @Override
+    public boolean onOptionsItemSelected( @NonNull MenuItem item) {
+        int id = item.getItemId();
+        if ( id == android.R.id.home ) {
+            CreateEmployeeScreen.this.finish ( );
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    /*Not in Use*/
+    public void openDatePicker(final TextInputEditText tv) {
+        final Calendar c = Calendar.getInstance();
+        int mYear  = c.get(Calendar.YEAR);
+        int mMonth = c.get(Calendar.MONTH);
+        int mDay   = c.get(Calendar.DAY_OF_MONTH);
+        DatePickerDialog datePickerDialog = new DatePickerDialog(this,
+                ( view , year , monthOfYear , dayOfMonth ) -> {
+                    try {
+                        Log.d("Date", "DATE SELECTED "+dayOfMonth + "-" + (monthOfYear + 1) + "-" + year);
+                        Calendar newDate = Calendar.getInstance();
+                        newDate.set(year,monthOfYear,dayOfMonth);
+                        String date1 = (monthOfYear + 1)  + "/" + (dayOfMonth) + "/" + year;
+                        @SuppressLint ("SimpleDateFormat") SimpleDateFormat sdf = new SimpleDateFormat("MMM dd,yyyy");
+                        @SuppressLint ("SimpleDateFormat") SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MM/dd/yyyy");
+                        try {
+                            Date fdate = simpleDateFormat.parse(date1);
+                            String from1 = null;
+                            if ( fdate != null ) {
+                                from1 = sdf.format(fdate);
+                            }
+                            tv.setText(from1);
+                        } catch (ParseException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    catch (Exception ex) {
+                        ex.printStackTrace();
+                    }
+                } , mYear, mMonth, mDay);
+        datePickerDialog.show();
     }
 }

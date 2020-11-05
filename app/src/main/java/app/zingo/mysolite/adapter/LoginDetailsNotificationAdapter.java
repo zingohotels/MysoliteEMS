@@ -67,7 +67,8 @@ public class LoginDetailsNotificationAdapter  extends RecyclerView.Adapter< Logi
             holder.mTitle.setText(title+" - "+status);
             holder.mTime.setText(dto.getLoginDate());
 
-            if(dto.getLocation()==null){
+
+            if(dto.getLocation()==null&&dto.getLatitude()!=null&&dto.getLongitude()!=null){
                 getAddress(Double.parseDouble(dto.getLatitude()),Double.parseDouble(dto.getLongitude()),holder.mAddress);
             }else{
                 holder.mAddress.setText(dto.getLocation());

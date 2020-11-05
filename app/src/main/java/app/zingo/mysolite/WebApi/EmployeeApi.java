@@ -1,8 +1,7 @@
 package app.zingo.mysolite.WebApi;
-
 import java.util.ArrayList;
-
 import app.zingo.mysolite.model.Employee;
+import io.reactivex.Observable;
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.DELETE;
@@ -52,4 +51,8 @@ public interface EmployeeApi {
 
     @DELETE("Employees/{id}")
     Call<Employee> deletEmployee ( @Path ("id") int id );
+
+    /*RxJava*/
+    @GET("Employees/GetEmployeesByOrganizationId/{OrganizationId}")
+    Observable <ArrayList<Employee>> getEmployeesByOrgIdRx ( @Path ("OrganizationId") int id );
 }

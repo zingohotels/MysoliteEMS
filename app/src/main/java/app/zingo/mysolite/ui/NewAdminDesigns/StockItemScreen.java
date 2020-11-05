@@ -432,7 +432,7 @@ public class StockItemScreen extends AppCompatActivity {
             ImageView imageView = v.findViewById(R.id.blog_images);
 
             if(type!=null&&type.equalsIgnoreCase ( "url" )){
-                Picasso.with( StockItemScreen.this).load(value).placeholder(R.drawable.no_image).
+                Picasso.get ().load(value).placeholder(R.drawable.no_image).
                         error(R.drawable.no_image).into(imageView);
             }else if(type!=null&&type.equalsIgnoreCase ( "bitmap" )){
 

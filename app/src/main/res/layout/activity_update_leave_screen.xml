@@ -1,54 +1,82 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
+<LinearLayout android:id="@+id/activity_item_details"
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
     android:orientation="vertical"
-    android:id="@+id/rootView"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
-    >
-
+    android:weightSum="10"
+    tools:ignore="NamespaceTypo">
 
     <androidx.core.widget.NestedScrollView
-        android:background="#FFFFFFFF"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:layout_below="@id/appBar"
-        android:layout_alignParentBottom="true">
+        android:id="@+id/scrollbar"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="9.5"
+        android:scrollbars="none"
+        android:layout_margin="10dp">
 
         <LinearLayout
-            android:layout_width="fill_parent"
+            android:layout_margin="10dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             android:focusable="true"
             android:focusableInTouchMode="true"
-            android:layout_height="wrap_content"
             android:orientation="vertical">
-
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginLeft="@dimen/activity_large_margin"
-                android:layout_marginTop="20.0dip"
-                android:layout_marginRight="@dimen/activity_large_margin"
-                >
+                android:layout_marginTop="10dp"
+                android:orientation="horizontal">
+
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Leave Type"
+                    android:text="@string/leave_type"
                     android:layout_weight="2"
+                    android:textSize="16sp"
                     android:layout_gravity="center_vertical"
-                    android:layout_marginLeft="10dp"
-                    android:textColor="#000000"/>
+                    android:layout_marginStart="10dp"
+                    android:textColor="@color/grey"
+                    android:textAppearance="@style/Base.TextAppearance.AppCompat.Title"/>
+
                 <Spinner
                     android:id="@+id/leave_type_spinner"
                     android:layout_width="match_parent"
                     android:layout_height="50dp"
                     android:entries="@array/leave_type"
                     android:layout_weight="1"
-                    android:background="@drawable/spinner_background"/>
+                    android:background="@drawable/spinner_background"
+                    android:textAppearance="@style/Base.TextAppearance.AppCompat.Title"/>
 
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_marginTop="10dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/leave_status"
+                    android:layout_weight="2"
+                    android:textSize="16sp"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginStart="10dp"
+                    android:textColor="@color/grey"
+                    android:textAppearance="@style/Base.TextAppearance.AppCompat.Title"/>
+
+                <Spinner
+                    android:id="@+id/leave_status_spinner"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:entries="@array/leave_status"
+                    android:layout_weight="1"
+                    android:background="@drawable/spinner_background"
+                    android:textAppearance="@style/Base.TextAppearance.AppCompat.Title"/>
 
             </LinearLayout>
 
@@ -56,129 +84,102 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:layout_marginLeft="@dimen/activity_large_margin"
-                android:layout_marginTop="20.0dip"
-                android:layout_marginRight="@dimen/activity_large_margin"
-                >
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Leave Status"
-                    android:layout_weight="2"
-                    android:layout_gravity="center_vertical"
-                    android:layout_marginLeft="10dp"
-                    android:textColor="#000000"/>
-                <Spinner
-                    android:id="@+id/leave_status_spinner"
-                    android:layout_width="match_parent"
-                    android:layout_height="50dp"
-                    android:entries="@array/leave_status"
-                    android:layout_weight="1"
-                    android:background="@drawable/spinner_background"/>
-
-
-            </LinearLayout>
-
-
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
+                android:weightSum="2"
+                android:layout_marginTop="10dp"
+                android:baselineAligned="false">
 
                 <com.google.android.material.textfield.TextInputLayout
+                    android:layout_weight="1"
+                    android:layout_margin="5dp"
                     android:id="@+id/fromInputLayout"
                     android:layout_width="match_parent"
-                    android:layout_weight="1"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="@dimen/activity_large_margin"
-                    android:layout_marginTop="20.0dip"
-                    android:layout_marginRight="@dimen/activity_large_margin"
-                    android:hint="From"
-                    >
+                    android:background="@color/editTextColor"
+                    android:hint="@string/from" >
+
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/from_date"
-                        android:maxLength="50"
-                        android:focusableInTouchMode="false"
-                        android:inputType="text"
-                        style="@style/fp_editText" />
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textSize="16sp"
+                        android:textColor="@color/grey"
+                        android:inputType="textPersonName"
+                        android:textAppearance="@style/Base.TextAppearance.AppCompat.Title"/>
+
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <com.google.android.material.textfield.TextInputLayout
+                    android:layout_weight="1"
+                    android:layout_margin="5dp"
                     android:id="@+id/toInputLayout"
                     android:layout_width="match_parent"
-                    android:layout_weight="1"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="@dimen/activity_large_margin"
-                    android:layout_marginTop="20.0dip"
-                    android:layout_marginRight="@dimen/activity_large_margin"
-                    android:hint="To"
+                    android:background="@color/editTextColor"
+                    android:hint="@string/to" >
 
-                    >
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/to_date"
-                        android:maxLength="50"
-                        android:focusableInTouchMode="false"
-                        android:inputType="text"
-                        style="@style/fp_editText" />
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textSize="16sp"
+                        android:textColor="@color/grey"
+                        android:inputType="textPersonName"
+                        android:textAppearance="@style/Base.TextAppearance.AppCompat.Title"/>
+
                 </com.google.android.material.textfield.TextInputLayout>
 
             </LinearLayout>
-
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
 
-                <androidx.appcompat.widget.AppCompatTextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="@dimen/activity_large_margin"
-                    android:layout_marginTop="20.0dip"
-                    android:layout_marginRight="@dimen/activity_large_margin"
-                    android:text="Leave Comment"/>
+                <com.google.android.material.textfield.TextInputLayout
+                    android:layout_marginTop="10dp"
+                    android:id="@+id/passwordTextInputLayout"
 
-                <EditText
-                    android:id="@+id/leave_comment"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="5dp"
-                    android:layout_gravity="start"
-                    android:gravity="start"
-                    android:scrollbarAlwaysDrawVerticalTrack="true"
-                    android:overScrollMode="always"
-                    android:scrollbarStyle="insideInset"
-                    android:scrollbars="vertical"
-                    android:keepScreenOn="true"
-                    android:layout_marginLeft="@dimen/activity_large_margin"
-                    android:layout_marginRight="@dimen/activity_large_margin"
-                    android:lines="5"
-                    android:background="@drawable/spinner_background"
-                    />
+                    android:layout_height="150dp"
+                    android:hint="@string/leave_comment">
 
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/leave_comment"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:gravity="top|start"
+                        android:lines="5"
+                        android:singleLine="false"
+                        android:textSize="16sp"
+                        android:textAppearance="@style/Base.TextAppearance.AppCompat.Title"/>
+
+                </com.google.android.material.textfield.TextInputLayout>
 
             </LinearLayout>
 
-
-            <androidx.appcompat.widget.AppCompatButton
-                android:textSize="@dimen/regularFont"
-                android:textColor="@color/white"
-                android:id="@+id/apply_leave"
-                android:background="@drawable/selector_button_app"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="@dimen/activity_large_margin"
-                android:layout_marginTop="20.0dip"
-                android:layout_marginBottom="20.0dip"
-                android:layout_marginRight="@dimen/activity_large_margin"
-                android:text="Update Leave"
-                android:textAllCaps="false"
-
-                />
-
-
         </LinearLayout>
+
     </androidx.core.widget.NestedScrollView>
 
-</RelativeLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="0.5"
+        android:orientation="horizontal"
+        android:weightSum="2"
+        android:background="@color/colorPrimary">
+
+        <TextView
+            android:id="@+id/apply_leave"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/colorPrimary"
+            android:text="@string/update_leave"
+            android:textSize="14sp"
+            android:textAllCaps="true"
+            android:textColor="@color/white"
+            android:textStyle="bold"
+            android:gravity="center"
+            android:textAppearance="@style/Base.TextAppearance.AppCompat.Title"/>
+    </LinearLayout>
+</LinearLayout>

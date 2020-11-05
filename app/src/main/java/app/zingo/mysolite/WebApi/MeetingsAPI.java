@@ -3,6 +3,7 @@ package app.zingo.mysolite.WebApi;
 import java.util.ArrayList;
 
 import app.zingo.mysolite.model.Meetings;
+import io.reactivex.Observable;
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.GET;
@@ -34,4 +35,10 @@ public interface MeetingsAPI {
     @POST("Meetings/GetMeetingsDetailsByEmployeeIdAndLoginDate")
     Call<ArrayList< Meetings >> getMeetingsByEmployeeIdAndDate( @Body Meetings details );
 
+    /////RxJava
+    @POST("Meetings/GetMeetingsDetailsByEmployeeIdAndLoginDate")
+    Observable <ArrayList< Meetings >> getMeetingsByEmployeeIdAndDateRx( @Body Meetings details );
+
+    @GET("Meetings")
+    Observable <ArrayList< Meetings >> getMeetingDetailsRx( );
 }

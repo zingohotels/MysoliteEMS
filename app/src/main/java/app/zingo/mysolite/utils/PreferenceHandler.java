@@ -6,6 +6,7 @@ import android.preference.PreferenceManager;
 
 import java.util.ArrayList;
 
+//import app.zingo.mysolite.AppController;
 import app.zingo.mysolite.model.Employee;
 
 /**
@@ -552,4 +553,9 @@ public class PreferenceHandler {
         return sh.getInt(Constants.MAPPING_ID,0);
     }
 
+    /*Crash Report Mysolite*/
+    public boolean getBoolean(Context appContext, String key, Boolean defaultValue) {
+        return PreferenceManager.getDefaultSharedPreferences(appContext)
+                .getBoolean(key, defaultValue);
+    }
 }

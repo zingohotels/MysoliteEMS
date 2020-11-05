@@ -63,57 +63,37 @@ public class StockOptionsListScreen extends AppCompatActivity {
                 type = bundle.getString ("Type");
 
             }
-
             mList = (RecyclerView)findViewById(R.id.stock_options_type_list);
             fab = findViewById(R.id.fab_cate_list);
            callFunction();
 
-
             fab.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-
                     if(!type.isEmpty ()){
-
                         if(type.equalsIgnoreCase ( "Stock Categories" )){
-
                             Intent category = new Intent ( StockOptionsListScreen.this, StockCategoryScreen.class );
                             category.putExtra ( "Method","Create" );
                             startActivity ( category );
-
-
                         }else if(type.equalsIgnoreCase ( "Stock SubCategories" )){
-
                             Intent category = new Intent ( StockOptionsListScreen.this, StockSubCategoryScreen.class );
                             category.putExtra ( "Method","Create" );
                             startActivity ( category );
-
-
                         }else if(type.equalsIgnoreCase ( "Stock Brands" )){
-
                             Intent category = new Intent ( StockOptionsListScreen.this, BrandScreen.class );
                             category.putExtra ( "Method","Create" );
                             startActivity ( category );
-
-
                         }else if(type.equalsIgnoreCase ( "Stock Items" )){
 
                             Intent category = new Intent ( StockOptionsListScreen.this, StockItemScreen.class );
                             category.putExtra ( "Method","Create" );
                             startActivity ( category );
-
-
                         }else if(type.equalsIgnoreCase ( "Stock Orders" )){
-
                             Intent category = new Intent ( StockOptionsListScreen.this, RetailerHomeScreen.class );
                             category.putExtra ( "Method","Create" );
                             startActivity ( category );
-
-
                         }
-
                     }
-
                 }
             });
 
@@ -121,62 +101,35 @@ public class StockOptionsListScreen extends AppCompatActivity {
         }catch (Exception e){
             e.printStackTrace();
         }
-
     }
 
-
     public void getStockCategories() {
-
-
         final ProgressDialog dialog = new ProgressDialog(this);
         dialog.setMessage("Please wait...");
         dialog.setCancelable(false);
         dialog.show();
-
         StockCategoriesApi apiService = Util.getClient().create(StockCategoriesApi.class);
-
         Call < ArrayList< StockCategoryModel > > call = apiService.getStockCategoryByOrganizationId( PreferenceHandler.getInstance ( StockOptionsListScreen.this ).getCompanyId ());
-
         call.enqueue(new Callback <ArrayList< StockCategoryModel >> () {
             @Override
             public void onResponse( Call<ArrayList< StockCategoryModel >> call, Response <ArrayList< StockCategoryModel >> response) {
-//                List<RouteDTO.Routes> list = new ArrayList<RouteDTO.Routes>();
-                try
-                {
-                    if(dialog != null && dialog.isShowing())
-                    {
+                try {
+                    if(dialog != null && dialog.isShowing()) {
                         dialog.dismiss();
                     }
 
                     int statusCode = response.code();
                     if (statusCode == 200 || statusCode == 201||statusCode==204) {
-
-
                         ArrayList< StockCategoryModel > stockCategoryModelsList = response.body();
-                        if(stockCategoryModelsList != null && stockCategoryModelsList.size()!=0 )
-                        {
-
+                        if(stockCategoryModelsList != null && stockCategoryModelsList.size()!=0 ) {
                             StockCategoryListAdapter adapter = new StockCategoryListAdapter ( StockOptionsListScreen.this,stockCategoryModelsList);
                             mList.setAdapter(adapter);
-
                         }
-                        else
-                        {
-
-
-                        }
-
-
-
-
-
-
                     }else {
                         Toast.makeText( StockOptionsListScreen.this, "Failed Due to "+response.message(), Toast.LENGTH_SHORT).show();
                     }
                 }
-                catch (Exception ex)
-                {
+                catch (Exception ex) {
 
                     if(dialog != null && dialog.isShowing())
                     {

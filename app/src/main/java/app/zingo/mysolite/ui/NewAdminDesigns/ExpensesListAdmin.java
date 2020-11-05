@@ -52,7 +52,6 @@ public class ExpensesListAdmin extends AppCompatActivity {
     static Context mContext;
 
     SimpleDateFormat dateFormat;
-
     List<Expenses> mTargetList = new ArrayList();
     Toolbar mToolbar;
     TextView movedTargets;
@@ -62,7 +61,6 @@ public class ExpensesListAdmin extends AppCompatActivity {
     TextView presentDate;
     ImageView prevDay;
     ImageView nextDay;
-
 
     LinearLayout mTotalTask,mPendingTask,mCompletedTask,mClosedTask,mNoRecord;
 
@@ -150,8 +148,6 @@ public class ExpensesListAdmin extends AppCompatActivity {
                         mTaskList.setAdapter(mAdapter);
                         Toast.makeText( ExpensesListAdmin.this, "No Pending Expenses are there", Toast.LENGTH_SHORT).show();
                     }
-
-
                 }
             });
 
@@ -286,10 +282,6 @@ public class ExpensesListAdmin extends AppCompatActivity {
     }
 
     private void getEmployees(){
-
-
-
-
         new ThreadExecuter().execute(new Runnable() {
             @Override
             public void run() {
@@ -301,7 +293,6 @@ public class ExpensesListAdmin extends AppCompatActivity {
                     public void onResponse(Call<ArrayList<Employee>> call, Response<ArrayList<Employee>> response) {
                         int statusCode = response.code();
                         if (statusCode == 200 || statusCode == 201 || statusCode == 203 || statusCode == 204) {
-
 
                            /* if (progressDialog != null&&progressDialog.isShowing())
                                 progressDialog.dismiss();*/
@@ -359,29 +350,18 @@ public class ExpensesListAdmin extends AppCompatActivity {
                     }
                 });
             }
-
-
         });
     }
 
     private void getExpenses(final Employee employee, final String dateValue){
-
-
         final int employeeId = employee.getEmployeeId();
-
-
-
         ExpensesApi apiService = Util.getClient().create(ExpensesApi.class);
         Call<ArrayList<Expenses>> call = apiService.getExpenseByEmployeeIdAndOrganizationId(PreferenceHandler.getInstance( ExpensesListAdmin.this).getCompanyId(),employeeId);
-
         call.enqueue(new Callback<ArrayList<Expenses>>() {
             @Override
             public void onResponse(Call<ArrayList<Expenses>> call, Response<ArrayList<Expenses>> response) {
                 int statusCode = response.code();
                 if (statusCode == 200 || statusCode == 201 || statusCode == 203 || statusCode == 204) {
-
-
-
                     ArrayList<Expenses> list = response.body();
 
                     Date date = new Date();

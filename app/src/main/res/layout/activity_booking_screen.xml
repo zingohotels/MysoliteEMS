@@ -278,7 +278,7 @@
                                         android:focusableInTouchMode="false"
                                         android:focusable="false"
                                         android:id="@+id/expense_title_InputLayout"
-                                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+
                                         android:layout_width="match_parent"
                                         android:hint="Client Name"
                                         android:layout_height="wrap_content">
@@ -304,7 +304,7 @@
                                         android:focusableInTouchMode="false"
                                         android:focusable="false"
                                         android:id="@+id/client_contact_number_InputLayout"
-                                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+
                                         android:layout_width="match_parent"
                                         android:layout_height="wrap_content"
                                         android:hint="Client Contact Number">
@@ -329,7 +329,7 @@
                                         android:focusableInTouchMode="false"
                                         android:focusable="false"
                                         android:id="@+id/client_contact_email_InputLayout"
-                                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+
                                         android:layout_width="match_parent"
                                         android:layout_height="wrap_content"
                                         android:hint="Client Contact Email">

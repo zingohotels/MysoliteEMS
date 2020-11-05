@@ -4,15 +4,18 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
+
     <LinearLayout android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
+
         <LinearLayout android:orientation="horizontal"
             android:id="@+id/updateText"
             android:focusable="true"
             android:clickable="true"
             android:layout_width="match_parent"
             android:layout_height="32dp">
+
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="30dp"
@@ -20,9 +23,11 @@
                 android:text="@string/organization_code"
                 android:id="@+id/organization_id"
                 android:gravity="center"
-                android:textSize="20sp"
+                android:textSize="16sp"
                 android:textColor="@color/text_black"/>
+
         </LinearLayout>
+
         <LinearLayout
             android:orientation="horizontal"
             android:id="@+id/renewWarning"
@@ -31,6 +36,7 @@
             android:clickable="true"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
+
             <TextView
                 android:textColor="@color/white"
                 android:gravity="center"
@@ -40,6 +46,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:text="@string/renew_alert_message"/>
+
         </LinearLayout>
 
         <LinearLayout
@@ -249,6 +256,7 @@
             android:baselineAligned="false">
 
             <LinearLayout
+                android:visibility="gone"
                 android:gravity="center"
                 android:orientation="vertical"
                 android:id="@+id/expenses_mgmt"
@@ -276,11 +284,6 @@
                     android:layout_height="wrap_content"
                     android:text="@string/expenses"/>
             </LinearLayout>
-
-
-
-
-
 
             <LinearLayout
                 android:gravity="center"
@@ -410,7 +413,7 @@
                     android:id="@+id/textView_retail"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Retailers"/>
+                    android:text="@string/retailers"/>
             </LinearLayout>
 
             <LinearLayout
@@ -577,12 +580,6 @@
                     android:text="@string/salary"/>
             </LinearLayout>
 
-
-
-
-
-
-
         </LinearLayout>
 
         <LinearLayout
@@ -680,13 +677,6 @@
                     android:text="@string/faq"/>
             </LinearLayout>
 
-
-
-
-
-
-
-
         </LinearLayout>
 
         <LinearLayout
@@ -752,7 +742,7 @@
                     android:textColor="@color/grey_charcoal"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Stocks"/>
+                    android:text="@string/stocks"/>
             </LinearLayout>
 
             <LinearLayout
@@ -786,6 +776,7 @@
 
 
         </LinearLayout>
+
         <LinearLayout
             android:orientation="horizontal"
             android:layout_width="match_parent"
@@ -806,8 +797,8 @@
                 android:layout_marginRight="4dp"
                 android:minWidth="70dp"
                 android:layout_weight="1"
-                android:focusable="true"
-                tools:ignore="UseCompoundDrawables">
+                android:focusable="true">
+
                 <ImageView
                     android:background="@drawable/rounded_menu_background"
                     android:padding="8dp"

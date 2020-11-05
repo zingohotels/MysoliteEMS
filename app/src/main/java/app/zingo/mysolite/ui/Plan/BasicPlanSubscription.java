@@ -31,7 +31,6 @@ import app.zingo.mysolite.model.OrganizationPayments;
 import app.zingo.mysolite.model.PlanIntentData;
 import app.zingo.mysolite.ui.NewAdminDesigns.PlanSubscribtionScreen;
 import app.zingo.mysolite.utils.PreferenceHandler;
-import app.zingo.mysolite.utils.ThreadExecuter;
 import app.zingo.mysolite.utils.Util;
 import app.zingo.mysolite.WebApi.OrganizationApi;
 import app.zingo.mysolite.WebApi.OrganizationPaymentAPI;
@@ -260,54 +259,45 @@ public class BasicPlanSubscription extends AppCompatActivity implements PaymentR
     }
 
     public void getCompany(final int id) {
+        final OrganizationApi subCategoryAPI = Util.getClient().create( OrganizationApi.class);
+        Call<ArrayList< Organization >> getProf = subCategoryAPI.getOrganizationById(id);
+        //Call<ArrayList<Blogs>> getBlog = blogApi.getBlogs();
 
-        new ThreadExecuter ().execute( new Runnable() {
+        getProf.enqueue(new Callback<ArrayList< Organization >>() {
+
             @Override
-            public void run() {
+            public void onResponse( Call<ArrayList< Organization >> call, Response<ArrayList< Organization >> response) {
 
-                final OrganizationApi subCategoryAPI = Util.getClient().create( OrganizationApi.class);
-                Call<ArrayList< Organization >> getProf = subCategoryAPI.getOrganizationById(id);
-                //Call<ArrayList<Blogs>> getBlog = blogApi.getBlogs();
+                if (response.code() == 200||response.code() == 201||response.code() == 204)
+                {
+                    organization = response.body().get(0);
 
-                getProf.enqueue(new Callback<ArrayList< Organization >>() {
+                    if(organization!=null){
 
-                    @Override
-                    public void onResponse( Call<ArrayList< Organization >> call, Response<ArrayList< Organization >> response) {
-
-                        if (response.code() == 200||response.code() == 201||response.code() == 204)
-                        {
-                            organization = response.body().get(0);
-
-                            if(organization!=null){
-
-                                appType = organization.getAppType();
-                                planType = organization.getPlanType();
-                                startDate = organization.getLicenseStartDate();
-                                endDate = organization.getLicenseEndDate();
+                        appType = organization.getAppType();
+                        planType = organization.getPlanType();
+                        startDate = organization.getLicenseStartDate();
+                        endDate = organization.getLicenseEndDate();
 
 
-                            }else{
-                                Toast.makeText( BasicPlanSubscription.this, "Something went wrong", Toast.LENGTH_SHORT).show();
-                            }
-
-
-                        }else{
-
-                            Toast.makeText( BasicPlanSubscription.this, "Something went wrong", Toast.LENGTH_SHORT).show();
-
-                        }
-                    }
-
-                    @Override
-                    public void onFailure( Call<ArrayList< Organization >> call, Throwable t) {
-
+                    }else{
                         Toast.makeText( BasicPlanSubscription.this, "Something went wrong", Toast.LENGTH_SHORT).show();
-
                     }
-                });
 
+
+                }else{
+
+                    Toast.makeText( BasicPlanSubscription.this, "Something went wrong", Toast.LENGTH_SHORT).show();
+
+                }
             }
 
+            @Override
+            public void onFailure( Call<ArrayList< Organization >> call, Throwable t) {
+
+                Toast.makeText( BasicPlanSubscription.this, "Something went wrong", Toast.LENGTH_SHORT).show();
+
+            }
         });
     }
 

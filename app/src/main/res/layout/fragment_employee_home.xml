@@ -195,6 +195,7 @@
 
 
              <LinearLayout
+                 android:visibility="gone"
                  android:gravity="center"
                  android:orientation="vertical"
                  android:id="@+id/expenses_mgmt"
@@ -207,6 +208,7 @@
                  android:minWidth="70dp"
                  android:layout_weight="1"
                  android:focusable="true">
+
                  <ImageView
                      android:background="@drawable/rounded_menu_background"
                      android:padding="8dp"
@@ -214,12 +216,14 @@
                      android:layout_height="40dp"
                      android:src="@drawable/expenses"
                      android:contentDescription="TODO" />
+
                  <TextView
                      android:textSize="12sp"
                      android:textColor="@color/grey_charcoal"
                      android:layout_width="wrap_content"
                      android:layout_height="wrap_content"
                      android:text="Expenses"/>
+
              </LinearLayout>
 
 
@@ -236,6 +240,7 @@
                 android:minWidth="70dp"
                 android:layout_weight="1"
                 android:focusable="true">
+
                 <ImageView
                     android:background="@drawable/rounded_menu_background"
                     android:padding="8dp"
@@ -243,15 +248,15 @@
                     android:layout_height="40dp"
                     android:src="@drawable/organize"
                     android:contentDescription="TODO" />
+
                 <TextView
                     android:textSize="12sp"
                     android:textColor="@color/grey_charcoal"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Task"/>
+
             </LinearLayout>
-
-
 
         </LinearLayout>
 
@@ -267,7 +272,6 @@
                     android:orientation="vertical"
                     android:id="@+id/meeting"
                     android:padding="8dp"
-
                     android:clickable="true"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
@@ -276,6 +280,7 @@
                     android:minWidth="70dp"
                     android:layout_weight="1"
                     android:focusable="true">
+
                     <ImageView
                         android:background="@drawable/rounded_menu_background"
                         android:padding="8dp"
@@ -283,12 +288,14 @@
                         android:layout_height="40dp"
                         android:src="@drawable/meeting_add"
                         android:contentDescription="TODO" />
+
                     <TextView
                         android:textSize="12sp"
                         android:textColor="@color/grey_charcoal"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Meeting"/>
+
                 </LinearLayout>
 
                 <LinearLayout
@@ -304,6 +311,7 @@
                     android:minWidth="70dp"
                     android:layout_weight="1"
                     android:focusable="true">
+
                     <ImageView
                         android:background="@drawable/rounded_menu_background"
                         android:padding="8dp"
@@ -311,12 +319,14 @@
                         android:layout_height="40dp"
                         android:src="@drawable/order"
                         android:contentDescription="TODO" />
+
                     <TextView
                         android:textSize="12sp"
                         android:textColor="@color/grey_charcoal"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Orders"/>
+
                 </LinearLayout>
 
                 <LinearLayout

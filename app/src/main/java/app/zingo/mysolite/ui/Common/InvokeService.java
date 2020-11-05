@@ -5,6 +5,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.location.Location;
+import android.os.BatteryManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import com.google.android.material.textfield.TextInputEditText;
@@ -49,6 +51,7 @@ import app.zingo.mysolite.model.Tasks;
 import app.zingo.mysolite.ui.NewAdminDesigns.ReportExpenseList;
 import app.zingo.mysolite.ui.NewAdminDesigns.ReportTaskListScreen;
 import app.zingo.mysolite.ui.NewAdminDesigns.ReportVisitsListScreen;
+import app.zingo.mysolite.utils.Const;
 import app.zingo.mysolite.utils.PreferenceHandler;
 import app.zingo.mysolite.utils.ThreadExecuter;
 import app.zingo.mysolite.utils.Util;
@@ -616,6 +619,11 @@ public class InvokeService extends AppCompatActivity {
                 LiveTracking lv = new LiveTracking();
                 lv.setEmployeeId(dto.getEmployeeId());
                 lv.setTrackingDate(new SimpleDateFormat("MM/dd/yyyy").format(date));
+                BatteryManager bm = (BatteryManager)getSystemService(BATTERY_SERVICE);
+                if ( Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    Const.BATTERY_PERCENTAGE = bm.getIntProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY);
+                }
+                lv.setBatteryPercentage (String.valueOf ( Const.BATTERY_PERCENTAGE ));
                 getLiveLocation(lv,holder.mKm);
 
                 Meetings md  = new Meetings();

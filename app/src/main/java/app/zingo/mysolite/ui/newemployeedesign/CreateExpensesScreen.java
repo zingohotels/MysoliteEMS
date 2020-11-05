@@ -1,5 +1,4 @@
 package app.zingo.mysolite.ui.newemployeedesign;
-
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
@@ -65,7 +64,6 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class CreateExpensesScreen extends AppCompatActivity {
-
     TextInputEditText mExpenseType,mAmount,mTo;
     FButton disabledBtn;
     EditText mExpenseComment;
@@ -74,16 +72,13 @@ public class CreateExpensesScreen extends AppCompatActivity {
     static int REQUEST_GALLERY = 200;
     String selectedImage;
     Expenses expenses;
-
     private int REQUEST_CAMERA = 0, SELECT_FILE = 1;
-
     int employeeId = 0,managerId = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         try{
-
             setContentView(R.layout.activity_create_expenses_screen);
             mExpenseType = findViewById(R.id.expense_title);
             mAmount = findViewById(R.id.amount_expense);
@@ -141,8 +136,7 @@ public class CreateExpensesScreen extends AppCompatActivity {
         builder.show();
     }
 
-    private void galleryIntent()
-    {
+    private void galleryIntent() {
       /*  Intent intent = new Intent();
         intent.setType("image/*");
         intent.setAction(Intent.ACTION_GET_CONTENT);//
@@ -162,7 +156,6 @@ public class CreateExpensesScreen extends AppCompatActivity {
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-
         if (resultCode == Activity.RESULT_OK) {
             if (requestCode == SELECT_FILE)
                 onSelectFromGalleryResult(data);
@@ -183,8 +176,7 @@ public class CreateExpensesScreen extends AppCompatActivity {
             String[] all_path = {picturePath};
             selectedImage = all_path[0];
             System.out.println("allpath === "+data.getPackage());
-            for (String s:all_path)
-            {
+            for (String s:all_path) {
                 //System.out.println(s);
                 File imgFile = new  File(s);
                 if(imgFile.exists()) {
@@ -196,8 +188,6 @@ public class CreateExpensesScreen extends AppCompatActivity {
         }catch (Exception e){
             e.printStackTrace();
         }
-
-
     }
 
     private Uri getImageUri(Context applicationContext, Bitmap bitmap) {
@@ -223,23 +213,17 @@ public class CreateExpensesScreen extends AppCompatActivity {
         return result;
     }
 
-    public void addImage(String uri,Bitmap bitmap)
-    {
+    public void addImage(String uri,Bitmap bitmap) {
         try{
-
-            if(uri != null)
-            {
+            if(uri != null) {
 
             }
-            else if(bitmap != null)
-            {
+            else if(bitmap != null) {
                mExpenseImages.removeAllViews();
-
                 final LayoutInflater vi = (LayoutInflater) getApplicationContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
                 try{
                     View v = vi.inflate(R.layout.gallery_layout, null);
                     ImageView blogs = v.findViewById(R.id.blog_images);
-
                     blogs.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
@@ -266,23 +250,17 @@ public class CreateExpensesScreen extends AppCompatActivity {
                     });
 
 
-                    if(uri != null)
-                    {
+                    if(uri != null) {
 
                     }
-                    else if(bitmap != null)
-                    {
+                    else if(bitmap != null) {
                         blogs.setImageBitmap(bitmap);
                     }
-
 
                     mExpenseImages.addView(v);
                 }catch (Exception e){
                     e.printStackTrace();
                 }
-
-                //mExpenseImages.setImageBitmap(bitmap);
-
 
             }
         }catch (Exception e){
@@ -291,22 +269,16 @@ public class CreateExpensesScreen extends AppCompatActivity {
 
     }
 
-    private void uploadImage(final String filePath,final Expenses expenses)
-    {
-        //String filePath = getRealPathFromURIPath(uri, ImageUploadActivity.this);
-
+    private void uploadImage(final String filePath,final Expenses expenses) {
         final File file = new File(filePath);
         int size = 1*1024*1024;
 
-        if(file != null)
-        {
-            if(file.length() > size)
-            {
+        if(file != null) {
+            if(file.length() > size) {
                 System.out.println(file.length());
                 compressImage(filePath,expenses);
             }
-            else
-            {
+            else {
                 final ProgressDialog dialog = new ProgressDialog(CreateExpensesScreen.this);
                 dialog.setCancelable(false);
                 dialog.setTitle("Uploading Image..");
@@ -322,11 +294,9 @@ public class CreateExpensesScreen extends AppCompatActivity {
                 fileUpload.enqueue(new Callback<String>() {
                     @Override
                     public void onResponse(Call<String> call, Response<String> response) {
-                        if(dialog != null && dialog.isShowing())
-                        {
+                        if(dialog != null && dialog.isShowing()) {
                             dialog.dismiss();
                         }
-
 
                         if(Util.IMAGE_URL==null){
                             expenses.setImageUrl(Constants.IMAGE_URL+ response.body());
@@ -335,10 +305,6 @@ public class CreateExpensesScreen extends AppCompatActivity {
                         }
                        // expenses.setImageUrl(Constants.IMAGE_URL+response.body().toString());
                         addExpense(expenses);
-
-
-
-
                         if(filePath.contains("MyFolder/Images"))
                         {
                             file.delete();
@@ -606,6 +572,48 @@ public class CreateExpensesScreen extends AppCompatActivity {
         });
     }
 
+
+    private void getExpenseCategory(final ExpensesNotificationManagers enm) {
+        final ProgressDialog dialog = new ProgressDialog(this);
+        dialog.setCancelable(false);
+        dialog.setTitle("Loading.");
+        dialog.show();
+        ExpenseNMAPI auditApi = Util.getClient().create(ExpenseNMAPI.class);
+        Call<ExpensesNotificationManagers> response = auditApi.saveExpensesNotificationManagers (enm);
+        response.enqueue(new Callback<ExpensesNotificationManagers>() {
+            @Override
+            public void onResponse(Call<ExpensesNotificationManagers> call, Response<ExpensesNotificationManagers> response) {
+                if(dialog != null) {
+                    dialog.dismiss();
+                }
+                System.out.println(response.code());
+                if(response.code() == 201||response.code() == 200||response.code() == 204) {
+                    ExpensesNotificationManagers ex = response.body ();
+                    ex.setSenderId ( Constants.SENDER_ID );
+                    ex.setServerId ( Constants.SERVER_ID );
+                    GeneralNotification gm = new GeneralNotification ();
+                    gm.setEmployeeId(ex.getManagerId ());
+                    gm.setSenderId( Constants.SENDER_ID);
+                    gm.setServerId( Constants.SERVER_ID);
+                    gm.setTitle(ex.getTitle ());
+                    gm.setMessage(ex.getMessage ());
+                    sendNotification(gm);
+                }
+                else {
+                    Toast.makeText(CreateExpensesScreen.this,response.message(),Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ExpensesNotificationManagers> call, Throwable t) {
+                if(dialog != null) {
+                    dialog.dismiss();
+                }
+                Toast.makeText( CreateExpensesScreen.this , "Bad Internet Connection" , Toast.LENGTH_SHORT ).show( );
+            }
+        });
+    }
+
     public void openDatePicker(final TextInputEditText tv) {
         // Get Current Date
         final Calendar c = Calendar.getInstance();
@@ -639,6 +647,7 @@ public class CreateExpensesScreen extends AppCompatActivity {
                         }
                     }
                 }, mYear, mMonth, mDay);
+        datePickerDialog.getDatePicker().setMinDate(System.currentTimeMillis() - 1000);
         datePickerDialog.show();
     }
 
@@ -694,8 +703,7 @@ public class CreateExpensesScreen extends AppCompatActivity {
 
                             uploadImage(filename,expenses);
                         }
-                        else
-                        {
+                        else {
                             compressImage(selectedImage,expenses);
                         }
                     }
@@ -724,7 +732,6 @@ public class CreateExpensesScreen extends AppCompatActivity {
                 catch (Exception ex) {
                     ex.printStackTrace();
                 }
-//                callGetStartEnd();
             }
 
             @Override

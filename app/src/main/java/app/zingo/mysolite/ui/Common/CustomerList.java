@@ -21,7 +21,6 @@ import app.zingo.mysolite.WebApi.EmployeeApi;
 import app.zingo.mysolite.adapter.CustomerAdapter;
 import app.zingo.mysolite.model.Employee;
 import app.zingo.mysolite.utils.PreferenceHandler;
-import app.zingo.mysolite.utils.ThreadExecuter;
 import app.zingo.mysolite.utils.Util;
 import app.zingo.mysolite.R;
 import retrofit2.Call;
@@ -140,82 +139,73 @@ public class CustomerList extends AppCompatActivity {
 
     public void getCustomersEmployee(final int id) {
 
+        final EmployeeApi orgApi = Util.getClient().create( EmployeeApi.class);
+        Call<ArrayList< Employee >> getProf = orgApi.getEmployeesByOrgId (id);
+        //Call<ArrayList<Blogs>> getBlog = blogApi.getBlogs();
 
+        getProf.enqueue(new Callback<ArrayList< Employee >>() {
 
-        new ThreadExecuter ().execute( new Runnable() {
             @Override
-            public void run() {
-
-                final EmployeeApi orgApi = Util.getClient().create( EmployeeApi.class);
-                Call<ArrayList< Employee >> getProf = orgApi.getEmployeesByOrgId (id);
-                //Call<ArrayList<Blogs>> getBlog = blogApi.getBlogs();
-
-                getProf.enqueue(new Callback<ArrayList< Employee >>() {
-
-                    @Override
-                    public void onResponse( Call<ArrayList< Employee >> call, Response<ArrayList< Employee >> response) {
+            public void onResponse( Call<ArrayList< Employee >> call, Response<ArrayList< Employee >> response) {
 
 
 
-                        if (response.code() == 200||response.code() == 201||response.code() == 204)
-                        {
-                            mLoader.setVisibility(View.GONE);
+                if (response.code() == 200||response.code() == 201||response.code() == 204)
+                {
+                    mLoader.setVisibility(View.GONE);
 
-                            ArrayList< Employee > branches = response.body();
-                            ArrayList< Employee > employeeList = new ArrayList <> (  );
+                    ArrayList< Employee > branches = response.body();
+                    ArrayList< Employee > employeeList = new ArrayList <> (  );
 
-                            if(branches!=null&&branches.size()!=0){
+                    if(branches!=null&&branches.size()!=0){
 
-                                for(Employee e:branches){
+                        for(Employee e:branches){
 
-                                    if(e.getUserRoleId ()==10){
-                                        employeeList.add(e);
-
-
-                                    }
-
-                                }
-
-
-                                if(employeeList!=null &&employeeList.size ()!=0){
-                                    mLoader.setVisibility(View.GONE);
-                                    mNoCustomers.setVisibility(View.GONE);
-
-                                    mCustomerList.removeAllViews();
-
-                                    CustomerAdapter adapter = new CustomerAdapter( CustomerList.this,employeeList);
-                                    mCustomerList.setAdapter(adapter);
-                                }
-
-
+                            if(e.getUserRoleId ()==10){
+                                employeeList.add(e);
 
 
                             }
 
-
-                        }else{
-
-                            mLoader.setVisibility(View.GONE);
-
-                            Toast.makeText( CustomerList.this, "Something went wrong", Toast.LENGTH_SHORT).show();
-
                         }
+
+
+                        if(employeeList!=null &&employeeList.size ()!=0){
+                            mLoader.setVisibility(View.GONE);
+                            mNoCustomers.setVisibility(View.GONE);
+
+                            mCustomerList.removeAllViews();
+
+                            CustomerAdapter adapter = new CustomerAdapter( CustomerList.this,employeeList);
+                            mCustomerList.setAdapter(adapter);
+                        }
+
+
+
+
                     }
 
-                    @Override
-                    public void onFailure( Call<ArrayList< Employee >> call, Throwable t) {
 
-                        mLoader.setVisibility(View.GONE);
+                }else{
 
+                    mLoader.setVisibility(View.GONE);
 
-                        Toast.makeText( CustomerList.this, "Something went wrong", Toast.LENGTH_SHORT).show();
+                    Toast.makeText( CustomerList.this, "Something went wrong", Toast.LENGTH_SHORT).show();
 
-                    }
-                });
-
+                }
             }
 
+            @Override
+            public void onFailure( Call<ArrayList< Employee >> call, Throwable t) {
+
+                mLoader.setVisibility(View.GONE);
+
+
+                Toast.makeText( CustomerList.this, "Something went wrong", Toast.LENGTH_SHORT).show();
+
+            }
         });
+
     }
 
     @Override

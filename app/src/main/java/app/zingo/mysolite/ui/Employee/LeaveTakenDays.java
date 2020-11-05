@@ -11,7 +11,6 @@ import java.util.ArrayList;
 
 import app.zingo.mysolite.adapter.LeaveTakenAdapter;
 import app.zingo.mysolite.model.Leaves;
-import app.zingo.mysolite.utils.ThreadExecuter;
 import app.zingo.mysolite.utils.Util;
 import app.zingo.mysolite.WebApi.LeaveAPI;
 import app.zingo.mysolite.R;
@@ -56,62 +55,54 @@ public class LeaveTakenDays extends AppCompatActivity {
 
     private void getLeaveDetails(final int employeeId){
 
-
         final ProgressDialog progressDialog = new ProgressDialog(this);
         progressDialog.setTitle("Loading Details..");
         progressDialog.setCancelable(false);
         progressDialog.show();
 
-        new ThreadExecuter ().execute( new Runnable() {
+        LeaveAPI apiService = Util.getClient().create(LeaveAPI.class);
+        Call<ArrayList<Leaves>> call = apiService.getLeavesByEmployeeId(employeeId);
+
+        call.enqueue(new Callback<ArrayList<Leaves>>() {
             @Override
-            public void run() {
-                LeaveAPI apiService = Util.getClient().create(LeaveAPI.class);
-                Call<ArrayList<Leaves>> call = apiService.getLeavesByEmployeeId(employeeId);
-
-                call.enqueue(new Callback<ArrayList<Leaves>>() {
-                    @Override
-                    public void onResponse(Call<ArrayList<Leaves>> call, Response<ArrayList<Leaves>> response) {
-                        int statusCode = response.code();
-                        if (statusCode == 200 || statusCode == 201 || statusCode == 203 || statusCode == 204) {
+            public void onResponse(Call<ArrayList<Leaves>> call, Response<ArrayList<Leaves>> response) {
+                int statusCode = response.code();
+                if (statusCode == 200 || statusCode == 201 || statusCode == 203 || statusCode == 204) {
 
 
-                            if (progressDialog != null&&progressDialog.isShowing())
-                                progressDialog.dismiss();
-                            ArrayList<Leaves> list = response.body();
+                    if (progressDialog != null&&progressDialog.isShowing())
+                        progressDialog.dismiss();
+                    ArrayList<Leaves> list = response.body();
 
 
 
-                            if (list !=null && list.size()!=0) {
+                    if (list !=null && list.size()!=0) {
 
-                                LeaveTakenAdapter adapter = new LeaveTakenAdapter( LeaveTakenDays.this,list);
-                                mLeaveList.setAdapter(adapter);
+                        LeaveTakenAdapter adapter = new LeaveTakenAdapter( LeaveTakenDays.this,list);
+                        mLeaveList.setAdapter(adapter);
 
-                            }else{
+                    }else{
 
-                                Toast.makeText( LeaveTakenDays.this, "No leaves ", Toast.LENGTH_SHORT).show();
+                        Toast.makeText( LeaveTakenDays.this, "No leaves ", Toast.LENGTH_SHORT).show();
 
-                            }
-
-                        }else {
-
-                            if (progressDialog != null&&progressDialog.isShowing())
-                                progressDialog.dismiss();
-
-                            Toast.makeText( LeaveTakenDays.this, "Failed due to : "+response.message(), Toast.LENGTH_SHORT).show();
-                        }
                     }
 
-                    @Override
-                    public void onFailure(Call<ArrayList<Leaves>> call, Throwable t) {
-                        // Log error here since request failed
-                        if (progressDialog != null&&progressDialog.isShowing())
-                            progressDialog.dismiss();
-                        Log.e("TAG", t.toString());
-                    }
-                });
+                }else {
+
+                    if (progressDialog != null&&progressDialog.isShowing())
+                        progressDialog.dismiss();
+
+                    Toast.makeText( LeaveTakenDays.this, "Failed due to : "+response.message(), Toast.LENGTH_SHORT).show();
+                }
             }
 
-
+            @Override
+            public void onFailure(Call<ArrayList<Leaves>> call, Throwable t) {
+                // Log error here since request failed
+                if (progressDialog != null&&progressDialog.isShowing())
+                    progressDialog.dismiss();
+                Log.e("TAG", t.toString());
+            }
         });
     }
 }

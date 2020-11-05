@@ -1,8 +1,7 @@
 package app.zingo.mysolite.WebApi;
-
 import java.util.ArrayList;
-
 import app.zingo.mysolite.model.Expenses;
+import io.reactivex.Observable;
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.GET;
@@ -26,4 +25,12 @@ public interface ExpensesApi {
 
     @PUT("Expenses/{id}")
     Call< Expenses > updateExpenses( @Path ("id") int id , @Body Expenses details );
+
+    ///RxJava
+    @GET("Expenses/GetExpensesByOrganizationIdAndEmployeeId/{OrganizationId}/{EmployeeId}")
+    Observable <ArrayList< Expenses >> getExpenseByEmployeeIdAndOrganizationIdRx ( @Path ("OrganizationId") int OrganizationId , @Path ("EmployeeId") int EmployeeId );
+
+    @GET("Expenses")
+    Observable< ArrayList< Expenses >> getExpensesRx ( );
+
 }

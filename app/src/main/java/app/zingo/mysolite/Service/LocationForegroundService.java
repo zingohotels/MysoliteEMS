@@ -6,8 +6,10 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -32,6 +34,7 @@ import java.util.TimerTask;
 
 import app.zingo.mysolite.model.LiveTracking;
 import app.zingo.mysolite.ui.newemployeedesign.BreakPurpose;
+import app.zingo.mysolite.utils.Const;
 import app.zingo.mysolite.utils.PreferenceHandler;
 import app.zingo.mysolite.utils.TrackGPS;
 import app.zingo.mysolite.utils.Util;
@@ -60,11 +63,20 @@ public class LocationForegroundService extends Service {
         throw new UnsupportedOperationException("Not yet implemented");
     }
 
+    private BroadcastReceiver mBatInfoReceiver = new BroadcastReceiver(){
+        @Override
+        public void onReceive( Context context, Intent intent) {
+            int level = intent.getIntExtra( BatteryManager.EXTRA_LEVEL, 0);
+            Const.BATTERY_LEVEL = level;
+        }
+    };
+
+
     @Override
     public void onCreate() {
         super.onCreate();
         Log.d(TAG_FOREGROUND_SERVICE, "My foreground service onCreate().");
-
+        this.registerReceiver(this.mBatInfoReceiver, new IntentFilter (Intent.ACTION_BATTERY_CHANGED));
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
             startMyOwnForeground();
         else
@@ -256,7 +268,9 @@ public class LocationForegroundService extends Service {
                         liveTracking.setAppVersion(""+ BuildConfig.VERSION_NAME);
                         liveTracking.setTrackingDate(new SimpleDateFormat("MM/dd/yyyy").format(new Date()));
                         liveTracking.setTrackingTime(new SimpleDateFormat("HH:mm:ss").format(new Date()));
-
+                        if(Const.BATTERY_LEVEL!=0){
+                            liveTracking.setBatteryPercentage(""+Const.BATTERY_LEVEL);
+                        }
                         try {
 
                             if ( ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
@@ -291,14 +305,6 @@ public class LocationForegroundService extends Service {
 
                                 liveTracking.setDeviceName(imei+","+ telephonyManager.getDeviceId());
                             }
-
-                            BatteryManager bm = (BatteryManager)getSystemService(BATTERY_SERVICE);
-                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                                int batLevel = bm.getIntProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY);
-                                liveTracking.setBatteryPercentage(""+batLevel);
-
-                            }
-                            //
 
                         }catch (Exception e){
                             e.printStackTrace();
@@ -337,27 +343,18 @@ public class LocationForegroundService extends Service {
     }
 
     public void addLiveTracking(final LiveTracking liveTracking) {
-
-
+        System.out.println ( "Suree Location Forground Service : "+liveTracking.getBatteryPercentage () );
         LiveTrackingAPI apiService = Util.getClient().create( LiveTrackingAPI.class);
-
         Call< LiveTracking > call = apiService.addLiveTracking(liveTracking);
-
         call.enqueue(new Callback< LiveTracking >() {
             @Override
             public void onResponse( Call< LiveTracking > call, Response< LiveTracking > response) {
 //                List<RouteDTO.Routes> list = new ArrayList<RouteDTO.Routes>();
-                try
-                {
-
-
+                try {
                     int statusCode = response.code();
                     if (statusCode == 200 || statusCode == 201) {
-
                         LiveTracking s = response.body();
-
                         if(s!=null){
-
                             Log.e("TAG", "Success");
                         }
 
@@ -484,8 +481,6 @@ public class LocationForegroundService extends Service {
                 PreferenceHandler.getInstance( getApplicationContext() ).setMovingFar( true );
 
             }
-
-
         }
     }
 }

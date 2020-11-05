@@ -28,7 +28,6 @@ import app.zingo.mysolite.adapter.BreakAdapter;
 import app.zingo.mysolite.Custom.MyEditText;
 import app.zingo.mysolite.model.OrganizationBreakTimes;
 import app.zingo.mysolite.utils.PreferenceHandler;
-import app.zingo.mysolite.utils.ThreadExecuter;
 import app.zingo.mysolite.WebApi.OrganizationBreakTimesAPI;
 import app.zingo.mysolite.R;
 import app.zingo.mysolite.utils.Util;
@@ -88,64 +87,53 @@ public class BreakTimeListScreen extends AppCompatActivity {
     }
 
     public void getBreaks(final int id) {
+        final OrganizationBreakTimesAPI orgApi = Util.getClient().create( OrganizationBreakTimesAPI.class);
+        Call<ArrayList<OrganizationBreakTimes>> getProf = orgApi.getBreaksByOrgId(id);
+        //Call<ArrayList<Blogs>> getBlog = blogApi.getBlogs();
 
+        getProf.enqueue(new Callback<ArrayList<OrganizationBreakTimes>>() {
 
-
-        new ThreadExecuter ().execute( new Runnable() {
             @Override
-            public void run() {
-
-                final OrganizationBreakTimesAPI orgApi = Util.getClient().create( OrganizationBreakTimesAPI.class);
-                Call<ArrayList<OrganizationBreakTimes>> getProf = orgApi.getBreaksByOrgId(id);
-                //Call<ArrayList<Blogs>> getBlog = blogApi.getBlogs();
-
-                getProf.enqueue(new Callback<ArrayList<OrganizationBreakTimes>>() {
-
-                    @Override
-                    public void onResponse(Call<ArrayList<OrganizationBreakTimes>> call, Response<ArrayList<OrganizationBreakTimes>> response) {
+            public void onResponse(Call<ArrayList<OrganizationBreakTimes>> call, Response<ArrayList<OrganizationBreakTimes>> response) {
 
 
 
-                        if (response.code() == 200||response.code() == 201||response.code() == 204)
-                        {
-                            mLoader.setVisibility(View.GONE);
+                if (response.code() == 200||response.code() == 201||response.code() == 204)
+                {
+                    mLoader.setVisibility(View.GONE);
 
-                            ArrayList<OrganizationBreakTimes> holidayLists = response.body();
+                    ArrayList<OrganizationBreakTimes> holidayLists = response.body();
 
-                            if(holidayLists!=null&&holidayLists.size()!=0){
-
-                                mLoader.setVisibility(View.GONE);
-                                mNoBreak.setVisibility(View.GONE);
-
-                                BreakAdapter adapter = new BreakAdapter( BreakTimeListScreen.this,holidayLists);
-                                mBreakList.setAdapter(adapter);
-
-
-                            }
-
-
-                        }else{
-
-                            mLoader.setVisibility(View.GONE);
-
-                            Toast.makeText( BreakTimeListScreen.this, "Something went wrong", Toast.LENGTH_SHORT).show();
-
-                        }
-                    }
-
-                    @Override
-                    public void onFailure(Call<ArrayList<OrganizationBreakTimes>> call, Throwable t) {
+                    if(holidayLists!=null&&holidayLists.size()!=0){
 
                         mLoader.setVisibility(View.GONE);
+                        mNoBreak.setVisibility(View.GONE);
 
+                        BreakAdapter adapter = new BreakAdapter( BreakTimeListScreen.this,holidayLists);
+                        mBreakList.setAdapter(adapter);
 
-                        Toast.makeText( BreakTimeListScreen.this, "Something went wrong", Toast.LENGTH_SHORT).show();
 
                     }
-                });
 
+
+                }else{
+
+                    mLoader.setVisibility(View.GONE);
+
+                    Toast.makeText( BreakTimeListScreen.this, "Something went wrong", Toast.LENGTH_SHORT).show();
+
+                }
             }
 
+            @Override
+            public void onFailure(Call<ArrayList<OrganizationBreakTimes>> call, Throwable t) {
+
+                mLoader.setVisibility(View.GONE);
+
+
+                Toast.makeText( BreakTimeListScreen.this, "Something went wrong", Toast.LENGTH_SHORT).show();
+
+            }
         });
     }
 

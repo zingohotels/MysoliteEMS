@@ -8,8 +8,6 @@
     android:layout_height="match_parent"
     tools:context="app.zingo.mysolite.ui.Common.AllEmployeeLiveLocation">
 
-
-
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -19,12 +17,9 @@
             android:id="@+id/employee_live_list_map"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_margin="10dp"
-            />
-
+            android:layout_margin="10dp" />
 
     </LinearLayout>
-
 
     <TextView
         android:layout_width="150dp"

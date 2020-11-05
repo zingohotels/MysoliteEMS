@@ -70,6 +70,7 @@ public interface Constants {
     String USER_ROLE_UNIQUE_ID = "user_role_unique_id";
     String mapKey = "AIzaSyBN_9MfDVrhG1_D9Q1XpakTiDkoqSU5gGA";
 
+    public static String locationApiKey = "AIzaSyC-BYCFrpXUa4CI-H9fRqWEc0-I_ylk31k";
     String LOGIN_STATUS = "login_status";
     String LOGIN_TIME = "login_time";
 
@@ -79,10 +80,9 @@ public interface Constants {
     String TEA_STATUS = "tea_status";
 
     //airpay
-     String AIR_UN = "7197486";
+    String AIR_UN = "7197486";
     String AIR_PWD = "X5bgPzEU";
-     String AIR_SEC = "dVjtbBfSVaUF4kB8";
-     String AIR_MI = "28000";
-
+    String AIR_SEC = "dVjtbBfSVaUF4kB8";
+    String AIR_MI = "28000";
 
 }

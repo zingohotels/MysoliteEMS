@@ -62,7 +62,7 @@ public class SubCategoryGridAdapter extends BaseAdapter {
 
             if(mList.get(position)!=null){
                 mSName.setText(""+mList.get ( position ).getStockSubCategoryName ());
-                Picasso.with(context).load(mList.get(position).getStockSubCategoryImage ()).placeholder( R.drawable.no_image).
+                Picasso.get ().load(mList.get(position).getStockSubCategoryImage ()).placeholder( R.drawable.no_image).
                         error(R.drawable.no_image).into( mImage);
             }
 

@@ -8,13 +8,19 @@ import android.net.ConnectivityManager;
 import android.os.Build;
 import androidx.annotation.RequiresApi;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
 import java.util.concurrent.TimeUnit;
 
 import app.zingo.mysolite.AlarmManager.InvokeAlarmService;
 import okhttp3.OkHttpClient;
+import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
+import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
+import retrofit2.converter.scalars.ScalarsConverterFactory;
 
 /**
  * Created by ZingoHotels Tech on 26-09-2018.
@@ -25,16 +31,23 @@ public class Util {
     public static String IMAGE_URL;
 
     public static Retrofit getClient() {
-        OkHttpClient client = new OkHttpClient.Builder()
-                .connectTimeout(100, TimeUnit.SECONDS)
-                .readTimeout(100, TimeUnit.SECONDS)
-                .writeTimeout(150,TimeUnit.SECONDS).build();
+        HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor ();
+        interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
+        OkHttpClient client = new OkHttpClient.Builder().addInterceptor(interceptor)
+                .connectTimeout(60, TimeUnit.SECONDS)
+                .writeTimeout(60, TimeUnit.SECONDS)
+                .readTimeout(60, TimeUnit.SECONDS).build();
+        Gson gson = new GsonBuilder ()
+                .setLenient()
+                .create();
+
         if (retrofit==null) {
             retrofit = new Retrofit.Builder()
                     .baseUrl( Constants.BASE_URL)
                     .client(client)
-                    .addConverterFactory(GsonConverterFactory.create())
-                    .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
+                    .addConverterFactory( ScalarsConverterFactory.create())
+                    .addConverterFactory(GsonConverterFactory.create(gson))
+                    .addCallAdapterFactory( RxJava2CallAdapterFactory.create())
                     .build();
 
         }

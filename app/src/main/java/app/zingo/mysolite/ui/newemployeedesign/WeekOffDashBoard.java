@@ -34,7 +34,6 @@ import app.zingo.mysolite.model.Employee;
 import app.zingo.mysolite.model.EmployeeImages;
 import app.zingo.mysolite.model.Leaves;
 import app.zingo.mysolite.ui.Common.LeaveListScreen;
-import app.zingo.mysolite.utils.ThreadExecuter;
 import app.zingo.mysolite.utils.Util;
 import app.zingo.mysolite.WebApi.LeaveAPI;
 import app.zingo.mysolite.R;
@@ -141,7 +140,7 @@ public class WeekOffDashBoard extends AppCompatActivity {
 
                         String base=employeeImages.getImage();
                         if(base != null && !base.isEmpty()){
-                            Picasso.with( WeekOffDashBoard.this).load(base).placeholder(R.drawable.profile_image).error(R.drawable.profile_image).into(mProfilePic);
+                           Picasso.get ().load(base).placeholder(R.drawable.profile_image).error(R.drawable.profile_image).into(mProfilePic);
 
 
                         }
@@ -485,78 +484,71 @@ public class WeekOffDashBoard extends AppCompatActivity {
         progressDialog.setCancelable(false);
         progressDialog.show();
 
-        new ThreadExecuter ().execute( new Runnable() {
+        LeaveAPI apiService = Util.getClient().create(LeaveAPI.class);
+        Call<ArrayList<Leaves>> call = apiService.getLeavesByEmployeeId(employeeId);
+
+        call.enqueue(new Callback<ArrayList<Leaves>>() {
             @Override
-            public void run() {
-                LeaveAPI apiService = Util.getClient().create(LeaveAPI.class);
-                Call<ArrayList<Leaves>> call = apiService.getLeavesByEmployeeId(employeeId);
-
-                call.enqueue(new Callback<ArrayList<Leaves>>() {
-                    @Override
-                    public void onResponse(Call<ArrayList<Leaves>> call, Response<ArrayList<Leaves>> response) {
-                        int statusCode = response.code();
-                        if (statusCode == 200 || statusCode == 201 || statusCode == 203 || statusCode == 204) {
+            public void onResponse(Call<ArrayList<Leaves>> call, Response<ArrayList<Leaves>> response) {
+                int statusCode = response.code();
+                if (statusCode == 200 || statusCode == 201 || statusCode == 203 || statusCode == 204) {
 
 
-                            if (progressDialog!=null)
-                                progressDialog.dismiss();
+                    if (progressDialog!=null)
+                        progressDialog.dismiss();
 
-                            try{
+                    try{
 
-                                totalLeaves = new ArrayList<>();
-                                approvedLeaves = new ArrayList<>();
-                                rejectedLeaves = new ArrayList<>();
-                                paidLeaves = new ArrayList<>();
-                                unpaidLeaves = new ArrayList<>();
-                                pendingLeaves = new ArrayList<>();
-
-
-                                for (Leaves leaves:response.body()) {
-
-                                    if(leaves.getApproverComment()!=null&&leaves.getApproverComment().equalsIgnoreCase("WeekOff")){
-
-                                        totalLeaves.add(leaves);
-                                    }
-
-                                }
-
-                                if (totalLeaves !=null && totalLeaves.size()!=0) {
-
-                                    getMonthlyLeave(totalLeaves,month,year);
+                        totalLeaves = new ArrayList<>();
+                        approvedLeaves = new ArrayList<>();
+                        rejectedLeaves = new ArrayList<>();
+                        paidLeaves = new ArrayList<>();
+                        unpaidLeaves = new ArrayList<>();
+                        pendingLeaves = new ArrayList<>();
 
 
-                                }else{
+                        for (Leaves leaves:response.body()) {
 
-                                    mNoLeavesLay.setVisibility(View.VISIBLE);
+                            if(leaves.getApproverComment()!=null&&leaves.getApproverComment().equalsIgnoreCase("WeekOff")){
 
-                                }
-                            }catch (Exception e){
-                                e.printStackTrace();
-                                mNoLeavesLay.setVisibility(View.VISIBLE);
+                                totalLeaves.add(leaves);
                             }
 
+                        }
 
-                        }else {
+                        if (totalLeaves !=null && totalLeaves.size()!=0) {
 
-                            if (progressDialog!=null)
-                                progressDialog.dismiss();
+                            getMonthlyLeave(totalLeaves,month,year);
+
+
+                        }else{
 
                             mNoLeavesLay.setVisibility(View.VISIBLE);
-                        }
-                    }
 
-                    @Override
-                    public void onFailure(Call<ArrayList<Leaves>> call, Throwable t) {
-                        // Log error here since request failed
-                        if (progressDialog!=null)
-                            progressDialog.dismiss();
-                        Log.e("TAG", t.toString());
+                        }
+                    }catch (Exception e){
+                        e.printStackTrace();
                         mNoLeavesLay.setVisibility(View.VISIBLE);
                     }
-                });
+
+
+                }else {
+
+                    if (progressDialog!=null)
+                        progressDialog.dismiss();
+
+                    mNoLeavesLay.setVisibility(View.VISIBLE);
+                }
             }
 
-
+            @Override
+            public void onFailure(Call<ArrayList<Leaves>> call, Throwable t) {
+                // Log error here since request failed
+                if (progressDialog!=null)
+                    progressDialog.dismiss();
+                Log.e("TAG", t.toString());
+                mNoLeavesLay.setVisibility(View.VISIBLE);
+            }
         });
     }
 

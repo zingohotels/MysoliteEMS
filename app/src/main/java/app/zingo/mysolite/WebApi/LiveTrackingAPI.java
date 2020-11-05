@@ -3,6 +3,7 @@ package app.zingo.mysolite.WebApi;
 import java.util.ArrayList;
 
 import app.zingo.mysolite.model.LiveTracking;
+import io.reactivex.Observable;
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.GET;
@@ -35,4 +36,12 @@ public interface LiveTrackingAPI {
 
     @PUT("LiveTrackingDetails/{id}")
     Call<LiveTracking> updateLiveTrackingById ( @Path ("id") int id , @Body LiveTracking details );
+
+    //RxJava
+    @Streaming
+    @POST("LiveTrackingDetailsAsync/GetliveTrackingDetailsByEmployeeIdAndDate")
+    Observable <ArrayList<LiveTracking>> getLiveTrackingByEmployeeIdAndDateRx ( @Body LiveTracking details );
+
+    @GET("LiveTrackingDetailsAsync")
+    Observable< ArrayList< LiveTracking>> getLiveTrackingRx ( );
 }

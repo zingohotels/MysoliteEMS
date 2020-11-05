@@ -152,44 +152,23 @@ public class LocationTrackEmplService extends Service {
     }
 
     public void addLiveTracking(final LiveTracking liveTracking) {
-
-
-
-
-
+        System.out.println ( "Suree LocationTrackEmplService Service: "+liveTracking.BatteryPercentage );
         LiveTrackingAPI apiService = Util.getClient().create( LiveTrackingAPI.class);
-
         Call<LiveTracking> call = apiService.addLiveTracking(liveTracking);
-
         call.enqueue(new Callback<LiveTracking>() {
             @Override
             public void onResponse(Call<LiveTracking> call, Response<LiveTracking> response) {
 //                List<RouteDTO.Routes> list = new ArrayList<RouteDTO.Routes>();
-                try
-                {
-
-
+                try {
                     int statusCode = response.code();
                     if (statusCode == 200 || statusCode == 201) {
-
                         LiveTracking s = response.body();
-
                         if(s!=null){
-
                             Log.e("TAG", "Success");
                         }
-
-
-
-
-                    }else {
-
                     }
                 }
-                catch (Exception ex)
-                {
-
-
+                catch (Exception ex) {
                     ex.printStackTrace();
                 }
 //                callGetStartEnd();
@@ -197,21 +176,13 @@ public class LocationTrackEmplService extends Service {
 
             @Override
             public void onFailure(Call<LiveTracking> call, Throwable t) {
-
-
                 Log.e("TAG", t.toString());
             }
         });
-
-
-
     }
-
-
 
     @Override
     public void onDestroy() {
-
         super.onDestroy();
     }
 }

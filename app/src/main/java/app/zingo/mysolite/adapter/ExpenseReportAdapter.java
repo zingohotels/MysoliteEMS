@@ -30,7 +30,6 @@ import app.zingo.mysolite.model.Expenses;
 import app.zingo.mysolite.ui.Common.ImageFullScreenActivity;
 import app.zingo.mysolite.ui.NewAdminDesigns.UpdateExpenseScreen;
 import app.zingo.mysolite.utils.PreferenceHandler;
-import app.zingo.mysolite.utils.ThreadExecuter;
 import app.zingo.mysolite.utils.Util;
 import app.zingo.mysolite.WebApi.EmployeeApi;
 import app.zingo.mysolite.WebApi.ExpensesApi;
@@ -426,54 +425,47 @@ public class ExpenseReportAdapter  extends RecyclerView.Adapter< ExpenseReportAd
     }
 
     private void getEmployee(final int id, final MyRegulerText textView){
-        new ThreadExecuter().execute(new Runnable() {
+        EmployeeApi apiService = Util.getClient().create( EmployeeApi.class);
+        Call<ArrayList<Employee>> call = apiService.getProfileById(id);
+        call.enqueue(new Callback<ArrayList<Employee>>() {
             @Override
-            public void run() {
-                EmployeeApi apiService = Util.getClient().create( EmployeeApi.class);
-                Call<ArrayList<Employee>> call = apiService.getProfileById(id);
-                call.enqueue(new Callback<ArrayList<Employee>>() {
-                    @Override
-                    public void onResponse(Call<ArrayList<Employee>> call, Response<ArrayList<Employee>> response) {
-                        int statusCode = response.code();
-                        if (statusCode == 200 || statusCode == 201 || statusCode == 203 || statusCode == 204) {
+            public void onResponse(Call<ArrayList<Employee>> call, Response<ArrayList<Employee>> response) {
+                int statusCode = response.code();
+                if (statusCode == 200 || statusCode == 201 || statusCode == 203 || statusCode == 204) {
                            /* if (progressDialog != null&&progressDialog.isShowing())
                                 progressDialog.dismiss();*/
-                            ArrayList<Employee> list = response.body();
-                            if (list !=null && list.size()!=0) {
-                                final Employee employees = list.get(0);
-                                if(employees!=null){
-                                    try{
+                    ArrayList<Employee> list = response.body();
+                    if (list !=null && list.size()!=0) {
+                        final Employee employees = list.get(0);
+                        if(employees!=null){
+                            try{
 
-                                        textView.setText("Created By "+employees.getEmployeeName());
+                                textView.setText("Created By "+employees.getEmployeeName());
 
-                                    }catch (Exception e){
-                                        e.printStackTrace();
-                                    }
-                                }
-
-                            }else{
-
+                            }catch (Exception e){
+                                e.printStackTrace();
                             }
-
-                        }else {
-
-
-
                         }
+
+                    }else{
+
                     }
 
-                    @Override
-                    public void onFailure(Call<ArrayList<Employee>> call, Throwable t) {
-                        // Log error here since request failed
+                }else {
+
+
+
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ArrayList<Employee>> call, Throwable t) {
+                // Log error here since request failed
                       /*  if (progressDialog != null&&progressDialog.isShowing())
                             progressDialog.dismiss();*/
 
-                        Log.e("TAG", t.toString());
-                    }
-                });
+                Log.e("TAG", t.toString());
             }
-
-
         });
     }
 }

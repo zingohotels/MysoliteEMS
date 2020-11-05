@@ -1,9 +1,12 @@
 package app.zingo.mysolite.ui.newemployeedesign;
 
 
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import android.text.Html;
@@ -48,6 +51,7 @@ public class EmployeeHomeFragment extends Fragment {
     private LinearLayout attendance,leaveApplications,tasks,expenses,meeting,team,
             logout,deptOrg,chngPwd,salary,client,ShareApp,orders,weekOff;
     private Employee employeed;
+    private EmployeeNewMainScreen mContext;
 
     public EmployeeHomeFragment() {
         // Required empty public constructor
@@ -444,46 +448,41 @@ public class EmployeeHomeFragment extends Fragment {
     }
 
     private void getEmployees(){
+        EmployeeApi apiService = Util.getClient().create( EmployeeApi.class);
+        Call<ArrayList<Employee>> call = apiService.getProfileById(PreferenceHandler.getInstance(getActivity()).getUserId());
 
-
-
-
-        new ThreadExecuter().execute(new Runnable() {
+        call.enqueue(new Callback<ArrayList<Employee>>() {
             @Override
-            public void run() {
-                EmployeeApi apiService = Util.getClient().create( EmployeeApi.class);
-                Call<ArrayList<Employee>> call = apiService.getProfileById(PreferenceHandler.getInstance(getActivity()).getUserId());
-
-                call.enqueue(new Callback<ArrayList<Employee>>() {
-                    @Override
-                    public void onResponse(Call<ArrayList<Employee>> call, Response<ArrayList<Employee>> response) {
-                        int statusCode = response.code();
-                        if (statusCode == 200 || statusCode == 201 || statusCode == 203 || statusCode == 204) {
+            public void onResponse(Call<ArrayList<Employee>> call, Response<ArrayList<Employee>> response) {
+                int statusCode = response.code();
+                if (statusCode == 200 || statusCode == 201 || statusCode == 203 || statusCode == 204) {
 
                            /* if (progressDialog != null&&progressDialog.isShowing())
                                 progressDialog.dismiss();*/
-                            ArrayList<Employee> list = response.body();
-                            if (list !=null && list.size()!=0) {
-                                employeed = list.get(0);
+                    ArrayList<Employee> list = response.body();
+                    if (list !=null && list.size()!=0) {
+                        employeed = list.get(0);
 
-                            }else{
-                            }
-
-                        }else {
-                            Toast.makeText(getActivity(), "Failed due to : "+response.message(), Toast.LENGTH_SHORT).show();
-                        }
+                    }else{
                     }
 
-                    @Override
-                    public void onFailure(Call<ArrayList<Employee>> call, Throwable t) {
-                        // Log error here since request failed
+                }else {
+                    Toast.makeText(getActivity(), "Failed due to : "+response.message(), Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ArrayList<Employee>> call, Throwable t) {
+                // Log error here since request failed
                       /*  if (progressDialog != null&&progressDialog.isShowing())
                             progressDialog.dismiss();*/
-                        Log.e("TAG", t.toString());
-                    }
-                });
+                Log.e("TAG", t.toString());
             }
         });
     }
-
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+        mContext = (EmployeeNewMainScreen)context;
+    }
 }

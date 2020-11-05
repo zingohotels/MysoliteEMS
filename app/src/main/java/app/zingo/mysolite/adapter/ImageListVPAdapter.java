@@ -41,7 +41,7 @@ public class ImageListVPAdapter extends PagerAdapter {
         View itemView = layoutInflater.inflate( R.layout.faq_view_pager_image, container, false);
 
         ImageView imageView = (ImageView) itemView.findViewById(R.id.imageView);
-        Picasso.with( context).load(images.get ( position )).placeholder(R.drawable.no_image).error(R.drawable.no_image).into(imageView);
+        Picasso.get ().load(images.get ( position )).placeholder(R.drawable.no_image).error(R.drawable.no_image).into(imageView);
 
         container.addView(itemView);
 

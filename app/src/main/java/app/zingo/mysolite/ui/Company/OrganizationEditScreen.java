@@ -387,8 +387,7 @@ public class OrganizationEditScreen extends AppCompatActivity {
         String image = org.getDeductionType();
 
         if(image!=null&&!image.isEmpty()){
-
-            Picasso.with( OrganizationEditScreen.this).load(image).placeholder(R.drawable.org_logo_holder).error(R.drawable.org_logo_holder).into(mOrgLogo);
+            Picasso.get ().load(image).placeholder(R.drawable.org_logo_holder).error(R.drawable.org_logo_holder).into(mOrgLogo);
         }
 
         try{

@@ -56,7 +56,7 @@ public class ImageFullScreenActivity extends AppCompatActivity {
             if(src != null && !src.isEmpty()){
                 mSrc.setVisibility ( View.VISIBLE );
                 mImageListvp.setVisibility ( View.GONE );
-                Picasso.with( ImageFullScreenActivity.this).load(src).placeholder(R.drawable.no_image).error(R.drawable.no_image).into(mSrc);
+                Picasso.get ().load(src).placeholder(R.drawable.no_image).error(R.drawable.no_image).into(mSrc);
 
             }else if(srcImage!=0){
                 mSrc.setVisibility ( View.VISIBLE );

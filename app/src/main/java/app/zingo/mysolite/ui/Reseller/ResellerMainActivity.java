@@ -226,7 +226,7 @@ public class ResellerMainActivity extends TabActivity implements TabHost.OnTabCh
 
                         String base=profile.getProfilePhoto();
                         if(base != null && !base.isEmpty()){
-                            Picasso.with( ResellerMainActivity.this).load(base).placeholder(R.drawable.profile_image).
+                            Picasso.get ().load(base).placeholder(R.drawable.profile_image).
                                     error(R.drawable.profile_image).into(mProfileImage);
 
 
@@ -398,7 +398,7 @@ public class ResellerMainActivity extends TabActivity implements TabHost.OnTabCh
 
                                     String base=profile.getProfilePhoto();
                                     if(base != null && !base.isEmpty()){
-                                        Picasso.with( ResellerMainActivity.this).load(base).placeholder(R.drawable.profile_image).
+                                        Picasso.get ().load(base).placeholder(R.drawable.profile_image).
                                                 error(R.drawable.profile_image).into(mProfileImage);
 
 

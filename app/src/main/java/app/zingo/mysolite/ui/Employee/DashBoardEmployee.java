@@ -239,7 +239,7 @@ public class DashBoardEmployee extends AppCompatActivity {
                         imageId = employeeImages.getEmployeeImageId();
                         String base=employeeImages.getImage();
                         if(base != null && !base.isEmpty()){
-                            Picasso.with( DashBoardEmployee.this).load(base).placeholder(R.drawable.profile_image).
+                            Picasso.get ().load(base).placeholder(R.drawable.profile_image).
                                     error(R.drawable.profile_image).into(mProfileImage);
 
 
@@ -502,7 +502,7 @@ public class DashBoardEmployee extends AppCompatActivity {
                                     imageId = employeeImages.getEmployeeImageId();
                                     String base=employeeImages.getImage();
                                     if(base != null && !base.isEmpty()){
-                                        Picasso.with( DashBoardEmployee.this).load(base).placeholder(R.drawable.profile_image).
+                                        Picasso.get ().load(base).placeholder(R.drawable.profile_image).
                                                 error(R.drawable.profile_image).into(mProfileImage);
 
 

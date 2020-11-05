@@ -6,6 +6,8 @@ import android.content.Context;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
+
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -35,8 +37,8 @@ import app.zingo.mysolite.model.Expenses;
 import app.zingo.mysolite.model.LoginDetailsNotificationManagers;
 import app.zingo.mysolite.model.MeetingDetailsNotificationManagers;
 import app.zingo.mysolite.model.Tasks;
+import app.zingo.mysolite.ui.newemployeedesign.EmployeeNewMainScreen;
 import app.zingo.mysolite.utils.PreferenceHandler;
-import app.zingo.mysolite.utils.ThreadExecuter;
 import app.zingo.mysolite.utils.Util;
 import app.zingo.mysolite.WebApi.ExpensesApi;
 import app.zingo.mysolite.WebApi.LoginNotificationAPI;
@@ -61,7 +63,7 @@ public class EmployerNotificationFragment extends Fragment {
     TextView mDate,mLoginCount,mTaskCount,mMeetingCount,mExpenseCount;
     ImageView mPrevious,mNext;
     private static LoginDetailsNotificationAdapter mAdapter;
-    static Context mContext;
+    AdminNewMainScreen mContext;
 
     SimpleDateFormat dateFormat,formats;
     String layputType;
@@ -88,7 +90,7 @@ public class EmployerNotificationFragment extends Fragment {
 
     public void onCreate(@Nullable Bundle bundle) {
         super.onCreate(bundle);
-        // GAUtil.trackScreen(getActivity(), "Employer Dashboard");
+        // GAUtil.trackScreen(mContext, "Employer Dashboard");
     }
 
 
@@ -103,7 +105,7 @@ public class EmployerNotificationFragment extends Fragment {
             mNotificatioinRecyclerView = this.layout.findViewById(R.id.listNotifications);
             mNoNotification = this.layout.findViewById(R.id.noRecordFound);
 
-            SHOWCASE_ID_ADMIN = "ToolsAdminsn"+ PreferenceHandler.getInstance(getActivity()).getUserId();
+            SHOWCASE_ID_ADMIN = "ToolsAdminsn"+ PreferenceHandler.getInstance(mContext).getUserId();
 
             mLoginNotification = this.layout.findViewById(R.id.loginNotiLay);
             mTaskNotification = this.layout.findViewById(R.id.taskNotiLay);
@@ -120,9 +122,7 @@ public class EmployerNotificationFragment extends Fragment {
             mNext = this.layout.findViewById(R.id.nextDay);
 
             mNotificatioinRecyclerView.setVisibility(View.VISIBLE);
-            mNotificatioinRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-            mContext = getContext();
-
+            mNotificatioinRecyclerView.setLayoutManager(new LinearLayoutManager(mContext));
             dateFormat = new SimpleDateFormat("dd-MM-yyyy");
             mDate.setText(new SimpleDateFormat("dd-MM-yyyy").format(new Date()));
 
@@ -130,8 +130,8 @@ public class EmployerNotificationFragment extends Fragment {
 
             getLoginNotifications(new SimpleDateFormat("MMM dd,yyyy").format(new Date()));
             getMeetingNotifications(new SimpleDateFormat("MMM dd,yyyy").format(new Date()));
-            getTasks(PreferenceHandler.getInstance(getActivity()).getUserId(),new SimpleDateFormat("yyyy-MM-dd").format(new Date()));
-            getExpense(PreferenceHandler.getInstance(getActivity()).getUserId(),new SimpleDateFormat("yyyy-MM-dd").format(new Date()));
+            getTasks(PreferenceHandler.getInstance(mContext).getUserId(),new SimpleDateFormat("yyyy-MM-dd").format(new Date()));
+            getExpense(PreferenceHandler.getInstance(mContext).getUserId(),new SimpleDateFormat("yyyy-MM-dd").format(new Date()));
 
             if(layputType!=null&&!layputType.isEmpty()){
 
@@ -145,11 +145,11 @@ public class EmployerNotificationFragment extends Fragment {
 
                 }else if(layputType.equalsIgnoreCase("task")){
                     showTask();
-                    // getTasks(PreferenceHandler.getInstance(getActivity()).getUserId(),new SimpleDateFormat("yyyy-MM-dd").format(date2));
+                    // getTasks(PreferenceHandler.getInstance(mContext).getUserId(),new SimpleDateFormat("yyyy-MM-dd").format(date2));
 
                 }else if(layputType.equalsIgnoreCase("expenses")){
                     showExpense();
-                    // getExpense(PreferenceHandler.getInstance(getActivity()).getUserId(),new SimpleDateFormat("yyyy-MM-dd").format(date2));
+                    // getExpense(PreferenceHandler.getInstance(mContext).getUserId(),new SimpleDateFormat("yyyy-MM-dd").format(date2));
 
                 }else{
 
@@ -181,8 +181,8 @@ public class EmployerNotificationFragment extends Fragment {
 
                         getLoginNotifications(new SimpleDateFormat("MMM dd,yyyy").format(date2));
                         getMeetingNotifications(new SimpleDateFormat("MMM dd,yyyy").format(date2));
-                        getTasks(PreferenceHandler.getInstance(getActivity()).getUserId(),new SimpleDateFormat("yyyy-MM-dd").format(date2));
-                        getExpense(PreferenceHandler.getInstance(getActivity()).getUserId(),new SimpleDateFormat("yyyy-MM-dd").format(date2));
+                        getTasks(PreferenceHandler.getInstance(mContext).getUserId(),new SimpleDateFormat("yyyy-MM-dd").format(date2));
+                        getExpense(PreferenceHandler.getInstance(mContext).getUserId(),new SimpleDateFormat("yyyy-MM-dd").format(date2));
 
                         if(layputType!=null&&!layputType.isEmpty()){
 
@@ -196,11 +196,11 @@ public class EmployerNotificationFragment extends Fragment {
 
                             }else if(layputType.equalsIgnoreCase("task")){
                                 showTask();
-                               // getTasks(PreferenceHandler.getInstance(getActivity()).getUserId(),new SimpleDateFormat("yyyy-MM-dd").format(date2));
+                               // getTasks(PreferenceHandler.getInstance(mContext).getUserId(),new SimpleDateFormat("yyyy-MM-dd").format(date2));
 
                             }else if(layputType.equalsIgnoreCase("expenses")){
                                 showExpense();
-                               // getExpense(PreferenceHandler.getInstance(getActivity()).getUserId(),new SimpleDateFormat("yyyy-MM-dd").format(date2));
+                               // getExpense(PreferenceHandler.getInstance(mContext).getUserId(),new SimpleDateFormat("yyyy-MM-dd").format(date2));
 
                             }else{
 
@@ -238,8 +238,8 @@ public class EmployerNotificationFragment extends Fragment {
                         mDate.setText(dateFormat.format(date2));
                         getLoginNotifications(new SimpleDateFormat("MMM dd,yyyy").format(date2));
                         getMeetingNotifications(new SimpleDateFormat("MMM dd,yyyy").format(date2));
-                        getTasks(PreferenceHandler.getInstance(getActivity()).getUserId(),new SimpleDateFormat("yyyy-MM-dd").format(date2));
-                        getExpense(PreferenceHandler.getInstance(getActivity()).getUserId(),new SimpleDateFormat("yyyy-MM-dd").format(date2));
+                        getTasks(PreferenceHandler.getInstance(mContext).getUserId(),new SimpleDateFormat("yyyy-MM-dd").format(date2));
+                        getExpense(PreferenceHandler.getInstance(mContext).getUserId(),new SimpleDateFormat("yyyy-MM-dd").format(date2));
 
                         if(layputType!=null&&!layputType.isEmpty()){
 
@@ -253,11 +253,11 @@ public class EmployerNotificationFragment extends Fragment {
 
                             }else if(layputType.equalsIgnoreCase("task")){
                                 showTask();
-                                // getTasks(PreferenceHandler.getInstance(getActivity()).getUserId(),new SimpleDateFormat("yyyy-MM-dd").format(date2));
+                                // getTasks(PreferenceHandler.getInstance(mContext).getUserId(),new SimpleDateFormat("yyyy-MM-dd").format(date2));
 
                             }else if(layputType.equalsIgnoreCase("expenses")){
                                 showExpense();
-                                // getExpense(PreferenceHandler.getInstance(getActivity()).getUserId(),new SimpleDateFormat("yyyy-MM-dd").format(date2));
+                                // getExpense(PreferenceHandler.getInstance(mContext).getUserId(),new SimpleDateFormat("yyyy-MM-dd").format(date2));
 
                             }else{
 
@@ -324,7 +324,7 @@ public class EmployerNotificationFragment extends Fragment {
                         }
                         showTask();
 
-                      //  getTasks(PreferenceHandler.getInstance(getActivity()).getUserId(),new SimpleDateFormat("yyyy-MM-dd").format(date));
+                      //  getTasks(PreferenceHandler.getInstance(mContext).getUserId(),new SimpleDateFormat("yyyy-MM-dd").format(date));
 
 
 
@@ -369,7 +369,7 @@ public class EmployerNotificationFragment extends Fragment {
                         }
                         showExpense();
 
-                      //  getExpense(PreferenceHandler.getInstance(getActivity()).getUserId(),new SimpleDateFormat("yyyy-MM-dd").format(date));
+                      //  getExpense(PreferenceHandler.getInstance(mContext).getUserId(),new SimpleDateFormat("yyyy-MM-dd").format(date));
 
 
                     }catch (Exception e){
@@ -405,7 +405,7 @@ public class EmployerNotificationFragment extends Fragment {
         int mMonth = c.get(Calendar.MONTH);
         int mDay   = c.get(Calendar.DAY_OF_MONTH);
         //launch datepicker modal
-        DatePickerDialog datePickerDialog = new DatePickerDialog(getActivity(),
+        DatePickerDialog datePickerDialog = new DatePickerDialog(mContext,
                 new DatePickerDialog.OnDateSetListener() {
                     @Override
                     public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
@@ -428,8 +428,8 @@ public class EmployerNotificationFragment extends Fragment {
                                     Date fdate = simpleDateFormat.parse(date1);
                                     getLoginNotifications(new SimpleDateFormat("MMM dd,yyyy").format(fdate));
                                     getMeetingNotifications(new SimpleDateFormat("MMM dd,yyyy").format(fdate));
-                                    getTasks(PreferenceHandler.getInstance(getActivity()).getUserId(),new SimpleDateFormat("yyyy-MM-dd").format(fdate));
-                                    getExpense(PreferenceHandler.getInstance(getActivity()).getUserId(),new SimpleDateFormat("yyyy-MM-dd").format(fdate));
+                                    getTasks(PreferenceHandler.getInstance(mContext).getUserId(),new SimpleDateFormat("yyyy-MM-dd").format(fdate));
+                                    getExpense(PreferenceHandler.getInstance(mContext).getUserId(),new SimpleDateFormat("yyyy-MM-dd").format(fdate));
 
                                     if(layputType!=null&&!layputType.isEmpty()){
 
@@ -443,11 +443,11 @@ public class EmployerNotificationFragment extends Fragment {
 
                                         }else if(layputType.equalsIgnoreCase("task")){
                                             showTask();
-                                            // getTasks(PreferenceHandler.getInstance(getActivity()).getUserId(),new SimpleDateFormat("yyyy-MM-dd").format(date2));
+                                            // getTasks(PreferenceHandler.getInstance(mContext).getUserId(),new SimpleDateFormat("yyyy-MM-dd").format(date2));
 
                                         }else if(layputType.equalsIgnoreCase("expenses")){
                                             showExpense();
-                                            // getExpense(PreferenceHandler.getInstance(getActivity()).getUserId(),new SimpleDateFormat("yyyy-MM-dd").format(date2));
+                                            // getExpense(PreferenceHandler.getInstance(mContext).getUserId(),new SimpleDateFormat("yyyy-MM-dd").format(date2));
 
                                         }else{
 
@@ -500,533 +500,502 @@ public class EmployerNotificationFragment extends Fragment {
 
     private void getLoginNotifications(final String dateValue){
 
-       /* final ProgressDialog progressDialog = new ProgressDialog(getActivity());
+       /* final ProgressDialog progressDialog = new ProgressDialog(mContext);
         progressDialog.setTitle("Loading Details");
         progressDialog.setCancelable(false);
         progressDialog.show();
 */
-        new ThreadExecuter().execute(new Runnable() {
+        LoginNotificationAPI apiService = Util.getClient().create(LoginNotificationAPI.class);
+        Call<ArrayList<LoginDetailsNotificationManagers>> call = apiService.getNotificationByManagerId(PreferenceHandler.getInstance(mContext).getUserId());
+
+        call.enqueue(new Callback<ArrayList<LoginDetailsNotificationManagers>>() {
             @Override
-            public void run() {
-                LoginNotificationAPI apiService = Util.getClient().create(LoginNotificationAPI.class);
-                Call<ArrayList<LoginDetailsNotificationManagers>> call = apiService.getNotificationByManagerId(PreferenceHandler.getInstance(getActivity()).getUserId());
-
-                call.enqueue(new Callback<ArrayList<LoginDetailsNotificationManagers>>() {
-                    @Override
-                    public void onResponse(Call<ArrayList<LoginDetailsNotificationManagers>> call, Response<ArrayList<LoginDetailsNotificationManagers>> response) {
-                        int statusCode = response.code();
-                        if (statusCode == 200 || statusCode == 201 || statusCode == 203 || statusCode == 204) {
+            public void onResponse(Call<ArrayList<LoginDetailsNotificationManagers>> call, Response<ArrayList<LoginDetailsNotificationManagers>> response) {
+                int statusCode = response.code();
+                if (statusCode == 200 || statusCode == 201 || statusCode == 203 || statusCode == 204) {
 
 
 
-                            ArrayList<LoginDetailsNotificationManagers> list = response.body();
-                            dateLogins = new ArrayList<>();
+                    ArrayList<LoginDetailsNotificationManagers> list = response.body();
+                    dateLogins = new ArrayList<>();
 
 
-                            if (list !=null && list.size()!=0) {
+                    if (list !=null && list.size()!=0) {
 
-                                Collections.sort(list, LoginDetailsNotificationManagers.compareLoginNM);
-                                Collections.reverse(list);
+                        Collections.sort(list, LoginDetailsNotificationManagers.compareLoginNM);
+                        Collections.reverse(list);
 
-                                Date date = new Date();
-                                Date adate = new Date();
+                        Date date = new Date();
+                        Date adate = new Date();
 
-                                String currentDateStart = dateValue+" 12:00 AM";
-                                String currentDateEnd = dateValue+" 11:59 PM";
-
-
-
-                                try {
-                                    date = new SimpleDateFormat("MMM dd,yyyy hh:mm a").parse(currentDateStart);
-                                    adate = new SimpleDateFormat("MMM dd,yyyy hh:mm a").parse(currentDateEnd);
-
-
-                                } catch (Exception e) {
-                                    e.printStackTrace();
-                                }
-
-                                for (LoginDetailsNotificationManagers ln:list) {
-
-                                    String froms = ln.getLoginDate();
-                                    Date loginDate = null;
-                                    try {
-                                        loginDate = new SimpleDateFormat("MMM dd,yyyy hh:mm a").parse(froms);
-
-                                        if(date!=null&&adate!=null){
-
-                                            if(date.getTime()<=loginDate.getTime()&&adate.getTime()>=loginDate.getTime()){
-
-                                                dateLogins.add(ln);
-
-                                            }
-                                        }
-                                    } catch (ParseException e) {
-                                        e.printStackTrace();
-                                    }
-
-                                }
+                        String currentDateStart = dateValue+" 12:00 AM";
+                        String currentDateEnd = dateValue+" 11:59 PM";
 
 
 
-                                if(dateLogins!=null&&dateLogins.size()!=0){
+                        try {
+                            date = new SimpleDateFormat("MMM dd,yyyy hh:mm a").parse(currentDateStart);
+                            adate = new SimpleDateFormat("MMM dd,yyyy hh:mm a").parse(currentDateEnd);
 
-                                    mLoginCount.setText(""+dateLogins.size());
 
-                                }else{
-                                    mLoginCount.setText("0");
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
 
-                                }
+                        for (LoginDetailsNotificationManagers ln:list) {
 
-                                if(layputType!=null&&!layputType.isEmpty()){
+                            String froms = ln.getLoginDate();
+                            Date loginDate = null;
+                            try {
+                                loginDate = new SimpleDateFormat("MMM dd,yyyy hh:mm a").parse(froms);
 
-                                    if(layputType.equalsIgnoreCase("login")){
-                                        // getLoginNotifications(new SimpleDateFormat("MMM dd,yyyy").format(date2));
-                                        showLogin();
+                                if(date!=null&&adate!=null){
+
+                                    if(date.getTime()<=loginDate.getTime()&&adate.getTime()>=loginDate.getTime()){
+
+                                        dateLogins.add(ln);
 
                                     }
-
-                                }else{
-
-                                    showLogin();
-                                    // getLoginNotifications(new SimpleDateFormat("MMM dd,yyyy").format(date2));
-
                                 }
+                            } catch (ParseException e) {
+                                e.printStackTrace();
+                            }
+
+                        }
 
 
 
-                            }else{
+                        if(dateLogins!=null&&dateLogins.size()!=0){
 
-                                mLoginCount.setText("0");
-                             /*   mNoNotification.setVisibility(View.VISIBLE);
-                                mNotificatioinRecyclerView.setVisibility(View.GONE);*/
+                            mLoginCount.setText(""+dateLogins.size());
+
+                        }else{
+                            mLoginCount.setText("0");
+
+                        }
+
+                        if(layputType!=null&&!layputType.isEmpty()){
+
+                            if(layputType.equalsIgnoreCase("login")){
+                                // getLoginNotifications(new SimpleDateFormat("MMM dd,yyyy").format(date2));
+                                showLogin();
 
                             }
 
-                        }else {
-                            mLoginCount.setText("0");
+                        }else{
+
+                            showLogin();
+                            // getLoginNotifications(new SimpleDateFormat("MMM dd,yyyy").format(date2));
+
+                        }
+
+
+
+                    }else{
+
+                        mLoginCount.setText("0");
+                             /*   mNoNotification.setVisibility(View.VISIBLE);
+                                mNotificatioinRecyclerView.setVisibility(View.GONE);*/
+
+                    }
+
+                }else {
+                    mLoginCount.setText("0");
                            /* mNoNotification.setVisibility(View.VISIBLE);
                             mNotificatioinRecyclerView.setVisibility(View.GONE);*/
 
 
-                            Toast.makeText(getActivity(), "Failed due to : "+response.message(), Toast.LENGTH_SHORT).show();
-                        }
-                    }
-
-                    @Override
-                    public void onFailure(Call<ArrayList<LoginDetailsNotificationManagers>> call, Throwable t) {
-                        // Log error here since request failed
-                      
-                        mLoginCount.setText("0");
-                        /*mNoNotification.setVisibility(View.VISIBLE);
-                        mNotificatioinRecyclerView.setVisibility(View.GONE);*/
-                        Log.e("TAG", t.toString());
-                    }
-                });
+                    Toast.makeText(mContext, "Failed due to : "+response.message(), Toast.LENGTH_SHORT).show();
+                }
             }
 
+            @Override
+            public void onFailure(Call<ArrayList<LoginDetailsNotificationManagers>> call, Throwable t) {
+                // Log error here since request failed
 
+                mLoginCount.setText("0");
+                        /*mNoNotification.setVisibility(View.VISIBLE);
+                        mNotificatioinRecyclerView.setVisibility(View.GONE);*/
+                Log.e("TAG", t.toString());
+            }
         });
     }
 
     private void getMeetingNotifications(final String dateValue){
 
-     /*   final ProgressDialog progressDialog = new ProgressDialog(getActivity());
+     /*   final ProgressDialog progressDialog = new ProgressDialog(mContext);
         progressDialog.setTitle("Loading Details");
         progressDialog.setCancelable(false);
         progressDialog.show();*/
+        MeetingNotificationAPI apiService = Util.getClient().create(MeetingNotificationAPI.class);
+        Call<ArrayList<MeetingDetailsNotificationManagers>> call = apiService.getMeetingNotificationByManagerId(PreferenceHandler.getInstance(mContext).getUserId());
 
-        new ThreadExecuter().execute(new Runnable() {
+        call.enqueue(new Callback<ArrayList<MeetingDetailsNotificationManagers>>() {
             @Override
-            public void run() {
-                MeetingNotificationAPI apiService = Util.getClient().create(MeetingNotificationAPI.class);
-                Call<ArrayList<MeetingDetailsNotificationManagers>> call = apiService.getMeetingNotificationByManagerId(PreferenceHandler.getInstance(getActivity()).getUserId());
-
-                call.enqueue(new Callback<ArrayList<MeetingDetailsNotificationManagers>>() {
-                    @Override
-                    public void onResponse(Call<ArrayList<MeetingDetailsNotificationManagers>> call, Response<ArrayList<MeetingDetailsNotificationManagers>> response) {
-                        int statusCode = response.code();
-                        if (statusCode == 200 || statusCode == 201 || statusCode == 203 || statusCode == 204) {
+            public void onResponse(Call<ArrayList<MeetingDetailsNotificationManagers>> call, Response<ArrayList<MeetingDetailsNotificationManagers>> response) {
+                int statusCode = response.code();
+                if (statusCode == 200 || statusCode == 201 || statusCode == 203 || statusCode == 204) {
 
 
                           /*  if (progressDialog!=null)
                                 progressDialog.dismiss();*/
-                            ArrayList<MeetingDetailsNotificationManagers> list = response.body();
-                            dateMeetings = new ArrayList<>();
+                    ArrayList<MeetingDetailsNotificationManagers> list = response.body();
+                    dateMeetings = new ArrayList<>();
 
 
-                            if (list !=null && list.size()!=0) {
-
-
-
-                                Date date = new Date();
-                                Date adate = new Date();
-
-                                String currentDateStart = dateValue+" 12:00 AM";
-                                String currentDateEnd = dateValue+" 11:59 PM";
+                    if (list !=null && list.size()!=0) {
 
 
 
-                                try {
-                                    date = new SimpleDateFormat("MMM dd,yyyy hh:mm a").parse(currentDateStart);
-                                    adate = new SimpleDateFormat("MMM dd,yyyy hh:mm a").parse(currentDateEnd);
+                        Date date = new Date();
+                        Date adate = new Date();
+
+                        String currentDateStart = dateValue+" 12:00 AM";
+                        String currentDateEnd = dateValue+" 11:59 PM";
 
 
-                                } catch (Exception e) {
-                                    e.printStackTrace();
-                                }
 
-                                for (MeetingDetailsNotificationManagers ln:list) {
+                        try {
+                            date = new SimpleDateFormat("MMM dd,yyyy hh:mm a").parse(currentDateStart);
+                            adate = new SimpleDateFormat("MMM dd,yyyy hh:mm a").parse(currentDateEnd);
 
-                                    String froms = ln.getMeetingDate();
-                                    Date loginDate = null;
-                                    try {
-                                        loginDate = new SimpleDateFormat("MMM dd,yyyy hh:mm a").parse(froms);
 
-                                        if(date!=null&&adate!=null){
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
 
-                                            if(date.getTime()<=loginDate.getTime()&&adate.getTime()>=loginDate.getTime()){
+                        for (MeetingDetailsNotificationManagers ln:list) {
 
-                                                dateMeetings.add(ln);
+                            String froms = ln.getMeetingDate();
+                            Date loginDate = null;
+                            try {
+                                loginDate = new SimpleDateFormat("MMM dd,yyyy hh:mm a").parse(froms);
 
-                                            }
-                                        }
-                                    } catch (ParseException e) {
-                                        e.printStackTrace();
+                                if(date!=null&&adate!=null){
+
+                                    if(date.getTime()<=loginDate.getTime()&&adate.getTime()>=loginDate.getTime()){
+
+                                        dateMeetings.add(ln);
+
                                     }
-
                                 }
+                            } catch (ParseException e) {
+                                e.printStackTrace();
+                            }
+
+                        }
 
 
 
-                                if(dateMeetings!=null&&dateMeetings.size()!=0){
+                        if(dateMeetings!=null&&dateMeetings.size()!=0){
 
-                                    Collections.reverse(dateMeetings);
+                            Collections.reverse(dateMeetings);
 
-                                    mMeetingCount.setText(""+dateMeetings.size());
+                            mMeetingCount.setText(""+dateMeetings.size());
                                    /* mNoNotification.setVisibility(View.GONE);
                                     mNotificatioinRecyclerView.setVisibility(View.VISIBLE);
                                     mNotificatioinRecyclerView.removeAllViews();
-                                    MeetingNotificationAdapter adapter = new MeetingNotificationAdapter(getActivity(), dateMeetings);
+                                    MeetingNotificationAdapter adapter = new MeetingNotificationAdapter(mContext, dateMeetings);
                                     mNotificatioinRecyclerView.setAdapter(adapter);*/
-                                }else{
-                                    mMeetingCount.setText("0");
+                        }else{
+                            mMeetingCount.setText("0");
                                   /*  mNoNotification.setVisibility(View.VISIBLE);
                                     mNotificatioinRecyclerView.setVisibility(View.GONE);*/
-                                }
+                        }
 
 
-                            }else{
+                    }else{
 
-                                mMeetingCount.setText("0");
+                        mMeetingCount.setText("0");
                                /* mNoNotification.setVisibility(View.VISIBLE);
                                 mNotificatioinRecyclerView.setVisibility(View.GONE);*/
 
-                            }
+                    }
 
-                        }else {
-                            mMeetingCount.setText("0");
+                }else {
+                    mMeetingCount.setText("0");
                             /*mNoNotification.setVisibility(View.VISIBLE);
                             mNotificatioinRecyclerView.setVisibility(View.GONE);*/
 
 
-                            Toast.makeText(getActivity(), "Failed due to : "+response.message(), Toast.LENGTH_SHORT).show();
-                        }
-                    }
-
-                    @Override
-                    public void onFailure(Call<ArrayList<MeetingDetailsNotificationManagers>> call, Throwable t) {
-                        // Log error here since request failed
-                        /*if (progressDialog!=null)
-                            progressDialog.dismiss();*/
-                        mMeetingCount.setText("0");
-                        /*mNoNotification.setVisibility(View.VISIBLE);
-                        mNotificatioinRecyclerView.setVisibility(View.GONE);*/
-                        Log.e("TAG", t.toString());
-                    }
-                });
+                    Toast.makeText(mContext, "Failed due to : "+response.message(), Toast.LENGTH_SHORT).show();
+                }
             }
 
-
+            @Override
+            public void onFailure(Call<ArrayList<MeetingDetailsNotificationManagers>> call, Throwable t) {
+                // Log error here since request failed
+                        /*if (progressDialog!=null)
+                            progressDialog.dismiss();*/
+                mMeetingCount.setText("0");
+                        /*mNoNotification.setVisibility(View.VISIBLE);
+                        mNotificatioinRecyclerView.setVisibility(View.GONE);*/
+                Log.e("TAG", t.toString());
+            }
         });
     }
 
     private void getTasks(final int employeeId,final String dateValue){
 
 
-       /* final ProgressDialog progressDialog = new ProgressDialog(getActivity());
+       /* final ProgressDialog progressDialog = new ProgressDialog(mContext);
         progressDialog.setTitle("Loading Details");
         progressDialog.setCancelable(false);
         progressDialog.show();*/
 
+        TasksAPI apiService = Util.getClient().create(TasksAPI.class);
+        Call<ArrayList<Tasks>> call = apiService.getTasks();
 
-        new ThreadExecuter().execute(new Runnable() {
+        call.enqueue(new Callback<ArrayList<Tasks>>() {
             @Override
-            public void run() {
-                TasksAPI apiService = Util.getClient().create(TasksAPI.class);
-                Call<ArrayList<Tasks>> call = apiService.getTasks();
-
-                call.enqueue(new Callback<ArrayList<Tasks>>() {
-                    @Override
-                    public void onResponse(Call<ArrayList<Tasks>> call, Response<ArrayList<Tasks>> response) {
-                        int statusCode = response.code();
+            public void onResponse(Call<ArrayList<Tasks>> call, Response<ArrayList<Tasks>> response) {
+                int statusCode = response.code();
 
                       /*  if (progressDialog!=null)
                             progressDialog.dismiss();*/
-                        if (statusCode == 200 || statusCode == 201 || statusCode == 203 || statusCode == 204) {
+                if (statusCode == 200 || statusCode == 201 || statusCode == 203 || statusCode == 204) {
 
-                            ArrayList<Tasks> list = response.body();
-                             todayTasks = new ArrayList<>();
+                    ArrayList<Tasks> list = response.body();
+                    todayTasks = new ArrayList<>();
 
-                                                       Date date = new Date();
-                            Date adate = new Date();
-                            Date edate = new Date();
+                    Date date = new Date();
+                    Date adate = new Date();
+                    Date edate = new Date();
 
-                            try {
-                                date = new SimpleDateFormat("yyyy-MM-dd").parse(dateValue);
-
-
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                            }
+                    try {
+                        date = new SimpleDateFormat("yyyy-MM-dd").parse(dateValue);
 
 
-                            if (list !=null && list.size()!=0) {
-
-                                for (Tasks task:list) {
-
-
-                                    if(task.getToReportEmployeeId()==employeeId){
-
-                                        String froms = task.getStartDate();
-                                        String tos = task.getEndDate();
-
-                                        Date afromDate = null;
-                                        Date atoDate = null;
-
-                                        if(froms!=null&&!froms.isEmpty()){
-
-                                            if(froms.contains("T")){
-
-                                                String dojs[] = froms.split("T");
-
-                                                try {
-                                                    afromDate = new SimpleDateFormat("yyyy-MM-dd").parse(dojs[0]);
-                                                } catch (ParseException e) {
-                                                    e.printStackTrace();
-                                                }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
 
 
-                                            }
+                    if (list !=null && list.size()!=0) {
 
+                        for (Tasks task:list) {
+
+
+                            if(task.getToReportEmployeeId()==employeeId){
+
+                                String froms = task.getStartDate();
+                                String tos = task.getEndDate();
+
+                                Date afromDate = null;
+                                Date atoDate = null;
+
+                                if(froms!=null&&!froms.isEmpty()){
+
+                                    if(froms.contains("T")){
+
+                                        String dojs[] = froms.split("T");
+
+                                        try {
+                                            afromDate = new SimpleDateFormat("yyyy-MM-dd").parse(dojs[0]);
+                                        } catch (ParseException e) {
+                                            e.printStackTrace();
                                         }
 
-                                        if(tos!=null&&!tos.isEmpty()){
 
-                                            if(tos.contains("T")){
+                                    }
 
-                                                String dojs[] = tos.split("T");
+                                }
 
-                                                try {
-                                                    atoDate = new SimpleDateFormat("yyyy-MM-dd").parse(dojs[0]);
-                                                } catch (ParseException e) {
-                                                    e.printStackTrace();
-                                                }
+                                if(tos!=null&&!tos.isEmpty()){
 
-                                            }
+                                    if(tos.contains("T")){
 
-                                        }
+                                        String dojs[] = tos.split("T");
 
-                                        if(afromDate!=null&&atoDate!=null){
-
-                                            if(date.getTime() >= afromDate.getTime() && date.getTime() <= atoDate.getTime()){
-
-                                                todayTasks.add(task);
-
-                                            }
+                                        try {
+                                            atoDate = new SimpleDateFormat("yyyy-MM-dd").parse(dojs[0]);
+                                        } catch (ParseException e) {
+                                            e.printStackTrace();
                                         }
 
                                     }
 
                                 }
 
-                                if(todayTasks!=null&&todayTasks.size()!=0){
+                                if(afromDate!=null&&atoDate!=null){
+
+                                    if(date.getTime() >= afromDate.getTime() && date.getTime() <= atoDate.getTime()){
+
+                                        todayTasks.add(task);
+
+                                    }
+                                }
+
+                            }
+
+                        }
+
+                        if(todayTasks!=null&&todayTasks.size()!=0){
 
 
-                                    mTaskCount.setText(""+todayTasks.size());
+                            mTaskCount.setText(""+todayTasks.size());
                                    /* mNoNotification.setVisibility(View.GONE);
                                     mNotificatioinRecyclerView.setVisibility(View.VISIBLE);
                                     mNotificatioinRecyclerView.removeAllViews();
-                                    TaskListAdapter adapter = new TaskListAdapter(getActivity(), todayTasks);
+                                    TaskListAdapter adapter = new TaskListAdapter(mContext, todayTasks);
                                     mNotificatioinRecyclerView.setAdapter(adapter);*/
-                                }else{
-                                    mTaskCount.setText("0");
+                        }else{
+                            mTaskCount.setText("0");
                                    /* mNoNotification.setVisibility(View.VISIBLE);
                                     mNotificatioinRecyclerView.setVisibility(View.GONE);*/
-                                }
+                        }
 
 
-                            }else{
+                    }else{
 
-                                mTaskCount.setText("0");
+                        mTaskCount.setText("0");
                              /*   mNoNotification.setVisibility(View.VISIBLE);
                                 mNotificatioinRecyclerView.setVisibility(View.GONE);*/
 
 
-                            }
+                    }
 
-                        }else {
+                }else {
 
-                            mTaskCount.setText("0");
+                    mTaskCount.setText("0");
                        /*     mNoNotification.setVisibility(View.VISIBLE);
                             mNotificatioinRecyclerView.setVisibility(View.GONE);*/
 
-                        }
-                    }
+                }
+            }
 
-                    @Override
-                    public void onFailure(Call<ArrayList<Tasks>> call, Throwable t) {
+            @Override
+            public void onFailure(Call<ArrayList<Tasks>> call, Throwable t) {
 
                      /*   if (progressDialog!=null)
                             progressDialog.dismiss();*/
-                        Log.e("TAG", t.toString());
+                Log.e("TAG", t.toString());
 
-                        mTaskCount.setText("0");
+                mTaskCount.setText("0");
                        /* mNoNotification.setVisibility(View.VISIBLE);
                         mNotificatioinRecyclerView.setVisibility(View.GONE);*/
-                    }
-                });
             }
-
-
         });
     }
     private void getExpense(final int employeeId,final String dateValue){
 
 
-    /*    final ProgressDialog progressDialog = new ProgressDialog(getActivity());
+    /*    final ProgressDialog progressDialog = new ProgressDialog(mContext);
         progressDialog.setTitle("Loading Details");
         progressDialog.setCancelable(false);
         progressDialog.show();*/
 
+        ExpensesApi apiService = Util.getClient().create(ExpensesApi.class);
+        Call<ArrayList<Expenses>> call = apiService.getExpenseByManagerIdAndOrganizationId(PreferenceHandler.getInstance(mContext).getCompanyId(),employeeId);
 
-        new ThreadExecuter().execute(new Runnable() {
+        call.enqueue(new Callback<ArrayList<Expenses>>() {
             @Override
-            public void run() {
-                ExpensesApi apiService = Util.getClient().create(ExpensesApi.class);
-                Call<ArrayList<Expenses>> call = apiService.getExpenseByManagerIdAndOrganizationId(PreferenceHandler.getInstance(getActivity()).getCompanyId(),employeeId);
-
-                call.enqueue(new Callback<ArrayList<Expenses>>() {
-                    @Override
-                    public void onResponse(Call<ArrayList<Expenses>> call, Response<ArrayList<Expenses>> response) {
+            public void onResponse(Call<ArrayList<Expenses>> call, Response<ArrayList<Expenses>> response) {
 
                         /*if (progressDialog!=null)
                             progressDialog.dismiss();
 */
-                        int statusCode = response.code();
-                        if (statusCode == 200 || statusCode == 201 || statusCode == 203 || statusCode == 204) {
+                int statusCode = response.code();
+                if (statusCode == 200 || statusCode == 201 || statusCode == 203 || statusCode == 204) {
 
 
 
-                            ArrayList<Expenses> list = response.body();
-                            todayExpenses = new ArrayList<>();
+                    ArrayList<Expenses> list = response.body();
+                    todayExpenses = new ArrayList<>();
 
-                            Date date = new Date();
-                            Date adate = new Date();
-                            Date edate = new Date();
+                    Date date = new Date();
+                    Date adate = new Date();
+                    Date edate = new Date();
 
-                            try {
-                                date = new SimpleDateFormat("yyyy-MM-dd").parse(dateValue);
-
-
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                            }
-
-                            if (list !=null && list.size()!=0) {
+                    try {
+                        date = new SimpleDateFormat("yyyy-MM-dd").parse(dateValue);
 
 
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
 
-                                for (Expenses task:list) {
-
-                                    String froms = task.getDate();
-
-
-                                    Date afromDate = null;
+                    if (list !=null && list.size()!=0) {
 
 
-                                    if(froms!=null&&!froms.isEmpty()){
 
-                                        if(froms.contains("T")){
+                        for (Expenses task:list) {
 
-                                            String dojs[] = froms.split("T");
-
-                                            try {
-                                                afromDate = new SimpleDateFormat("yyyy-MM-dd").parse(dojs[0]);
-                                            } catch (ParseException e) {
-                                                e.printStackTrace();
-                                            }
+                            String froms = task.getDate();
 
 
-                                        }
+                            Date afromDate = null;
 
+
+                            if(froms!=null&&!froms.isEmpty()){
+
+                                if(froms.contains("T")){
+
+                                    String dojs[] = froms.split("T");
+
+                                    try {
+                                        afromDate = new SimpleDateFormat("yyyy-MM-dd").parse(dojs[0]);
+                                    } catch (ParseException e) {
+                                        e.printStackTrace();
                                     }
 
-                                    if(afromDate!=null){
-
-                                        if(date.getTime() == afromDate.getTime() ){
-
-                                            todayExpenses.add(task);
-
-                                        }
-                                    }
 
                                 }
 
-                                if(todayExpenses!=null&&todayExpenses.size()!=0){
+                            }
+
+                            if(afromDate!=null){
+
+                                if(date.getTime() == afromDate.getTime() ){
+
+                                    todayExpenses.add(task);
+
+                                }
+                            }
+
+                        }
+
+                        if(todayExpenses!=null&&todayExpenses.size()!=0){
 
 
-                                    mExpenseCount.setText(""+todayExpenses.size());
+                            mExpenseCount.setText(""+todayExpenses.size());
                                    /* mNoNotification.setVisibility(View.GONE);
                                     mNotificatioinRecyclerView.setVisibility(View.VISIBLE);
                                     mNotificatioinRecyclerView.removeAllViews();
-                                    ExpenseReportAdapter adapter = new ExpenseReportAdapter(getActivity(), todayExpenses);
+                                    ExpenseReportAdapter adapter = new ExpenseReportAdapter(mContext, todayExpenses);
                                     mNotificatioinRecyclerView.setAdapter(adapter);*/
-                                }else{
-                                    mExpenseCount.setText("0");
+                        }else{
+                            mExpenseCount.setText("0");
                                    /* mNoNotification.setVisibility(View.VISIBLE);
                                     mNotificatioinRecyclerView.setVisibility(View.GONE);*/
-                                }
+                        }
 
 
 
-                            }else{
-                                mExpenseCount.setText("0");
+                    }else{
+                        mExpenseCount.setText("0");
                                /* mNoNotification.setVisibility(View.VISIBLE);
                                 mNotificatioinRecyclerView.setVisibility(View.GONE);*/
-                            }
+                    }
 
-                        }else {
+                }else {
 
-                            mExpenseCount.setText("0");
+                    mExpenseCount.setText("0");
 /*                            mNoNotification.setVisibility(View.VISIBLE);
                             mNotificatioinRecyclerView.setVisibility(View.GONE);*/
-                        }
-                    }
-
-                    @Override
-                    public void onFailure(Call<ArrayList<Expenses>> call, Throwable t) {
-                        // Log error here since request failed
-                   /*     if (progressDialog!=null)
-                            progressDialog.dismiss();*/
-                        Log.e("TAG", t.toString());
-                        mExpenseCount.setText("0");
-                      /*  mNoNotification.setVisibility(View.VISIBLE);
-                        mNotificatioinRecyclerView.setVisibility(View.GONE);*/
-                    }
-                });
+                }
             }
 
-
+            @Override
+            public void onFailure(Call<ArrayList<Expenses>> call, Throwable t) {
+                // Log error here since request failed
+                   /*     if (progressDialog!=null)
+                            progressDialog.dismiss();*/
+                Log.e("TAG", t.toString());
+                mExpenseCount.setText("0");
+                      /*  mNoNotification.setVisibility(View.VISIBLE);
+                        mNotificatioinRecyclerView.setVisibility(View.GONE);*/
+            }
         });
     }
 
@@ -1038,7 +1007,7 @@ public class EmployerNotificationFragment extends Fragment {
             mNoNotification.setVisibility(View.GONE);
             mNotificatioinRecyclerView.setVisibility(View.VISIBLE);
             mNotificatioinRecyclerView.removeAllViews();
-            mAdapter = new LoginDetailsNotificationAdapter(getActivity(), dateLogins);
+            mAdapter = new LoginDetailsNotificationAdapter(mContext, dateLogins);
             mNotificatioinRecyclerView.setAdapter(mAdapter);
         }else{
             mLoginCount.setText("0");
@@ -1057,7 +1026,7 @@ public class EmployerNotificationFragment extends Fragment {
             mNotificatioinRecyclerView.setVisibility(View.VISIBLE);
             mNotificatioinRecyclerView.removeAllViews();
 
-            MeetingNotificationAdapter adapter = new MeetingNotificationAdapter(getActivity(), dateMeetings);
+            MeetingNotificationAdapter adapter = new MeetingNotificationAdapter(mContext, dateMeetings);
             mNotificatioinRecyclerView.setAdapter(adapter);
         }else{
             mMeetingCount.setText("0");
@@ -1075,7 +1044,7 @@ public class EmployerNotificationFragment extends Fragment {
             mNoNotification.setVisibility(View.GONE);
             mNotificatioinRecyclerView.setVisibility(View.VISIBLE);
             mNotificatioinRecyclerView.removeAllViews();
-            TaskListAdapter adapter = new TaskListAdapter(getActivity(), todayTasks);
+            TaskListAdapter adapter = new TaskListAdapter(mContext, todayTasks);
             mNotificatioinRecyclerView.setAdapter(adapter);
         }else{
             mTaskCount.setText("0");
@@ -1095,7 +1064,7 @@ public class EmployerNotificationFragment extends Fragment {
             mNoNotification.setVisibility(View.GONE);
             mNotificatioinRecyclerView.setVisibility(View.VISIBLE);
             mNotificatioinRecyclerView.removeAllViews();
-            ExpenseReportAdapter adapter = new ExpenseReportAdapter(getActivity(), todayExpenses);
+            ExpenseReportAdapter adapter = new ExpenseReportAdapter(mContext, todayExpenses);
             mNotificatioinRecyclerView.setAdapter(adapter);
         }else{
             mExpenseCount.setText("0");
@@ -1108,10 +1077,10 @@ public class EmployerNotificationFragment extends Fragment {
 
     void presentShowcaseView() {
 
-        MaterialShowcaseSequence sequence = new MaterialShowcaseSequence(getActivity(), SHOWCASE_ID_ADMIN);
+        MaterialShowcaseSequence sequence = new MaterialShowcaseSequence(mContext, SHOWCASE_ID_ADMIN);
 
 
-        ShowcaseTooltip toolTip1 = ShowcaseTooltip.build(getActivity())
+        ShowcaseTooltip toolTip1 = ShowcaseTooltip.build(mContext)
                 .corner(30)
                 .textColor(Color.parseColor("#007686"))
                 .text("Click here to view login details of your employees<br><br>Tap anywhere to continue");
@@ -1119,7 +1088,7 @@ public class EmployerNotificationFragment extends Fragment {
 
         sequence.addSequenceItem(
 
-                new MaterialShowcaseView.Builder(getActivity())
+                new MaterialShowcaseView.Builder(mContext)
                         .setTarget(mLoginCount)
                         .setToolTip(toolTip1)
                         .withRectangleShape()
@@ -1131,13 +1100,13 @@ public class EmployerNotificationFragment extends Fragment {
         );
 
 
-        ShowcaseTooltip toolTip2 = ShowcaseTooltip.build(getActivity())
+        ShowcaseTooltip toolTip2 = ShowcaseTooltip.build(mContext)
                 .corner(30)
                 .textColor(Color.parseColor("#007686"))
                 .text("Click here to view task list of your employees<br><br>Tap anywhere to continue");
 
         sequence.addSequenceItem(
-                new MaterialShowcaseView.Builder(getActivity())
+                new MaterialShowcaseView.Builder(mContext)
                         .setTarget(mTaskCount)
                         .setToolTip(toolTip2)
                         .setTooltipMargin(20)
@@ -1147,13 +1116,13 @@ public class EmployerNotificationFragment extends Fragment {
                         .build()
         );
 
-        ShowcaseTooltip toolTip3 = ShowcaseTooltip.build(getActivity())
+        ShowcaseTooltip toolTip3 = ShowcaseTooltip.build(mContext)
                 .corner(30)
                 .textColor(Color.parseColor("#007686"))
                 .text("Click here to view meetings list of your employees<br><br>Tap anywhere to continue");
 
         sequence.addSequenceItem(
-                new MaterialShowcaseView.Builder(getActivity())
+                new MaterialShowcaseView.Builder(mContext)
                         .setTarget(mMeetingCount)
                         .setToolTip(toolTip3)
                         .setTooltipMargin(20)
@@ -1163,13 +1132,13 @@ public class EmployerNotificationFragment extends Fragment {
                         .build()
         );
 
-        ShowcaseTooltip toolTip4 = ShowcaseTooltip.build(getActivity())
+        ShowcaseTooltip toolTip4 = ShowcaseTooltip.build(mContext)
                 .corner(30)
                 .textColor(Color.parseColor("#007686"))
                 .text("Click here to view expense list of your employees<br><br>Tap anywhere to continue");
 
         sequence.addSequenceItem(
-                new MaterialShowcaseView.Builder(getActivity())
+                new MaterialShowcaseView.Builder(mContext)
                         .setTarget(mExpenseCount)
                         .setToolTip(toolTip4)
                         .setTooltipMargin(20)
@@ -1179,13 +1148,13 @@ public class EmployerNotificationFragment extends Fragment {
                         .build()
         );
 
-        ShowcaseTooltip toolTip5 = ShowcaseTooltip.build(getActivity())
+        ShowcaseTooltip toolTip5 = ShowcaseTooltip.build(mContext)
                 .corner(30)
                 .textColor(Color.parseColor("#007686"))
                 .text("Click here to change date and see below details based on selected date<br><br>Tap anywhere to continue");
 
         sequence.addSequenceItem(
-                new MaterialShowcaseView.Builder(getActivity())
+                new MaterialShowcaseView.Builder(mContext)
                         .setTarget(mDate)
                         .setToolTip(toolTip5)
                         .setTooltipMargin(20)
@@ -1200,11 +1169,10 @@ public class EmployerNotificationFragment extends Fragment {
 
         sequence.start();
 
-
-
-
-
-
     }
-
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+        mContext = ( AdminNewMainScreen )context;
+    }
 }

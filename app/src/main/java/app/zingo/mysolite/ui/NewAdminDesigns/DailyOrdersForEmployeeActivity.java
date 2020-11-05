@@ -38,7 +38,6 @@ import app.zingo.mysolite.model.Tasks;
 import app.zingo.mysolite.ui.Admin.CreateOrderScreen;
 import app.zingo.mysolite.ui.Admin.EmployeeOrderMapScreen;
 import app.zingo.mysolite.utils.PreferenceHandler;
-import app.zingo.mysolite.utils.ThreadExecuter;
 import app.zingo.mysolite.utils.Util;
 import app.zingo.mysolite.WebApi.TasksAPI;
 import app.zingo.mysolite.R;
@@ -137,8 +136,6 @@ public class DailyOrdersForEmployeeActivity extends AppCompatActivity {
             mPrevious = findViewById(R.id.previousDay);
             mNext = findViewById(R.id.nextDay);
 
-
-
             dateFormat = new SimpleDateFormat("dd-MM-yyyy");
             mDate.setText(new SimpleDateFormat("dd-MM-yyyy").format(new Date()));
             passDate = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
@@ -148,18 +145,15 @@ public class DailyOrdersForEmployeeActivity extends AppCompatActivity {
             floatingActionButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-
                     Intent createTask = new Intent( DailyOrdersForEmployeeActivity.this, CreateOrderScreen.class);
                     createTask.putExtra("EmployeeId", mEmployeeId);
                     startActivity(createTask);
-
                 }
             });
 
             refresh.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-
                     Intent createTask = new Intent( DailyOrdersForEmployeeActivity.this, DailyOrdersForEmployeeActivity.class);
                     createTask.putExtra("ProfileId", mEmployeeId);
                     startActivity(createTask);
@@ -183,8 +177,6 @@ public class DailyOrdersForEmployeeActivity extends AppCompatActivity {
                         mTaskList.setAdapter(mAdapter);
                         Toast.makeText( DailyOrdersForEmployeeActivity.this, "No Pending Orders given for this employee", Toast.LENGTH_SHORT).show();
                     }
-
-
                 }
             });
 
@@ -420,106 +412,89 @@ public class DailyOrdersForEmployeeActivity extends AppCompatActivity {
     }*/
 
     private void getTasks(final int employeeId,final String dateValue){
-
-
         final ProgressDialog progressDialog = new ProgressDialog(this);
         progressDialog.setTitle("Loading Details..");
         progressDialog.setCancelable(false);
         progressDialog.show();
+        TasksAPI apiService = Util.getClient().create( TasksAPI.class);
+        Call<ArrayList<Tasks>> call = apiService.getTasksByEmployeeId(employeeId);
 
-        new ThreadExecuter ().execute( new Runnable() {
+        call.enqueue(new Callback<ArrayList<Tasks>>() {
             @Override
-            public void run() {
-                TasksAPI apiService = Util.getClient().create( TasksAPI.class);
-                Call<ArrayList<Tasks>> call = apiService.getTasksByEmployeeId(employeeId);
-
-                call.enqueue(new Callback<ArrayList<Tasks>>() {
-                    @Override
-                    public void onResponse(Call<ArrayList<Tasks>> call, Response<ArrayList<Tasks>> response) {
-                        int statusCode = response.code();
-                        if (statusCode == 200 || statusCode == 201 || statusCode == 203 || statusCode == 204) {
+            public void onResponse(Call<ArrayList<Tasks>> call, Response<ArrayList<Tasks>> response) {
+                int statusCode = response.code();
+                if (statusCode == 200 || statusCode == 201 || statusCode == 203 || statusCode == 204) {
 
 
-                            if (progressDialog != null&&progressDialog.isShowing())
-                                progressDialog.dismiss();
-                            ArrayList<Tasks> list = response.body();
-                            employeeTasks = new ArrayList<>();
-                            pendingTasks = new ArrayList<>();
-                            completedTasks = new ArrayList<>();
-                            closedTasks = new ArrayList<>();
+                    if (progressDialog != null&&progressDialog.isShowing())
+                        progressDialog.dismiss();
+                    ArrayList<Tasks> list = response.body();
+                    employeeTasks = new ArrayList<>();
+                    pendingTasks = new ArrayList<>();
+                    completedTasks = new ArrayList<>();
+                    closedTasks = new ArrayList<>();
+
+                    dayemployeeTasks = new ArrayList<>();
+                    daypendingTasks = new ArrayList<>();
+                    daycompletedTasks = new ArrayList<>();
+                    dayclosedTasks = new ArrayList<>();
+
+                    Date date = new Date();
+                    Date adate = new Date();
+                    Date edate = new Date();
+
+                    try {
+                        date = new SimpleDateFormat("yyyy-MM-dd").parse(dateValue);
+
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+
+                    if (list !=null && list.size()!=0) {
+
+                        for (Tasks task:list) {
+
+                            if(task.getCategory()!=null&&task.getCategory().equalsIgnoreCase("Order")){
+
+                                employeeTasks.add(task);
+                                total = total+1;
+
+                                if(task.getStatus().equalsIgnoreCase("Delivered")){
+                                    completedTasks.add(task);
+                                    complete = complete+1;
+                                }else if(task.getStatus().equalsIgnoreCase("Pending")){
+                                    pendingTasks.add(task);
+                                    pending = pending+1;
+                                }else if(task.getStatus().equalsIgnoreCase("Payment Done")){
+                                    closedTasks.add(task);
+                                    closed = closed+1;
+                                }
 
 
-                            dayemployeeTasks = new ArrayList<>();
-                            daypendingTasks = new ArrayList<>();
-                            daycompletedTasks = new ArrayList<>();
-                            dayclosedTasks = new ArrayList<>();
-
-                            Date date = new Date();
-                            Date adate = new Date();
-                            Date edate = new Date();
-
-                            try {
-                                date = new SimpleDateFormat("yyyy-MM-dd").parse(dateValue);
 
 
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                            }
+                                String froms = task.getStartDate();
+                                //    String tos = task.getEndDate();
 
+                                Date afromDate = null;
+                                Date atoDate = null;
 
+                                if(froms!=null&&!froms.isEmpty()){
 
-                            if (list !=null && list.size()!=0) {
+                                    if(froms.contains("T")){
 
+                                        String dojs[] = froms.split("T");
 
-
-                                for (Tasks task:list) {
-
-                                    if(task.getCategory()!=null&&task.getCategory().equalsIgnoreCase("Order")){
-
-
-
-
-
-
-                                        employeeTasks.add(task);
-                                        total = total+1;
-
-                                        if(task.getStatus().equalsIgnoreCase("Delivered")){
-                                            completedTasks.add(task);
-                                            complete = complete+1;
-                                        }else if(task.getStatus().equalsIgnoreCase("Pending")){
-                                            pendingTasks.add(task);
-                                            pending = pending+1;
-                                        }else if(task.getStatus().equalsIgnoreCase("Payment Done")){
-                                            closedTasks.add(task);
-                                            closed = closed+1;
+                                        try {
+                                            afromDate = new SimpleDateFormat("yyyy-MM-dd").parse(dojs[0]);
+                                        } catch (ParseException e) {
+                                            e.printStackTrace();
                                         }
 
 
+                                    }
 
-
-                                        String froms = task.getStartDate();
-                                    //    String tos = task.getEndDate();
-
-                                        Date afromDate = null;
-                                        Date atoDate = null;
-
-                                        if(froms!=null&&!froms.isEmpty()){
-
-                                            if(froms.contains("T")){
-
-                                                String dojs[] = froms.split("T");
-
-                                                try {
-                                                    afromDate = new SimpleDateFormat("yyyy-MM-dd").parse(dojs[0]);
-                                                } catch (ParseException e) {
-                                                    e.printStackTrace();
-                                                }
-
-
-                                            }
-
-                                        }
+                                }
 
                                         /*if(tos!=null&&!tos.isEmpty()){
 
@@ -537,83 +512,79 @@ public class DailyOrdersForEmployeeActivity extends AppCompatActivity {
 
                                         }*/
 
-                                        if(afromDate!=null){
+                                if(afromDate!=null){
 
-                                            if(date.getTime() == afromDate.getTime() ){
+                                    if(date.getTime() == afromDate.getTime() ){
 
 
-                                                dayemployeeTasks.add(task);
-                                                daytotal = daytotal+1;
+                                        dayemployeeTasks.add(task);
+                                        daytotal = daytotal+1;
 
-                                                if(task.getStatus().equalsIgnoreCase("Delivered")){
-                                                    daycompletedTasks.add(task);
-                                                    daycomplete = daycomplete+1;
-                                                }else if(task.getStatus().equalsIgnoreCase("Pending")){
-                                                    daypendingTasks.add(task);
-                                                    daypending = daypending+1;
-                                                }else if(task.getStatus().equalsIgnoreCase("Payment Done")){
-                                                    dayclosedTasks.add(task);
-                                                    dayclosed = dayclosed+1;
-                                                }
-
-                                            }
+                                        if(task.getStatus().equalsIgnoreCase("Delivered")){
+                                            daycompletedTasks.add(task);
+                                            daycomplete = daycomplete+1;
+                                        }else if(task.getStatus().equalsIgnoreCase("Pending")){
+                                            daypendingTasks.add(task);
+                                            daypending = daypending+1;
+                                        }else if(task.getStatus().equalsIgnoreCase("Payment Done")){
+                                            dayclosedTasks.add(task);
+                                            dayclosed = dayclosed+1;
                                         }
 
                                     }
-
-
                                 }
-
-                                if(dayemployeeTasks!=null&&dayemployeeTasks.size()!=0){
-
-                                    mNoRecord.setVisibility(View.GONE);
-                                    mTaskList.setVisibility(View.VISIBLE);
-                                    mAdapter = new OrderListAdapter( DailyOrdersForEmployeeActivity.this,dayemployeeTasks);
-                                    mTaskList.setAdapter(mAdapter);
-
-                                    totalTargets.setText(""+daytotal);
-                                    openTargets.setText(""+daypending);
-                                    closedTargets.setText(""+daycomplete);
-                                    movedTargets.setText(""+dayclosed);
-                                }else{
-
-                                    mNoRecord.setVisibility(View.VISIBLE);
-                                    mTaskList.setVisibility(View.GONE);
-                                }
-
-
-
-                            }else{
-
-                                mNoRecord.setVisibility(View.VISIBLE);
-                                mTaskList.setVisibility(View.GONE);
-
-                                Toast.makeText( DailyOrdersForEmployeeActivity.this, "No Orders given for this employee ", Toast.LENGTH_SHORT).show();
 
                             }
 
-                        }else {
 
-                            if (progressDialog != null&&progressDialog.isShowing())
-                                progressDialog.dismiss();
-
-                            Toast.makeText( DailyOrdersForEmployeeActivity.this, "Failed due to : "+response.message(), Toast.LENGTH_SHORT).show();
                         }
-                    }
 
-                    @Override
-                    public void onFailure(Call<ArrayList<Tasks>> call, Throwable t) {
-                        // Log error here since request failed
-                        if (progressDialog != null&&progressDialog.isShowing())
-                            progressDialog.dismiss();
+                        if(dayemployeeTasks!=null&&dayemployeeTasks.size()!=0){
+
+                            mNoRecord.setVisibility(View.GONE);
+                            mTaskList.setVisibility(View.VISIBLE);
+                            mAdapter = new OrderListAdapter( DailyOrdersForEmployeeActivity.this,dayemployeeTasks);
+                            mTaskList.setAdapter(mAdapter);
+
+                            totalTargets.setText(""+daytotal);
+                            openTargets.setText(""+daypending);
+                            closedTargets.setText(""+daycomplete);
+                            movedTargets.setText(""+dayclosed);
+                        }else{
+
+                            mNoRecord.setVisibility(View.VISIBLE);
+                            mTaskList.setVisibility(View.GONE);
+                        }
+
+
+
+                    }else{
+
                         mNoRecord.setVisibility(View.VISIBLE);
                         mTaskList.setVisibility(View.GONE);
-                        Log.e("TAG", t.toString());
+
+                        Toast.makeText( DailyOrdersForEmployeeActivity.this, "No Orders given for this employee ", Toast.LENGTH_SHORT).show();
+
                     }
-                });
+
+                }else {
+
+                    if (progressDialog != null&&progressDialog.isShowing())
+                        progressDialog.dismiss();
+
+                    Toast.makeText( DailyOrdersForEmployeeActivity.this, "Failed due to : "+response.message(), Toast.LENGTH_SHORT).show();
+                }
             }
 
-
+            @Override
+            public void onFailure(Call<ArrayList<Tasks>> call, Throwable t) {
+                // Log error here since request failed
+                if (progressDialog != null&&progressDialog.isShowing())
+                    progressDialog.dismiss();
+                mNoRecord.setVisibility(View.VISIBLE);
+                mTaskList.setVisibility(View.GONE);
+                Log.e("TAG", t.toString());
+            }
         });
     }
 
@@ -1022,6 +993,13 @@ public class DailyOrdersForEmployeeActivity extends AppCompatActivity {
                 }
             }
         }
+    }
+    @Override
+    protected void onResume ( ) {
+        super.onResume ( );
+        final Calendar calendar = Calendar.getInstance();
+        Date date2 = calendar.getTime();
+        getTasks(mEmployeeId,new SimpleDateFormat("yyyy-MM-dd").format(date2));
     }
 }
 

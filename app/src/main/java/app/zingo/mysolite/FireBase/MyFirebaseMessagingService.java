@@ -12,6 +12,8 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.provider.Settings;
 import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
+
 import android.util.Log;
 
 import com.google.firebase.messaging.FirebaseMessagingService;
@@ -47,34 +49,30 @@ import app.zingo.mysolite.R;
 
 
 public class MyFirebaseMessagingService extends FirebaseMessagingService {
-
     public int count = 0;
-
     private NotificationManager mNotificationManager;
     private NotificationCompat.Builder mBuilder;
     public static final String NOTIFICATION_CHANNEL_ID = "MYSOLITE1";
 
+    public MyFirebaseMessagingService ( ) {
+        super ( );
+    }
+    public static String getToken ( Context context ) {
+        return context.getSharedPreferences ( "FCMSharedPref" , MODE_PRIVATE ).getString ( "tagtoken" , null );
+    }
+
     @Override
     public void onMessageReceived ( RemoteMessage remoteMessage ) {
         super.onMessageReceived(remoteMessage);
-
+            showNotification(remoteMessage.getNotification ().getTitle (),remoteMessage.getNotification ().getBody ());
         try {
-
             RemoteMessage.Notification notification = remoteMessage.getNotification ( );
             Map < String, String > map = remoteMessage.getData ( );
-
             Log.e("dataChat",remoteMessage.getData().toString());
-
-
-
-
             if ( PreferenceHandler.getInstance ( getApplicationContext ( ) ).getUserId ( ) != 0 ) {
-
                 if(map!=null){
-
                     String title =map.get ( "Title" );
                     String message =map.get ( "Message" );
-
                     if(title!=null&&!title.isEmpty ()){
 
                         if(PreferenceHandler.getInstance ( getApplicationContext ( ) ).getUserId ( ) == Integer.parseInt ( Objects.requireNonNull ( map.get ( "EmployeeId" ) ) )){
@@ -88,11 +86,8 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                                     } catch ( Exception e ) {
                                         e.printStackTrace ( );
                                     }
-
                                 }
                             }else{
-
-
                                 if(( Objects.requireNonNull ( title ).equalsIgnoreCase ( "Task Allocated" ) || title.equalsIgnoreCase ( "Location Request" ) )){
                                     try {
                                         sendPopNotifications ( title , message , map );
@@ -100,28 +95,17 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                                         e.printStackTrace ( );
                                     }
                                 }
-
                             }
 
-
                             if ( title.equalsIgnoreCase ( "Test" ) ){
-
                                 try {
                                     sendPopNotificationGeneral ( title , message, map );
                                 } catch ( Exception e ) {
                                     e.printStackTrace ( );
                                 }
-
                             }
-
-
                         }
-
                     }
-
-
-
-
 
                 }else{
                     if ( notification != null ) {
@@ -146,11 +130,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                             if ( PreferenceHandler.getInstance ( getApplicationContext ( ) ).getUserId ( ) == 20 ) {
 
                                 Bitmap icon = BitmapFactory.decodeResource ( getResources ( ) , R.mipmap.ic_launcher );
-
-
                                 String message = "";
-
-
                                 Intent intent = new Intent ( this , InvokeService.class );
 
                                 intent.putExtra ( "Title" , notification.getTitle ( ) );
@@ -240,8 +220,16 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
 
     }
+    private void showNotification ( String title , String message ) {
+        NotificationCompat.Builder builder = new NotificationCompat.Builder ( this,"MyNotification" )
+                .setContentTitle ( title )
+                .setSmallIcon ( R.drawable.ic_launcher )
+                .setAutoCancel ( true )
+                .setContentText ( message );
+        NotificationManagerCompat manager = NotificationManagerCompat.from(this);
+        manager.notify ( 999,builder.build () );
 
-
+    }
     private void sendPopNotification ( String title , String body , Map < String, String > map ) {
         Bitmap icon = BitmapFactory.decodeResource ( getResources ( ) , R.mipmap.ic_launcher );
 
@@ -421,13 +409,10 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
             intent.putExtras ( bundle );
         }
 
-
         try {
 
             //  Uri sound = Uri.parse("android.resource://" + this.getPackageName() + "/raw/good_morning");
             int m = ( int ) ( ( new Date ( ).getTime ( ) / 1000L ) % Integer.MAX_VALUE );
-
-
 
             intent.setFlags ( Intent.FLAG_ACTIVITY_CLEAR_TOP );
 
@@ -444,8 +429,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
             mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O)
-            {
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
                 int importance = NotificationManager.IMPORTANCE_HIGH;
                 NotificationChannel notificationChannel = new NotificationChannel(NOTIFICATION_CHANNEL_ID, "NOTIFICATION_CHANNEL_NAME", importance);
                 notificationChannel.enableLights(true);
@@ -710,8 +694,6 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         } else {
 
             Bitmap icon = BitmapFactory.decodeResource ( getResources ( ) , R.mipmap.ic_launcher );
-
-
             String message = "";
 
             message = body;
@@ -730,7 +712,6 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
             PendingIntent pendingIntent = PendingIntent.getActivity ( this , m , intent , PendingIntent.FLAG_UPDATE_CURRENT );
 
-
             mBuilder = new NotificationCompat.Builder(this);
             mBuilder.setSmallIcon(R.mipmap.ic_launcher);
             mBuilder.setContentTitle(title)
@@ -741,8 +722,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
             mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O)
-            {
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
                 int importance = NotificationManager.IMPORTANCE_HIGH;
                 NotificationChannel notificationChannel = new NotificationChannel(NOTIFICATION_CHANNEL_ID, "NOTIFICATION_CHANNEL_NAME", importance);
                 notificationChannel.enableLights(true);
@@ -757,34 +737,24 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
             mNotificationManager.notify(0 /* Request Code */, mBuilder.build());
 
         }
-
     }
 
     @Override
     public void handleIntent(Intent intent) {
-        try
-        {
-            if (intent.getExtras() != null)
-            {
+        try {
+            if (intent.getExtras() != null) {
                 RemoteMessage.Builder builder = new RemoteMessage.Builder("MyFirebaseMessagingService");
-
-                for (String key : intent.getExtras().keySet())
-                {
+                for (String key : intent.getExtras().keySet()) {
                     builder.addData(key, intent.getExtras().get(key).toString());
                 }
-
                 onMessageReceived(builder.build());
             }
-            else
-            {
+            else {
                 super.handleIntent(intent);
             }
         }
-        catch (Exception e)
-        {
+        catch (Exception e) {
             super.handleIntent(intent);
         }
     }
-
-
 }

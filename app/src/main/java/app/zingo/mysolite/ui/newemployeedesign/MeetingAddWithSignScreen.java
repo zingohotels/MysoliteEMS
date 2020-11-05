@@ -1,5 +1,6 @@
 package app.zingo.mysolite.ui.newemployeedesign;
 
+import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -58,6 +59,7 @@ import app.zingo.mysolite.adapter.CustomerSpinnerAdapter;
 import app.zingo.mysolite.model.Employee;
 import app.zingo.mysolite.model.MeetingDetailsNotificationManagers;
 import app.zingo.mysolite.model.Meetings;
+import app.zingo.mysolite.ui.Common.AllEmployeeLiveLocation;
 import app.zingo.mysolite.utils.Constants;
 import app.zingo.mysolite.utils.PreferenceHandler;
 import app.zingo.mysolite.utils.ThreadExecuter;
@@ -140,21 +142,16 @@ public class MeetingAddWithSignScreen extends AppCompatActivity {
             mSpinnerLay = findViewById(R.id.spinner_lay);
 
             Bundle bundle = getIntent().getExtras();
-
             if(bundle!=null){
-
                 mEmployeeId = bundle.getInt("EmployeeId");
-
-
             }
-
 
             if(mEmployeeId==0){
                 mEmployeeId = PreferenceHandler.getInstance ( MeetingAddWithSignScreen.this ).getUserId ();
             }
 
             getCustomers(PreferenceHandler.getInstance( MeetingAddWithSignScreen.this).getCompanyId());
-
+            System.out.println ( "Suree Company :"+ PreferenceHandler.getInstance( MeetingAddWithSignScreen.this).getCompanyId());
 
             mSave.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -166,16 +163,12 @@ public class MeetingAddWithSignScreen extends AppCompatActivity {
             customerSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                 @Override
                 public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-
                     if(customerArrayList!=null && customerArrayList.size()!=0){
-
-                        if(customerArrayList.get(position).getEmployeeName ()!=null && customerArrayList.get(position).getEmployeeName ().equalsIgnoreCase("Others"))
-                        {
+                        if(customerArrayList.get(position).getEmployeeName ()!=null && customerArrayList.get(position).getEmployeeName ().equalsIgnoreCase("Others")) {
                             mClientMobile.setText("");
                             mClientName.setText("");
                             mClientMail.setText("");
                             ClientNameLayout.setVisibility(View.VISIBLE);
-
                         }
                         else {
                             mClientMobile.setText(""+customerArrayList.get(position).getPhoneNumber ());
@@ -183,7 +176,6 @@ public class MeetingAddWithSignScreen extends AppCompatActivity {
                             mClientMail.setText(""+customerArrayList.get(position).getPrimaryEmailAddress ());
                             clientId = customerArrayList.get(position).getEmployeeId ();
                             ClientNameLayout.setVisibility(View.GONE);
-
                         }
                     }
                 }
@@ -200,38 +192,28 @@ public class MeetingAddWithSignScreen extends AppCompatActivity {
     }
 
     public void getCustomers(final int id) {
-
         final ProgressDialog dialog = new ProgressDialog( MeetingAddWithSignScreen.this);
         dialog.setMessage("Loading Details..");
         dialog.setCancelable(false);
         dialog.show();
-
         final EmployeeApi orgApi = Util.getClient().create( EmployeeApi.class);
         Call<ArrayList< Employee >> getProf = orgApi.getEmployeesByOrgId (id);
         getProf.enqueue(new Callback<ArrayList< Employee >>() {
-
             @Override
             public void onResponse( Call<ArrayList< Employee >> call, Response<ArrayList< Employee >> response) {
-
-                if (response.code() == 200||response.code() == 201||response.code() == 204)
-                {
+                if (response.code() == 200||response.code() == 201||response.code() == 204) {
                     dialog.dismiss();
                     ArrayList<Employee> employeeArrayList = response.body();
                     customerArrayList = new ArrayList <> (  );
 
                     if(employeeArrayList!=null&&employeeArrayList.size()!=0){
-
                         Employee customer = new Employee ();
                         customer.setEmployeeName ("Others");
                         customerArrayList.add(customer);
-
-
                         for ( Employee e: employeeArrayList) {
-
                             if(e.getUserRoleId ()==10&&e.getManagerId ()==mEmployeeId){
                                 customerArrayList.add ( e );
                             }
-
                         }
                         CustomerSpinnerAdapter adapter = new CustomerSpinnerAdapter( MeetingAddWithSignScreen.this,customerArrayList);
                         customerSpinner.setAdapter(adapter);
@@ -745,6 +727,7 @@ public class MeetingAddWithSignScreen extends AppCompatActivity {
             paint.setStrokeWidth(STROKE_WIDTH);
         }
 
+        @SuppressLint ("WrongThread")
         public void save( View v, String StoredPath, final Meetings loginDetails, final MeetingDetailsNotificationManagers md, final String type) {
             Log.v("log_tag", "Width: " + v.getWidth());
             Log.v("log_tag", "Height: " + v.getHeight());
@@ -1254,7 +1237,7 @@ public class MeetingAddWithSignScreen extends AppCompatActivity {
                                         mPurpose.setText(""+dto.getMeetingAgenda());
 
                                         if(dto.getEndPlaceID()!=null&&!dto.getEndPlaceID().isEmpty()){
-                                            Picasso.with( MeetingAddWithSignScreen.this).load(dto.getEndPlaceID()).placeholder(R.drawable.profile_image).error(R.drawable.no_image).into(mImageView);
+                                           Picasso.get ().load(dto.getEndPlaceID()).placeholder(R.drawable.profile_image).error(R.drawable.no_image).into(mImageView);
                                         }
 
 

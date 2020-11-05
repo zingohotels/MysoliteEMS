@@ -44,7 +44,7 @@ public class StockOrderDetailsAdapter extends RecyclerView.Adapter< StockOrderDe
             holder.txt_product_name.setText (items.get (position).getStockItem ().getStockItemName ());
 
 
-            Picasso.with (context).load (items.get (position).getStockItem ().getStockItemImage ()).into (holder.img_product);
+            Picasso.get ().load (items.get (position).getStockItem ().getStockItemImage ()).into (holder.img_product);
 
 
             holder.removeItem.setVisibility ( View.GONE );

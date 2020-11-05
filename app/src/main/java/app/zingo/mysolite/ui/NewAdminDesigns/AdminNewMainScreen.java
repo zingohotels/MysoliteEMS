@@ -1,8 +1,8 @@
 package app.zingo.mysolite.ui.NewAdminDesigns;
-
+import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.app.Dialog;
+//import android.app.ProgressDialog;
 import android.app.ProgressDialog;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
@@ -20,6 +20,7 @@ import android.graphics.Paint;
 import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.BatteryManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
@@ -27,6 +28,9 @@ import android.os.Handler;
 import android.provider.MediaStore;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.textfield.TextInputEditText;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.widget.AppCompatTextView;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
@@ -35,7 +39,6 @@ import androidx.core.content.FileProvider;
 import androidx.core.view.GravityCompat;
 import androidx.viewpager.widget.ViewPager;
 import androidx.drawerlayout.widget.DrawerLayout;
-import androidx.appcompat.app.AppCompatActivity;
 import android.text.Html;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -44,19 +47,18 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.bumptech.glide.Glide;
+import com.squareup.picasso.BuildConfig;
 import com.squareup.picasso.Picasso;
 
+import org.jetbrains.annotations.NotNull;
 import org.jsoup.Jsoup;
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -68,9 +70,9 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.Timer;
 import java.util.logging.Logger;
-
 import app.zingo.mysolite.Custom.Floating.RFABShape;
 import app.zingo.mysolite.Custom.Floating.RFABTextUtil;
 import app.zingo.mysolite.Custom.Floating.RFACLabelItem;
@@ -80,7 +82,6 @@ import app.zingo.mysolite.Custom.Floating.RapidFloatingActionHelper;
 import app.zingo.mysolite.Custom.Floating.RapidFloatingActionLayout;
 import app.zingo.mysolite.Custom.MyRegulerText;
 import app.zingo.mysolite.FireBase.SharedPrefManager;
-import app.zingo.mysolite.UiTestActivty;
 import app.zingo.mysolite.model.Departments;
 import app.zingo.mysolite.model.Employee;
 import app.zingo.mysolite.model.EmployeeDeviceMapping;
@@ -93,8 +94,9 @@ import app.zingo.mysolite.ui.Employee.EmployeeListScreen;
 import app.zingo.mysolite.ui.landing.InternalServerErrorScreen;
 import app.zingo.mysolite.ui.newemployeedesign.EmployeeLoginFragment;
 import app.zingo.mysolite.utils.Constants;
+import app.zingo.mysolite.utils.NetworkUtil;
 import app.zingo.mysolite.utils.PreferenceHandler;
-import app.zingo.mysolite.utils.ThreadExecuter;
+import app.zingo.mysolite.utils.ProgressBarUtil;
 import app.zingo.mysolite.utils.Util;
 import app.zingo.mysolite.WebApi.DepartmentApi;
 import app.zingo.mysolite.WebApi.EmployeeApi;
@@ -103,6 +105,8 @@ import app.zingo.mysolite.WebApi.EmployeeImageAPI;
 import app.zingo.mysolite.WebApi.OrganizationApi;
 import app.zingo.mysolite.WebApi.UploadApi;
 import app.zingo.mysolite.R;
+import app.zingo.mysolite.utils.ValidationClass;
+import app.zingo.mysolite.utils.ValidationConst;
 import de.hdodenhof.circleimageview.CircleImageView;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
@@ -110,58 +114,54 @@ import okhttp3.RequestBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-import uk.co.deanwild.materialshowcaseview.BuildConfig;
 import uk.co.deanwild.materialshowcaseview.MaterialShowcaseSequence;
 import uk.co.deanwild.materialshowcaseview.MaterialShowcaseView;
 import uk.co.deanwild.materialshowcaseview.ShowcaseConfig;
 import uk.co.deanwild.materialshowcaseview.ShowcaseTooltip;
 
-public class AdminNewMainScreen extends AppCompatActivity implements RapidFloatingActionContentLabelList.OnRapidFloatingActionContentLabelListListener{
-    static final String TAG = "FounderMainScreen";
-    CircleImageView mProfileImage;
-    TextView mTrialMsgInfo;
-    TabLayout tabLayout;
-    LinearLayout mTrialInfoLay,mShareLayout,mQrLayout,mDemo;
-    LinearLayout mWhatsapp;
-    TextView organizationNameMain;
-    Spinner organizationName;
-    boolean doubleBackToExitPressedOnce = false;
-  //  ImageView mLoader;
-    public long[] mTimer = new long[1];
-    /* renamed from: t */
+public class AdminNewMainScreen extends ValidationClass implements RapidFloatingActionContentLabelList.OnRapidFloatingActionContentLabelListListener{
+    private static final String TAG = "FounderMainScreen";
+    private CircleImageView mProfileImage;
+    private TextView mTrialMsgInfo;
+    private TabLayout tabLayout;
+    private LinearLayout mTrialInfoLay,mShareLayout,mQrLayout,mDemo;
+    private LinearLayout mWhatsapp;
+    private TextView organizationNameMain;
+    private Spinner organizationName;
+    private boolean doubleBackToExitPressedOnce = false;
     private Timer t;
-    Employee profile;
-    EmployeeImages employeeImages;
-    int userId=0,imageId=0;
-    String appType="",planType="",licensesStartDate="",licenseEndDate="";
-    int planId=0;
-    String selectedImage;
-    String currentVersion;
-    Dialog dialog;
-    int pos;
-    boolean boolean_permissions;
+    private Employee profile;
+    private EmployeeImages employeeImages;
+    private int userId=0,imageId=0;
+    private String appType="",planType="",licensesStartDate="",SHOWCASE_ID_ADMIN,mImageFileLocation = "",
+            licenseEndDate="",currentVersion,selectedImage,postPath;    private int planId=0;
+    private Dialog dialog;
+    private int pos;
+    private boolean boolean_permissions;
     private static final int REQUEST= 112;
-    Context mContext = this;
+    private Context mContext = this;
     public static final int MEDIA_TYPE_IMAGE = 1;
     private Uri fileUri;
-    private String mImageFileLocation = "";
     public static final String IMAGE_DIRECTORY_NAME = "Android File Upload";
-    private String postPath;
     private static final int REQUEST_TAKE_PHOTO = 0;
     private static final int REQUEST_PICK_PHOTO = 2;
     private static final int CAMERA_PIC_REQUEST = 1111;
-    ArrayList< Organization > organizationArrayList;
-    int spinnerPos = -1;
-    boolean don  = false;
-    private  String SHOWCASE_ID_ADMIN ;
+    private ArrayList< Organization > organizationArrayList;
+    private int spinnerPos = -1;
+    private boolean don  = false;
+    private TextInputEditText mName, mDesc;
+    private androidx.appcompat.app.AlertDialog alertDialog;
     private RapidFloatingActionHelper rfabHelper;
+    private ProgressBarUtil progressBarUtil;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         try{
             setContentView(R.layout.activity_admin_new_main_screen);
+            progressBarUtil = new ProgressBarUtil ( this );
             mWhatsapp = findViewById(R.id.whatsapp_open);
+
             RapidFloatingActionLayout rfaLayout = findViewById ( R.id.rfab_group_sample_fragment_a_rfal );
             RapidFloatingActionButton rfaButton =  findViewById ( R.id.label_list_sample_rfab );
             SHOWCASE_ID_ADMIN = "ToolsAdmin"+PreferenceHandler.getInstance( AdminNewMainScreen.this).getUserId();
@@ -172,28 +172,23 @@ public class AdminNewMainScreen extends AppCompatActivity implements RapidFloati
                 don = extras.getBoolean("Dont");
             }
             setupData();
-            setupViewPager(( ViewPager ) findViewById(R.id.viewPager));
-            mWhatsapp.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-
-
-                    String message = "Hi I'm "+PreferenceHandler.getInstance( AdminNewMainScreen.this).getUserFullName()+",\n My Organization Name is "+PreferenceHandler.getInstance( AdminNewMainScreen.this).getCompanyName()+".I am writing about the feedback of Mysolite app Ver: "+ BuildConfig.VERSION_NAME+".";
-                    PackageManager packageManager = getPackageManager();
-                    Intent i = new Intent(Intent.ACTION_VIEW);
-                    try {
-                        String url = "https://api.whatsapp.com/send?phone=+919986128021" + "&text=" + URLEncoder.encode(message, "UTF-8");
-                        i.setPackage("com.whatsapp");
-                        i.setData(Uri.parse(url));
-                        if (i.resolveActivity(packageManager) != null) {
-                            startActivity(i);
-                        }
-                    } catch (Exception e){
-                        e.printStackTrace();
-                        Toast.makeText( AdminNewMainScreen.this, "WhatsApp not installed.", Toast.LENGTH_SHORT).show();
+            setupViewPager(findViewById(R.id.viewPager));
+            mWhatsapp.setOnClickListener( view -> {
+                String message = "Hi I'm "+PreferenceHandler.getInstance( AdminNewMainScreen.this).getUserFullName()+",\n My Organization Name is "+PreferenceHandler.getInstance( AdminNewMainScreen.this).getCompanyName()+".I am writing about the feedback of Mysolite app Ver: "+ BuildConfig.VERSION_NAME +".";
+                PackageManager packageManager = getPackageManager();
+                Intent i = new Intent(Intent.ACTION_VIEW);
+                try {
+                    String url = "https://api.whatsapp.com/send?phone=+919986128021" + "&text=" + URLEncoder.encode(message, "UTF-8");
+                    i.setPackage("com.whatsapp");
+                    i.setData(Uri.parse(url));
+                    if (i.resolveActivity(packageManager) != null) {
+                        startActivity(i);
                     }
+                } catch (Exception e){
+                    e.printStackTrace();
+                    Toast.makeText( AdminNewMainScreen.this, "WhatsApp not installed.", Toast.LENGTH_SHORT).show();
                 }
-            });
+            } );
 
             try{
                 if (Build.VERSION.SDK_INT >=Build.VERSION_CODES.LOLLIPOP) {
@@ -253,22 +248,20 @@ public class AdminNewMainScreen extends AppCompatActivity implements RapidFloati
     }
 
     class ViewPagerAdapter extends FragmentPagerAdapter {
-        private final List< Fragment > mFragmentList = new ArrayList();
-        private final List<String> mFragmentTitleList = new ArrayList();
-
-        public ViewPagerAdapter( FragmentManager fragmentManager) {
+        private final List<Fragment> mFragmentList = new ArrayList <> (  );
+        private final List<String> mFragmentTitleList = new ArrayList <> (  );
+        private ViewPagerAdapter( FragmentManager fragmentManager) {
             super(fragmentManager);
         }
 
         public Fragment getItem( int i) {
             return this.mFragmentList.get(i);
         }
-
         public int getCount() {
             return this.mFragmentList.size();
         }
 
-        public void addFragment( Fragment fragment, String str) {
+        private void addFragment( Fragment fragment, String str) {
             this.mFragmentList.add(fragment);
             this.mFragmentTitleList.add(str);
         }
@@ -277,13 +270,6 @@ public class AdminNewMainScreen extends AppCompatActivity implements RapidFloati
             return this.mFragmentTitleList.get(i);
         }
     }
-
-    /*public void setupToolbar() {
-        Toolbar toolbar = (Toolbar) findViewById(R.id.app_bar);
-        setSupportActionBar(toolbar);
-        toolbar.setTitle(PreferenceHandler.getInstance(AdminNewMainScreen.this).getUserFullName());
-        toolbar.setLogo(R.mipmap.ic_launcher);
-    }*/
 
     private void setupTabIcons(TabLayout tabLayout) {
         if(PreferenceHandler.getInstance( AdminNewMainScreen.this).getUserRoleUniqueID()==9){
@@ -296,13 +282,10 @@ public class AdminNewMainScreen extends AppCompatActivity implements RapidFloati
     private void setupViewPager( ViewPager viewPager) {
         viewPager.setOffscreenPageLimit(4);
         ViewPagerAdapter viewPagerAdapter = new ViewPagerAdapter(getSupportFragmentManager());
-
         viewPagerAdapter.addFragment( AdminDashBoardFragment.getInstance(), "Dash Board");
         viewPagerAdapter.addFragment(EmployerNotificationFragment.getInstance(), "Notifications");
         if(PreferenceHandler.getInstance( AdminNewMainScreen.this).getUserRoleUniqueID()==9){
             viewPagerAdapter.addFragment(EmployeeLoginFragment.getInstance(), "Attendance");
-        }else{
-            //tabLayout.getTabAt(3).setIcon(R.drawable.white_navigation);
         }
         viewPagerAdapter.addFragment(TaskAdminFragment.getInstance(), "Tasks");
         viewPagerAdapter.addFragment(AdminHomeFragment.getInstance(), "");
@@ -335,27 +318,11 @@ public class AdminNewMainScreen extends AppCompatActivity implements RapidFloati
         }
     }
 
-   /* public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_employer, menu);
-        return true;
-    }
-
-    public boolean onOptionsItemSelected(MenuItem menuItem) {
-        if (menuItem.getItemId() != R.id.action_setting) {
-            return super.onOptionsItemSelected(menuItem);
-        }
-        startActivity(new Intent(this, SettingsActivity.class));
-        return true;
-    }*/
-
     protected void onStart() {
         super.onStart();
     }
 
     public void setupData() {
-       // View findViewById = findViewById(R.id.subscriptionIcon);
-        //View findViewById2 = findViewById(R.id.settingIcon);
-
         organizationName = findViewById(R.id.branch_name);
         organizationName.setVisibility(View.GONE);
         organizationNameMain = findViewById(R.id.organizationName);
@@ -368,16 +335,13 @@ public class AdminNewMainScreen extends AppCompatActivity implements RapidFloati
         mDemo = findViewById(R.id.demo_layout);
         mQrLayout.setVisibility(View.VISIBLE);
         mTrialMsgInfo = findViewById(R.id.trial_version_info_msg);
-
         userName.setText(PreferenceHandler.getInstance( AdminNewMainScreen.this).getUserFullName());
-
         Bundle bundle = getIntent().getExtras();
         if(bundle!=null){
             profile = (Employee) bundle.getSerializable("Profile");
         }
         userId = PreferenceHandler.getInstance( AdminNewMainScreen.this).getUserId();
         int mapId = PreferenceHandler.getInstance( AdminNewMainScreen.this).getMappingId();
-
         mDemo.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -395,98 +359,40 @@ public class AdminNewMainScreen extends AppCompatActivity implements RapidFloati
         });
 
         if(PreferenceHandler.getInstance( AdminNewMainScreen.this).getUserRoleUniqueID()==2){
-
             if(spinnerPos!=-1){
-
                 organizationName.setVisibility(View.VISIBLE);
-
                 if(spinnerPos==0){
-
                     organizationNameMain.setText(PreferenceHandler.getInstance( AdminNewMainScreen.this).getCompanyName());
-
                 }else{
                     organizationNameMain.setText(PreferenceHandler.getInstance( AdminNewMainScreen.this).getHeadName()+" - "+PreferenceHandler.getInstance( AdminNewMainScreen.this).getCompanyName());
                 }
-
-               // mLoader.setVisibility(View.VISIBLE);
-              /*  if(PreferenceHandler.getInstance(AdminNewMainScreen.this).getHeadOrganizationId()!=0){
-
-                    getBranches(PreferenceHandler.getInstance(AdminNewMainScreen.this).getHeadOrganizationId(),spinnerPos);
-                }else{
-
-                    getBranches(PreferenceHandler.getInstance(AdminNewMainScreen.this).getCompanyId(),spinnerPos);
-                }*/
             }else{
-
                 organizationNameMain.setText(PreferenceHandler.getInstance( AdminNewMainScreen.this).getCompanyName());
-                //mLoader.setVisibility(View.VISIBLE);
-               /* if(PreferenceHandler.getInstance(AdminNewMainScreen.this).getHeadOrganizationId()!=0){
-
-                    getBranches(PreferenceHandler.getInstance(AdminNewMainScreen.this).getHeadOrganizationId(),-1);
-                }else{
-
-                    getBranches(PreferenceHandler.getInstance(AdminNewMainScreen.this).getCompanyId(),-1);
-                }*/
             }
-
         }
-
-
-
-
-
 
         organizationName.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-
-              /*  if(don){
-
-                }else{
-
-                    don = false;
-
-                }
-*/
                 if(i==0){
-
                     if(spinnerPos==0&&don){
-
                     }else if(spinnerPos==-1){
 
                     }
                     else{
-
                         if(PreferenceHandler.getInstance( AdminNewMainScreen.this).getHeadOrganizationId()!=0&&(PreferenceHandler.getInstance( AdminNewMainScreen.this).getHeadOrganizationId()!=PreferenceHandler.getInstance( AdminNewMainScreen.this).getCompanyId())){
-
-                           // mLoader.setVisibility(View.VISIBLE);
                             getCompanys(PreferenceHandler.getInstance( AdminNewMainScreen.this).getHeadOrganizationId(),0);
-
                         }
-
                         don = false;
                     }
 
-
-
-
                 }else{
-
                     if(spinnerPos==i&&don){
-
                     }else{
-
-                       // mLoader.setVisibility(View.VISIBLE);
                         getCompanys(organizationArrayList.get(i-1).getOrganizationId(),i);
                         don = false;
                     }
-
-
-
                 }
-
-
-
             }
 
             @Override
@@ -495,19 +401,15 @@ public class AdminNewMainScreen extends AppCompatActivity implements RapidFloati
             }
         });
 
-
         EmployeeDeviceMapping hm = new EmployeeDeviceMapping();
         String token = SharedPrefManager.getInstance( AdminNewMainScreen.this).getDeviceToken();
-
         if(userId!=0&&token!=null&&mapId==0){
             hm.setEmployeeId(userId);
             hm.setDeviceId(token);
             addDeviceId(hm);
         }
 
-
         if(PreferenceHandler.getInstance( AdminNewMainScreen.this).getUserRoleUniqueID()==2||PreferenceHandler.getInstance( AdminNewMainScreen.this).getUserRoleUniqueID()==9){
-
             mShareLayout.setVisibility(View.VISIBLE);
 
         }else{
@@ -516,7 +418,6 @@ public class AdminNewMainScreen extends AppCompatActivity implements RapidFloati
         mQrLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
                 Intent qr = new Intent( AdminNewMainScreen.this, AdminQrTabScreen.class);
                 startActivity(qr);
             }
@@ -525,10 +426,7 @@ public class AdminNewMainScreen extends AppCompatActivity implements RapidFloati
         mShareLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
                 String upToNCharacters = PreferenceHandler.getInstance( AdminNewMainScreen.this).getCompanyName().substring(0, Math.min(PreferenceHandler.getInstance( AdminNewMainScreen.this).getCompanyName().length(), 4));
-
-
                 String body = "<html><head>" +
                         "</head>" +
                         "<body>" +
@@ -589,8 +487,7 @@ public class AdminNewMainScreen extends AppCompatActivity implements RapidFloati
                         .itemsCallback( ( dialog , view , which , text ) -> {
                             switch (which) {
                                 case 0:
-                                    Intent galleryIntent = new Intent(Intent.ACTION_PICK,
-                                            MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                                    Intent galleryIntent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
                                     startActivityForResult(galleryIntent, REQUEST_PICK_PHOTO);
                                     break;
                                 case 1:
@@ -603,18 +500,15 @@ public class AdminNewMainScreen extends AppCompatActivity implements RapidFloati
                                     if (employeeImages == null) {
                                         EmployeeImages employeeImages = new EmployeeImages();
                                         employeeImages.setImage(null);
-
                                         employeeImages.setEmployeeId(PreferenceHandler.getInstance ( AdminNewMainScreen.this ).getUserId ());
                                         addProfileImage(employeeImages);
                                     } else {
-
                                         EmployeeImages employeeImagess = employeeImages;
                                         employeeImages.setImage(null);
                                         employeeImagess.setEmployeeImageId(employeeImages.getEmployeeImageId());
                                         employeeImages.setEmployeeId(PreferenceHandler.getInstance ( AdminNewMainScreen.this ).getUserId ());
                                         updateProfileImage(employeeImages);
                                     }
-
                                     break;
                             }
                         } )
@@ -623,43 +517,30 @@ public class AdminNewMainScreen extends AppCompatActivity implements RapidFloati
             }else{
                 Toast.makeText( AdminNewMainScreen.this, "Permission required to upload Image", Toast.LENGTH_LONG).show();
             }
-
-
         } );
 
         if(profile==null){
             if(userId!=0){
-                System.out.println("Going it");
                 getProfile(userId,mProfileImage);
             }
 
         }else{
-
             profile.setAppOpen(true);
             String app_version = PreferenceHandler.getInstance( AdminNewMainScreen.this).getAppVersion();
             profile.setLastUpdated(""+ app_version);
             profile.setLastseen(new SimpleDateFormat("MM/dd/yyyy").format(new Date()));
             updateProfile(profile);
-
             ArrayList<EmployeeImages> images = profile.getEmployeeImages();
-
             if(images!=null&&images.size()!=0){
                 employeeImages = images.get(0);
-
                 if(employeeImages!=null){
-
                     imageId = employeeImages.getEmployeeImageId();
                     String base=employeeImages.getImage();
                     if(base != null && !base.isEmpty()){
-                        Picasso.with( AdminNewMainScreen.this).load(base).placeholder(R.drawable.profile_image).
-                                error(R.drawable.profile_image).into(mProfileImage);
-
-
+                        Picasso.get ().load(base).placeholder(R.drawable.profile_image).error(R.drawable.profile_image).into(mProfileImage);
                     }
                 }
-
             }
-
         }
 
         profileView.setOnClickListener(new View.OnClickListener() {
@@ -702,9 +583,7 @@ public class AdminNewMainScreen extends AppCompatActivity implements RapidFloati
             Log.d("TAG","@@@ IN ELSE  Build.VERSION.SDK_INT >= 23");
             //callNextActivity();
         }
-
     }
-
 
     private void stopTimer() {
         if (this.t != null) {
@@ -719,72 +598,47 @@ public class AdminNewMainScreen extends AppCompatActivity implements RapidFloati
 
 
     public void getProfile(final int id,final ImageView mProfileImage ){
-
-        new ThreadExecuter ().execute( new Runnable() {
+        final EmployeeApi subCategoryAPI = Util.getClient().create( EmployeeApi.class);
+        Call<ArrayList<Employee>> getProf = subCategoryAPI.getProfileById(id);
+        getProf.enqueue(new Callback<ArrayList<Employee>>() {
             @Override
-            public void run() {
-
-                final EmployeeApi subCategoryAPI = Util.getClient().create( EmployeeApi.class);
-                Call<ArrayList<Employee>> getProf = subCategoryAPI.getProfileById(id);
-                //Call<ArrayList<Blogs>> getBlog = blogApi.getBlogs();
-
-                getProf.enqueue(new Callback<ArrayList<Employee>>() {
-
-                    @Override
-                    public void onResponse(Call<ArrayList<Employee>> call, Response<ArrayList<Employee>> response) {
-
-                        if (response.code() == 200)
-                        {
-                            System.out.println("Inside api");
-
-                            profile = response.body().get(0);
-
-
-
-                            ArrayList<EmployeeImages> images = profile.getEmployeeImages();
-
-                            if(images!=null&&images.size()!=0){
-                                employeeImages = images.get(0);
-
-                                if(employeeImages!=null){
-                                    imageId = employeeImages.getEmployeeImageId();
-                                    String base=employeeImages.getImage();
-                                    if(base != null && !base.isEmpty()){
-                                        Picasso.with( AdminNewMainScreen.this).load(base).placeholder(R.drawable.profile_image).
-                                                error(R.drawable.profile_image).into(mProfileImage);
-
-
-                                    }
-                                }
-
+            public void onResponse(@NonNull Call<ArrayList<Employee>> call, @NonNull Response<ArrayList<Employee>> response) {
+                int statusCode = response.code ();
+                if(statusCode == 201||statusCode == 200||statusCode == 204) {
+                    profile = response.body().get(0);
+                    ArrayList<EmployeeImages> images = profile.getEmployeeImages();
+                    if(images!=null&&images.size()!=0){
+                        employeeImages = images.get(0);
+                        if(employeeImages!=null){
+                            imageId = employeeImages.getEmployeeImageId();
+                            String base=employeeImages.getImage();
+                            if(base != null && !base.isEmpty()){
+                                Picasso.get ().load(base).placeholder(R.drawable.profile_image).error(R.drawable.profile_image).into(mProfileImage);
                             }
-
-                            profile.setAppOpen(true);
-                            String app_version = PreferenceHandler.getInstance( AdminNewMainScreen.this).getAppVersion();
-                            profile.setLastUpdated(""+ app_version);
-                            profile.setLastseen(new SimpleDateFormat("MM/dd/yyyy").format(new Date()));
-                            updateProfile(profile);
-
                         }
                     }
 
-                    @Override
-                    public void onFailure(Call<ArrayList<Employee>> call, Throwable t) {
-
-                    }
-                });
-
+                    profile.setAppOpen(true);
+                    String app_version = PreferenceHandler.getInstance( AdminNewMainScreen.this).getAppVersion();
+                    profile.setLastUpdated(""+ app_version);
+                    profile.setLastseen(new SimpleDateFormat("MM/dd/yyyy").format(new Date()));
+                    updateProfile(profile);
+                }else{
+                    ShowToast ( ValidationConst.FAILES_DUE_TO+statusCode );
+                }
             }
 
+            @Override
+            public void onFailure(@NonNull Call<ArrayList<Employee>> call,@NonNull  Throwable t) {
+
+            }
         });
     }
-
 
     private void captureImage() {
         if (Build.VERSION.SDK_INT > 21) { //use this if Lollipop_Mr1 (API 22) or above
             Intent callCameraApplicationIntent = new Intent();
             callCameraApplicationIntent.setAction(MediaStore.ACTION_IMAGE_CAPTURE);
-
             // We give some instruction to the intent to save the image
             File photoFile = null;
 
@@ -864,7 +718,6 @@ public class AdminNewMainScreen extends AppCompatActivity implements RapidFloati
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
-
         // get the file url
         fileUri = savedInstanceState.getParcelable("file_uri");
     }
@@ -877,13 +730,8 @@ public class AdminNewMainScreen extends AppCompatActivity implements RapidFloati
      * returning image / video
      */
     private static File getOutputMediaFile(int type) {
-
         // External sdcard location
-        File mediaStorageDir = new File(
-                Environment
-                        .getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),
-                IMAGE_DIRECTORY_NAME);
-
+        File mediaStorageDir = new File( Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), IMAGE_DIRECTORY_NAME);
         // Create the storage directory if it does not exist
         if (!mediaStorageDir.exists()) {
             if (!mediaStorageDir.mkdirs()) {
@@ -892,7 +740,6 @@ public class AdminNewMainScreen extends AppCompatActivity implements RapidFloati
                 return null;
             }
         }
-
         // Create a media file name
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(new Date());
         File mediaFile;
@@ -902,16 +749,12 @@ public class AdminNewMainScreen extends AppCompatActivity implements RapidFloati
         }  else {
             return null;
         }
-
         return mediaFile;
     }
-
-
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-
         if (resultCode == Activity.RESULT_OK) {
             if (requestCode == REQUEST_TAKE_PHOTO || requestCode == REQUEST_PICK_PHOTO) {
                 if (data != null) {
@@ -930,11 +773,9 @@ public class AdminNewMainScreen extends AppCompatActivity implements RapidFloati
                     cursor.close();
 
                     postPath = mediaPath;
-
                     String[] all_path = {postPath};
                     selectedImage = all_path[0];
-                    for (String s:all_path)
-                    {
+                    for (String s:all_path) {
                         File imgFile = new  File(s);
                         if(imgFile.exists()) {
                             Bitmap myBitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
@@ -943,13 +784,10 @@ public class AdminNewMainScreen extends AppCompatActivity implements RapidFloati
                     }
                 }
 
-
             }else if (requestCode == CAMERA_PIC_REQUEST){
                 if (Build.VERSION.SDK_INT > 21) {
-
                     Glide.with(this).load(mImageFileLocation).into(mProfileImage);
                     postPath = mImageFileLocation;
-
                 }else{
                     Glide.with(this).load(fileUri).into(mProfileImage);
                     postPath = fileUri.getPath();
@@ -957,8 +795,7 @@ public class AdminNewMainScreen extends AppCompatActivity implements RapidFloati
 
                 String[] all_path = {postPath};
                 selectedImage = all_path[0];
-                for (String s:all_path)
-                {
+                for (String s:all_path) {
                     File imgFile = new  File(s);
                     if(imgFile.exists()) {
                         Bitmap myBitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
@@ -970,26 +807,19 @@ public class AdminNewMainScreen extends AppCompatActivity implements RapidFloati
     }
 
     public static String getPath(Context context, Uri uri ) {
-        String result = null;
-
         Cursor cursor = context.getContentResolver().query(uri,null,null,null,null);
         cursor.moveToFirst();
         int idx = cursor.getColumnIndex(MediaStore.Images.ImageColumns.DATA);
         return cursor.getString(idx);
-      //  return result;
     }
 
-    public void addImage(Bitmap bitmap)
-    {
+    public void addImage(Bitmap bitmap) {
         try{
-            if(bitmap != null)
-            {
+            if(bitmap != null) {
                 mProfileImage.setImageBitmap(bitmap);
-                if(selectedImage != null && !selectedImage.isEmpty())
-                {
+                if(selectedImage != null && !selectedImage.isEmpty()) {
                     File file = new File(selectedImage);
-                    if(file.length() <= 1*1024*1024)
-                    {
+                    if(file.length() <= 1*1024*1024) {
                         FileOutputStream out = null;
                         String[] filearray = selectedImage.split("/");
                         final String filename = getFilename(filearray[filearray.length-1]);
@@ -998,8 +828,7 @@ public class AdminNewMainScreen extends AppCompatActivity implements RapidFloati
                         myBitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
                         uploadImage(filename,profile);
                     }
-                    else
-                    {
+                    else {
                         compressImage(selectedImage,profile);
                     }
                 }
@@ -1009,25 +838,15 @@ public class AdminNewMainScreen extends AppCompatActivity implements RapidFloati
         }
     }
 
-    private void uploadImage(final String filePath,final Employee employee)
-    {
+    private void uploadImage(final String filePath,final Employee employee) {
         final File file = new File(filePath);
         int size = 1*1024*1024;
-        if(file != null)
-        {
-            if(file.length() > size)
-            {
-                System.out.println(file.length());
+        if(file != null) {
+            if(file.length() > size) {
                 compressImage(filePath,employee);
             }
-            else
-            {
-                final ProgressDialog dialog = new ProgressDialog( AdminNewMainScreen.this);
-                dialog.setCancelable(false);
-                dialog.setTitle("Uploading Image..");
-                dialog.show();
-                Log.d("Image Upload", "Filename " + file.getName());
-
+            else {
+                progressBarUtil.showProgress ( "Loading..." );
                 RequestBody mFile = RequestBody.create(MediaType.parse("image"), file);
                 MultipartBody.Part fileToUpload = MultipartBody.Part.createFormData("file", file.getName(), mFile);
                 RequestBody filename = RequestBody.create(MediaType.parse("text/plain"), file.getName());
@@ -1035,42 +854,42 @@ public class AdminNewMainScreen extends AppCompatActivity implements RapidFloati
                 Call<String> fileUpload = uploadImage.uploadProfileImages(fileToUpload, filename);
                 fileUpload.enqueue(new Callback<String>() {
                     @Override
-                    public void onResponse(Call<String> call, Response<String> response) {
-                        if(dialog != null && dialog.isShowing())
-                        {
-                            dialog.dismiss();
-                        }
-                        if(employeeImages==null){
-                            EmployeeImages employeeImages = new EmployeeImages();
-                            if( Util.IMAGE_URL==null){
-                                employeeImages.setImage( Constants.IMAGE_URL+ response.body());
-                            }else{
-                                employeeImages.setImage( Util.IMAGE_URL+ response.body());
+                    public void onResponse(@NonNull Call<String> call,@NonNull  Response<String> response) {
+                        int statusCode = response.code ();
+                        if(statusCode == 201||statusCode == 200||statusCode == 204) {
+                            progressBarUtil.hideProgress ();
+                            if ( employeeImages == null ) {
+                                EmployeeImages employeeImages = new EmployeeImages ( );
+                                if ( Util.IMAGE_URL == null ) {
+                                    employeeImages.setImage ( Constants.IMAGE_URL + response.body ( ) );
+                                } else {
+                                    employeeImages.setImage ( Util.IMAGE_URL + response.body ( ) );
+                                }
+                                employeeImages.setEmployeeId ( employee.getEmployeeId ( ) );
+                                addProfileImage ( employeeImages );
+                            } else {
+                                EmployeeImages employeeImagess = employeeImages;
+                                if ( Util.IMAGE_URL == null ) {
+                                    employeeImages.setImage ( Constants.IMAGE_URL + response.body ( ) );
+                                } else {
+                                    employeeImages.setImage ( Util.IMAGE_URL + response.body ( ) );
+                                }
+                                employeeImagess.setEmployeeImageId ( employeeImages.getEmployeeImageId ( ) );
+                                employeeImages.setEmployeeId ( employee.getEmployeeId ( ) );
+                                updateProfileImage ( employeeImages );
                             }
-                            employeeImages.setEmployeeId(employee.getEmployeeId());
-                            addProfileImage(employeeImages);
+                            if ( filePath.contains ( "MyFolder/Images" ) ) {
+                                file.delete ( );
+                            }
                         }else{
-
-                            EmployeeImages employeeImagess = employeeImages;
-                            if( Util.IMAGE_URL==null){
-                                employeeImages.setImage( Constants.IMAGE_URL+ response.body());
-                            }else{
-                                employeeImages.setImage( Util.IMAGE_URL+ response.body());
-                            }
-                           // employeeImagess.setImage(Constants.IMAGE_URL+response.body().toString());
-                            employeeImagess.setEmployeeImageId(employeeImages.getEmployeeImageId());
-                            employeeImages.setEmployeeId(employee.getEmployeeId());
-
-                            updateProfileImage(employeeImages);
-                        }
-                        if(filePath.contains("MyFolder/Images"))
-                        {
-                            file.delete();
+                            progressBarUtil.hideProgress ();
+                            ShowToast ( ValidationConst.FAILES_DUE_TO+statusCode );
                         }
                     }
                     @Override
-                    public void onFailure(Call<String> call, Throwable t) {
-                        Log.d( "UpdateCate" , "Error " + "Bad Internet Connection" );
+                    public void onFailure(@NonNull Call<String> call,@NonNull  Throwable t) {
+                        progressBarUtil.hideProgress ();
+                        noInternetConnection ();
                     }
                 });
             }
@@ -1109,7 +928,6 @@ public class AdminNewMainScreen extends AppCompatActivity implements RapidFloati
             } else {
                 actualHeight = (int) maxHeight;
                 actualWidth = (int) maxWidth;
-
             }
         }
 
@@ -1141,7 +959,6 @@ public class AdminNewMainScreen extends AppCompatActivity implements RapidFloati
         Canvas canvas = new Canvas(scaledBitmap);
         canvas.setMatrix(scaleMatrix);
         canvas.drawBitmap(bmp, middleX - bmp.getWidth() / 2, middleY - bmp.getHeight() / 2, new Paint(Paint.FILTER_BITMAP_FLAG));
-
 //      check the rotation of the image and display it properly
         ExifInterface exif;
         try {
@@ -1173,20 +990,14 @@ public class AdminNewMainScreen extends AppCompatActivity implements RapidFloati
         final String filename = getFilename(filearray[filearray.length-1]);
         try {
             out = new FileOutputStream(filename);
-
-
 //          write the compressed bitmap at the field_icon specified by filename.
             scaledBitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
-
             uploadImage(filename,Employee);
-
 
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
-
         return filename;
-
     }
 
     public int calculateInSampleSize(BitmapFactory.Options options, int reqWidth, int reqHeight) {
@@ -1215,384 +1026,271 @@ public class AdminNewMainScreen extends AppCompatActivity implements RapidFloati
         }
         System.out.println("getFilePath = "+filePath);
         String uriSting;
-        if(filePath.contains(".jpg"))
-        {
+        if(filePath.contains(".jpg")) {
             uriSting = (file.getAbsolutePath() + "/" + filePath);
         }
-        else
-        {
+        else {
             uriSting = (file.getAbsolutePath() + "/" + filePath+".jpg" );
         }
         return uriSting;
-
     }
 
     private void updateProfileImage(final EmployeeImages employeeImages) {
-        final ProgressDialog dialog = new ProgressDialog(this);
-        dialog.setCancelable(false);
-        dialog.setTitle("Updating Image..");
-        dialog.show();
-        new ThreadExecuter ().execute( new Runnable() {
+        progressBarUtil.showProgress ( "Updating..." );
+        EmployeeImageAPI auditApi = Util.getClient().create(EmployeeImageAPI.class);
+        Call<EmployeeImages> response = auditApi.updateEmployeeImage(employeeImages.getEmployeeImageId(),employeeImages);
+        response.enqueue(new Callback<EmployeeImages>() {
             @Override
-            public void run() {
-                EmployeeImageAPI auditApi = Util.getClient().create(EmployeeImageAPI.class);
-                Call<EmployeeImages> response = auditApi.updateEmployeeImage(employeeImages.getEmployeeImageId(),employeeImages);
-                response.enqueue(new Callback<EmployeeImages>() {
-                    @Override
-                    public void onResponse(Call<EmployeeImages> call, Response<EmployeeImages> response) {
-                        if(dialog != null)
-                        {
-                            dialog.dismiss();
-                        }
-                        System.out.println(response.code());
+            public void onResponse(@NonNull Call<EmployeeImages> call, @NonNull Response<EmployeeImages> response) {
+                int statusCode = response.code ();
+                if(statusCode == 201||statusCode == 200||statusCode == 204) {
+                    progressBarUtil.hideProgress ();
+                   ShowToast ( ValidationConst.IMAGE_UPDATED );
+                }
+                else {
+                    ShowToast ( ValidationConst.FAILES_DUE_TO+statusCode );
+                    progressBarUtil.hideProgress ();
+                }
+            }
 
-                        if(response.code() == 201||response.code() == 200||response.code() == 204)
-                        {
-                            Toast.makeText( AdminNewMainScreen.this,"Profile Image Updated",Toast.LENGTH_SHORT).show();
-                        }
-                        else
-                        {
-                            Toast.makeText( AdminNewMainScreen.this,response.message(),Toast.LENGTH_SHORT).show();
-                        }
-                    }
-
-                    @Override
-                    public void onFailure(Call<EmployeeImages> call, Throwable t) {
-                        if(dialog != null)
-                        {
-                            dialog.dismiss();
-                        }
-                        Toast.makeText( AdminNewMainScreen.this , "Bad Internet Connection" , Toast.LENGTH_SHORT ).show( );
-
-                    }
-                });
+            @Override
+            public void onFailure(@NonNull Call<EmployeeImages> call, @NonNull Throwable t) {
+               progressBarUtil.hideProgress ();
+               noInternetConnection ();
             }
         });
     }
 
     private void addProfileImage(final EmployeeImages employeeImages) {
-        final ProgressDialog dialog = new ProgressDialog(this);
-        dialog.setCancelable(false);
-        dialog.setTitle("Updating Image..");
-        dialog.show();
-        new ThreadExecuter ().execute( new Runnable() {
+        progressBarUtil.showProgress ( "Loading..." );
+        EmployeeImageAPI auditApi = Util.getClient().create(EmployeeImageAPI.class);
+        Call<EmployeeImages> response = auditApi.addEmployeeImage(employeeImages);
+        response.enqueue(new Callback<EmployeeImages>() {
             @Override
-            public void run() {
-                EmployeeImageAPI auditApi = Util.getClient().create(EmployeeImageAPI.class);
-                Call<EmployeeImages> response = auditApi.addEmployeeImage(employeeImages);
-                response.enqueue(new Callback<EmployeeImages>() {
-                    @Override
-                    public void onResponse(Call<EmployeeImages> call, Response<EmployeeImages> response) {
-                        if(dialog != null)
-                        {
-                            dialog.dismiss();
-                        }
-                        System.out.println(response.code());
+            public void onResponse(@NonNull Call<EmployeeImages> call, @NonNull Response<EmployeeImages> response) {
+                int statusCode = response.code ();
+                if(statusCode == 201||statusCode == 200||statusCode == 204) {
+                    progressBarUtil.hideProgress ();
+                    ShowToast ( ValidationConst.IMAGE_UPLOADED+statusCode );
+                }
+                else {
+                    ShowToast ( ValidationConst.FAILES_DUE_TO+statusCode );
+                    progressBarUtil.hideProgress ();
+                }
+            }
 
-                        if(response.code() == 201||response.code() == 200||response.code() == 204)
-                        {
-                            Toast.makeText( AdminNewMainScreen.this,"Profile Image Updated",Toast.LENGTH_SHORT).show();
-                        }
-                        else
-                        {
-                            Toast.makeText( AdminNewMainScreen.this,response.message(),Toast.LENGTH_SHORT).show();
-                        }
-                    }
-
-                    @Override
-                    public void onFailure(Call<EmployeeImages> call, Throwable t) {
-                        if(dialog != null)
-                        {
-                            dialog.dismiss();
-                        }
-                        Toast.makeText( AdminNewMainScreen.this , "Bad Internet Connection" , Toast.LENGTH_SHORT ).show( );
-
-                    }
-                });
+            @Override
+            public void onFailure(@NonNull Call<EmployeeImages> call, @NonNull Throwable t) {
+                progressBarUtil.hideProgress ();
+                noInternetConnection ();
             }
         });
     }
 
-    public void addDeviceId(final EmployeeDeviceMapping pf)
-    {
-
-        new ThreadExecuter ().execute( new Runnable() {
+    public void addDeviceId(final EmployeeDeviceMapping pf) {
+        EmployeeDeviceApi hotelOperation = Util.getClient().create( EmployeeDeviceApi.class);
+        Call<EmployeeDeviceMapping> response = hotelOperation.addProfileDevice(pf);
+        response.enqueue(new Callback<EmployeeDeviceMapping>() {
             @Override
-            public void run() {
+            public void onResponse(@NonNull Call<EmployeeDeviceMapping> call, @NonNull Response<EmployeeDeviceMapping> response) {
+                int statusCode = response.code ();
+                if(statusCode == 200||statusCode == 201||statusCode == 202||statusCode == 204) {
+                    try{
+                        System.out.println("registered");
+                        EmployeeDeviceMapping pr = response.body();
 
-
-                EmployeeDeviceApi hotelOperation = Util.getClient().create( EmployeeDeviceApi.class);
-                Call<EmployeeDeviceMapping> response = hotelOperation.addProfileDevice(pf);
-
-                response.enqueue(new Callback<EmployeeDeviceMapping>() {
-                    @Override
-                    public void onResponse(Call<EmployeeDeviceMapping> call, Response<EmployeeDeviceMapping> response) {
-                        System.out.println("GetHotelByProfileId = "+response.code());
-
-
-                        if(response.code() == 200||response.code() == 201||response.code() == 202||response.code() == 204)
-                        {
-                            try{
-                                System.out.println("registered");
-                                EmployeeDeviceMapping pr = response.body();
-
-                                System.out.println();
-
-                                if(pr != null)
-                                {
-
-                                    PreferenceHandler.getInstance( AdminNewMainScreen.this).setMappingId(pr.getEmployeeDeviceMappingId());
-
-
-
-                                }
-
-                            }catch (Exception e){
-                                e.printStackTrace();
-                            }
-
-
-
-
-                        }else if(response.code() == 404){
-                            System.out.println("already registered");
-
-
-
-                        }
-                        else
-                        {
-
-
+                        if(pr != null) {
+                            PreferenceHandler.getInstance( AdminNewMainScreen.this).setMappingId(pr.getEmployeeDeviceMappingId());
                         }
 
-
+                    }catch (Exception e){
+                        e.printStackTrace();
                     }
+                }else if(statusCode == 404){
+                    System.out.println("already registered");
+                }
+            }
 
-                    @Override
-                    public void onFailure(Call<EmployeeDeviceMapping> call, Throwable t) {
+            @Override
+            public void onFailure(@NonNull Call<EmployeeDeviceMapping> call, @NonNull Throwable t) {
 
-
-                    }
-                });
             }
         });
     }
 
     public void getCompany(final int id) {
-        new ThreadExecuter ().execute( new Runnable() {
+        final OrganizationApi subCategoryAPI = Util.getClient().create( OrganizationApi.class);
+        Call<ArrayList< Organization >> getProf = subCategoryAPI.getOrganizationById(id);
+        getProf.enqueue(new Callback<ArrayList< Organization >>() {
             @Override
-            public void run() {
-                final OrganizationApi subCategoryAPI = Util.getClient().create( OrganizationApi.class);
-                Call<ArrayList< Organization >> getProf = subCategoryAPI.getOrganizationById(id);
-                getProf.enqueue(new Callback<ArrayList< Organization >>() {
-                    @Override
-                    public void onResponse( Call<ArrayList< Organization >> call, Response<ArrayList< Organization >> response) {
-                        if (response.code() == 200||response.code() == 201||response.code() == 204&&response.body().size()!=0) {
-                            Organization organization = response.body().get(0);
-                            System.out.println("Inside api");
-                            PreferenceHandler.getInstance( AdminNewMainScreen.this).setCompanyId(organization.getOrganizationId());
-                            PreferenceHandler.getInstance( AdminNewMainScreen.this).setCompanyName(organization.getOrganizationName());
-                            PreferenceHandler.getInstance( AdminNewMainScreen.this).setAppType(organization.getAppType());
+            public void onResponse(@NonNull  Call<ArrayList< Organization >> call, @NonNull Response<ArrayList< Organization >> response) {
+                int statusCode = response.code ();
+                if (statusCode == 200||statusCode == 201||statusCode == 204&&response.body().size()!=0) {
+                    Organization organization = response.body().get(0);
+                    System.out.println("Inside api");
+                    PreferenceHandler.getInstance( AdminNewMainScreen.this).setCompanyId(organization.getOrganizationId());
+                    PreferenceHandler.getInstance( AdminNewMainScreen.this).setCompanyName(organization.getOrganizationName());
+                    PreferenceHandler.getInstance( AdminNewMainScreen.this).setAppType(organization.getAppType());
 
-                            PreferenceHandler.getInstance( AdminNewMainScreen.this).setAppType(organization.getAppType());
-                            PreferenceHandler.getInstance( AdminNewMainScreen.this).setLicenseStartDate(organization.getLicenseStartDate());
-                            PreferenceHandler.getInstance( AdminNewMainScreen.this).setLicenseEndDate(organization.getLicenseEndDate());
-                            PreferenceHandler.getInstance( AdminNewMainScreen.this).setSignupDate(organization.getSignupDate());
-                            PreferenceHandler.getInstance( AdminNewMainScreen.this).setOrganizationLongi(organization.getLongitude());
-                            PreferenceHandler.getInstance( AdminNewMainScreen.this).setOrganizationLati(organization.getLatitude());
-                            PreferenceHandler.getInstance( AdminNewMainScreen.this).setPlanType(organization.getPlanType());
-                            PreferenceHandler.getInstance( AdminNewMainScreen.this).setEmployeeLimit(organization.getEmployeeLimit());
-                            PreferenceHandler.getInstance( AdminNewMainScreen.this).setPlanId(organization.getPlanId());
-                            PreferenceHandler.getInstance( AdminNewMainScreen.this).setResellerUserId(organization.getResellerProfileId());
+                    PreferenceHandler.getInstance( AdminNewMainScreen.this).setAppType(organization.getAppType());
+                    PreferenceHandler.getInstance( AdminNewMainScreen.this).setLicenseStartDate(organization.getLicenseStartDate());
+                    PreferenceHandler.getInstance( AdminNewMainScreen.this).setLicenseEndDate(organization.getLicenseEndDate());
+                    PreferenceHandler.getInstance( AdminNewMainScreen.this).setSignupDate(organization.getSignupDate());
+                    PreferenceHandler.getInstance( AdminNewMainScreen.this).setOrganizationLongi(organization.getLongitude());
+                    PreferenceHandler.getInstance( AdminNewMainScreen.this).setOrganizationLati(organization.getLatitude());
+                    PreferenceHandler.getInstance( AdminNewMainScreen.this).setPlanType(organization.getPlanType());
+                    PreferenceHandler.getInstance( AdminNewMainScreen.this).setEmployeeLimit(organization.getEmployeeLimit());
+                    PreferenceHandler.getInstance( AdminNewMainScreen.this).setPlanId(organization.getPlanId());
+                    PreferenceHandler.getInstance( AdminNewMainScreen.this).setResellerUserId(organization.getResellerProfileId());
 
-                            appType = PreferenceHandler.getInstance( AdminNewMainScreen.this).getAppType();
-                            planType = PreferenceHandler.getInstance( AdminNewMainScreen.this).getPlanType();
-                            licensesStartDate = PreferenceHandler.getInstance( AdminNewMainScreen.this).getLicenseStartDate();
-                            licenseEndDate = PreferenceHandler.getInstance( AdminNewMainScreen.this).getLicenseEndDate();
-                            planId = PreferenceHandler.getInstance( AdminNewMainScreen.this).getPlanId();
+                    appType = PreferenceHandler.getInstance( AdminNewMainScreen.this).getAppType();
+                    planType = PreferenceHandler.getInstance( AdminNewMainScreen.this).getPlanType();
+                    licensesStartDate = PreferenceHandler.getInstance( AdminNewMainScreen.this).getLicenseStartDate();
+                    licenseEndDate = PreferenceHandler.getInstance( AdminNewMainScreen.this).getLicenseEndDate();
+                    planId = PreferenceHandler.getInstance( AdminNewMainScreen.this).getPlanId();
 
-                            try{
+                    try{
+                        if(appType!=null){
+                            if(appType.equalsIgnoreCase("Trial")){
+                                @SuppressLint ("SimpleDateFormat") SimpleDateFormat smdf = new SimpleDateFormat("MM/dd/yyyy");
+                                long days = dateCal(licenseEndDate);
 
-                                if(appType!=null){
+                                mTrialInfoLay.setVisibility(View.VISIBLE);
+                                if(( Objects.requireNonNull ( smdf.parse ( licenseEndDate ) ).getTime()<smdf.parse(smdf.format(new Date())).getTime())){
+                                    Toast.makeText( AdminNewMainScreen.this, "Your Trial Period is Expired", Toast.LENGTH_SHORT).show();
+                                    PreferenceHandler.getInstance( AdminNewMainScreen.this).clear();
 
-                                    if(appType.equalsIgnoreCase("Trial")){
+                                    Intent log = new Intent( AdminNewMainScreen.this, PlanExpireScreen.class);
+                                    log.putExtra("Screen","Admin");
+                                    log.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                                    log.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK|Intent.FLAG_ACTIVITY_NEW_TASK);
+                                    startActivity(log);
+                                    finish();
 
-                                        SimpleDateFormat smdf = new SimpleDateFormat("MM/dd/yyyy");
+                                }else{
+                                    mTrialMsgInfo.setText("Your Trial version is going to expiry in "+days+" days");
+                                    if(days>=1&&days<=5){
+                                        popupUpgrade("Hope your enjoying to use our Trial version.Get more features You need to Upgrade App","Your trial period is going to expire in "+days+" days");
+                                    }else if(days==0){
+                                        popupUpgrade("Hope your enjoying to use our Trial version.Get more features You need to Upgrade App","Today is last day for your free trial");
+                                        mTrialMsgInfo.setText("Your Trial version is going to expiry in today");
 
-                                        long days = dateCal(licenseEndDate);
+                                    }else if(days<0){
+                                        Toast.makeText( AdminNewMainScreen.this, "Your Trial Period is Expired", Toast.LENGTH_SHORT).show();
+                                        PreferenceHandler.getInstance( AdminNewMainScreen.this).clear();
 
-
-                                        mTrialInfoLay.setVisibility(View.VISIBLE);
-                                        if((smdf.parse(licenseEndDate).getTime()<smdf.parse(smdf.format(new Date())).getTime())){
-
-                                            Toast.makeText( AdminNewMainScreen.this, "Your Trial Period is Expired", Toast.LENGTH_SHORT).show();
-                                            PreferenceHandler.getInstance( AdminNewMainScreen.this).clear();
-
-                                            Intent log = new Intent( AdminNewMainScreen.this, PlanExpireScreen.class);
-                                            log.putExtra("Screen","Admin");
-                                            log.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                                            log.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK|Intent.FLAG_ACTIVITY_NEW_TASK);
-                                            //Toast.makeText(AdminNewMainScreen.this,"Logout",Toast.LENGTH_SHORT).show();
-                                            startActivity(log);
-                                            finish();
-
-                                        }else{
-                                            mTrialMsgInfo.setText("Your Trial version is going to expiry in "+days+" days");
-                                            if(days>=1&&days<=5){
-                                                popupUpgrade("Hope your enjoying to use our Trial version.Get more features You need to Upgrade App","Your trial period is going to expire in "+days+" days");
-                                            }else if(days==0){
-                                               popupUpgrade("Hope your enjoying to use our Trial version.Get more features You need to Upgrade App","Today is last day for your free trial");
-                                                mTrialMsgInfo.setText("Your Trial version is going to expiry in today");
-
-                                            }else if(days<0){
-                                                Toast.makeText( AdminNewMainScreen.this, "Your Trial Period is Expired", Toast.LENGTH_SHORT).show();
-                                                PreferenceHandler.getInstance( AdminNewMainScreen.this).clear();
-
-                                                Intent log = new Intent( AdminNewMainScreen.this, PlanExpireScreen.class);
-                                                log.putExtra("Screen","Admin");
-                                                log.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                                                log.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK|Intent.FLAG_ACTIVITY_NEW_TASK);
-                                                //Toast.makeText(AdminNewMainScreen.this,"Logout",Toast.LENGTH_SHORT).show();
-                                                startActivity(log);
-                                                finish();
-                                            }
-                                        }
-
-                                    }else if(appType.equalsIgnoreCase("Paid")){
-                                        mTrialInfoLay.setVisibility(View.GONE);
+                                        Intent log = new Intent( AdminNewMainScreen.this, PlanExpireScreen.class);
+                                        log.putExtra("Screen","Admin");
+                                        log.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                                        log.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK|Intent.FLAG_ACTIVITY_NEW_TASK);
+                                        startActivity(log);
+                                        finish();
                                     }
                                 }
 
-                            }catch (Exception e){
-                                e.printStackTrace();
+                            }else if(appType.equalsIgnoreCase("Paid")){
+                                mTrialInfoLay.setVisibility(View.GONE);
                             }
-
-                        }else{
-
                         }
+
+                    }catch (Exception e){
+                        e.printStackTrace();
                     }
-
-                    @Override
-                    public void onFailure( Call<ArrayList< Organization >> call, Throwable t) {
-
-                    }
-                });
-
+                }
             }
 
-        });
-    }
-    public void getCompanys(final int id,final int pos) {
-        new ThreadExecuter ().execute( new Runnable() {
             @Override
-            public void run() {
-                final OrganizationApi subCategoryAPI = Util.getClient().create( OrganizationApi.class);
-                Call<ArrayList< Organization >> getProf = subCategoryAPI.getOrganizationById(id);
-                //Call<ArrayList<Blogs>> getBlog = blogApi.getBlogs();
-                getProf.enqueue(new Callback<ArrayList< Organization >>() {
-                    @Override
-                    public void onResponse( Call<ArrayList< Organization >> call, Response<ArrayList< Organization >> response) {
-                        if (response.code() == 200||response.code() == 201||response.code() == 204&&response.body().size()!=0) {
-                            //mLoader.setVisibility(View.GONE);
-                            Organization organization = response.body().get(0);
-                            System.out.println("Inside api");
-                            PreferenceHandler.getInstance( AdminNewMainScreen.this).setCompanyId(organization.getOrganizationId());
-                            PreferenceHandler.getInstance( AdminNewMainScreen.this).setHeadOrganizationId(organization.getHeadOrganizationId());
-                            PreferenceHandler.getInstance( AdminNewMainScreen.this).setCompanyName(organization.getOrganizationName());
-                            PreferenceHandler.getInstance( AdminNewMainScreen.this).setAppType(organization.getAppType());
-
-                            PreferenceHandler.getInstance( AdminNewMainScreen.this).setAppType(organization.getAppType());
-                            PreferenceHandler.getInstance( AdminNewMainScreen.this).setLicenseStartDate(organization.getLicenseStartDate());
-                            PreferenceHandler.getInstance( AdminNewMainScreen.this).setLicenseEndDate(organization.getLicenseEndDate());
-                            PreferenceHandler.getInstance( AdminNewMainScreen.this).setSignupDate(organization.getSignupDate());
-                            PreferenceHandler.getInstance( AdminNewMainScreen.this).setOrganizationLongi(organization.getLongitude());
-                            PreferenceHandler.getInstance( AdminNewMainScreen.this).setOrganizationLati(organization.getLatitude());
-                            PreferenceHandler.getInstance( AdminNewMainScreen.this).setPlanType(organization.getPlanType());
-                            PreferenceHandler.getInstance( AdminNewMainScreen.this).setEmployeeLimit(organization.getEmployeeLimit());
-                            PreferenceHandler.getInstance( AdminNewMainScreen.this).setPlanId(organization.getPlanId());
-                            PreferenceHandler.getInstance( AdminNewMainScreen.this).setResellerUserId(organization.getResellerProfileId());
-
-                            appType = PreferenceHandler.getInstance( AdminNewMainScreen.this).getAppType();
-                            planType = PreferenceHandler.getInstance( AdminNewMainScreen.this).getPlanType();
-                            licensesStartDate = PreferenceHandler.getInstance( AdminNewMainScreen.this).getLicenseStartDate();
-                            licenseEndDate = PreferenceHandler.getInstance( AdminNewMainScreen.this).getLicenseEndDate();
-                            planId = PreferenceHandler.getInstance( AdminNewMainScreen.this).getPlanId();
-
-                            try{
-                                Intent i = new Intent( AdminNewMainScreen.this, AdminNewMainScreen.class);  //your class
-                                i.putExtra("OrgPos",pos);
-                                i.putExtra("Dont",true);
-                                startActivity(i);
-                                finish();
-
-                            }catch (Exception e){
-                                e.printStackTrace();
-                            }
-
-                        }else{
-                           // mLoader.setVisibility(View.GONE);
-                        }
-                    }
-
-                    @Override
-                    public void onFailure( Call<ArrayList< Organization >> call, Throwable t) {
-                       // mLoader.setVisibility(View.GONE);
-                    }
-                });
+            public void onFailure( @NonNull Call<ArrayList< Organization >> call,@NonNull  Throwable t) {
 
             }
-
         });
     }
 
-    public void popupUpgrade(final String text,final String days){
+    public void getCompanys(final int id,final int pos) {
+        final OrganizationApi subCategoryAPI = Util.getClient().create( OrganizationApi.class);
+        Call<ArrayList< Organization >> getProf = subCategoryAPI.getOrganizationById(id);
+        getProf.enqueue(new Callback<ArrayList< Organization >>() {
+            @Override
+            public void onResponse( @NonNull Call<ArrayList< Organization >> call,@NonNull  Response<ArrayList< Organization >> response) {
+                int statusCode = response.code ();
+                if (statusCode == 200||statusCode == 201||statusCode == 204&&response.body().size()!=0) {
+                    Organization organization = response.body().get(0);
+                    System.out.println("Inside api");
+                    PreferenceHandler.getInstance( AdminNewMainScreen.this).setCompanyId(organization.getOrganizationId());
+                    PreferenceHandler.getInstance( AdminNewMainScreen.this).setHeadOrganizationId(organization.getHeadOrganizationId());
+                    PreferenceHandler.getInstance( AdminNewMainScreen.this).setCompanyName(organization.getOrganizationName());
+                    PreferenceHandler.getInstance( AdminNewMainScreen.this).setAppType(organization.getAppType());
 
+                    PreferenceHandler.getInstance( AdminNewMainScreen.this).setAppType(organization.getAppType());
+                    PreferenceHandler.getInstance( AdminNewMainScreen.this).setLicenseStartDate(organization.getLicenseStartDate());
+                    PreferenceHandler.getInstance( AdminNewMainScreen.this).setLicenseEndDate(organization.getLicenseEndDate());
+                    PreferenceHandler.getInstance( AdminNewMainScreen.this).setSignupDate(organization.getSignupDate());
+                    PreferenceHandler.getInstance( AdminNewMainScreen.this).setOrganizationLongi(organization.getLongitude());
+                    PreferenceHandler.getInstance( AdminNewMainScreen.this).setOrganizationLati(organization.getLatitude());
+                    PreferenceHandler.getInstance( AdminNewMainScreen.this).setPlanType(organization.getPlanType());
+                    PreferenceHandler.getInstance( AdminNewMainScreen.this).setEmployeeLimit(organization.getEmployeeLimit());
+                    PreferenceHandler.getInstance( AdminNewMainScreen.this).setPlanId(organization.getPlanId());
+                    PreferenceHandler.getInstance( AdminNewMainScreen.this).setResellerUserId(organization.getResellerProfileId());
+
+                    appType = PreferenceHandler.getInstance( AdminNewMainScreen.this).getAppType();
+                    planType = PreferenceHandler.getInstance( AdminNewMainScreen.this).getPlanType();
+                    licensesStartDate = PreferenceHandler.getInstance( AdminNewMainScreen.this).getLicenseStartDate();
+                    licenseEndDate = PreferenceHandler.getInstance( AdminNewMainScreen.this).getLicenseEndDate();
+                    planId = PreferenceHandler.getInstance( AdminNewMainScreen.this).getPlanId();
+
+                    try{
+                        Intent i = new Intent( AdminNewMainScreen.this, AdminNewMainScreen.class);  //your class
+                        i.putExtra("OrgPos",pos);
+                        i.putExtra("Dont",true);
+                        startActivity(i);
+                        finish();
+
+                    }catch (Exception e){
+                        e.printStackTrace();
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure( @NonNull Call<ArrayList< Organization >> call, @NonNull  Throwable t) {
+
+            }
+        });
+    }
+
+    @SuppressLint ("SetTextI18n")
+    public void popupUpgrade( final String text, final String days){
         try{
-
             androidx.appcompat.app.AlertDialog.Builder builder = new androidx.appcompat.app.AlertDialog.Builder( AdminNewMainScreen.this);
             LayoutInflater inflater = (LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             View views = inflater.inflate(R.layout.app_upgrade_pop, null);
-
             builder.setView(views);
-
             final Button mPaid = views.findViewById(R.id.paid_version_upgrade);
             mPaid.setVisibility(View.GONE);
             final MyRegulerText mCompanyName = views.findViewById(R.id.company_name_upgrade);
             final MyRegulerText mText = views.findViewById(R.id.alert_message_upgrade);
             final MyRegulerText mDay = views.findViewById(R.id.day_count_upgrade);
-
             final androidx.appcompat.app.AlertDialog dialogs = builder.create();
             dialogs.show();
             dialogs.setCanceledOnTouchOutside(true);
-
             mCompanyName.setText("Dear "+PreferenceHandler.getInstance( AdminNewMainScreen.this).getCompanyName());
-            mText.setText(""+text);
-            mDay.setText(""+days);
-
-
+            mText.setText(String.valueOf ( text ));
+            mDay.setText(String.valueOf ( days ));
 
             mPaid.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-
                     dialogs.dismiss();
-
                 }
             });
 
-        }catch (Exception e){
-            e.printStackTrace();
+        }catch (Exception e) {
+            e.printStackTrace ( );
         }
-
     }
 
     public long dateCal(String date){
-
-        SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy");
-
-
-
+        @SuppressLint ("SimpleDateFormat") SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy");
         Date fd=null,td=null;
 
         try {
@@ -1602,16 +1300,214 @@ public class AdminNewMainScreen extends AppCompatActivity implements RapidFloati
             long diff = fd.getTime() - td.getTime();
             long days = diff / (24 * 60 * 60 * 1000);
 
-
-
             return  days;
         } catch (ParseException e) {
             e.printStackTrace();
             return 0;
         }
-
-
     }
+
+    public void updateProfile(final Employee employee){
+        progressBarUtil.showProgress ( "Loading..." );
+        final EmployeeApi subCategoryAPI = Util.getClient().create( EmployeeApi.class);
+        Call<Employee> getProf = subCategoryAPI.updateEmployee(employee.getEmployeeId(),employee);
+        getProf.enqueue(new Callback<Employee>() {
+            @Override
+            public void onResponse(@NonNull Call<Employee> call, @NonNull Response<Employee> response) {
+                int statusCode = response.code ();
+                if (statusCode == 200||statusCode==201||statusCode==204) {
+                    progressBarUtil.hideProgress ();
+                }else{
+                    ShowToast (ValidationConst.FAILES_DUE_TO+statusCode );
+                    progressBarUtil.hideProgress ();
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<Employee> call, @NonNull Throwable t) {
+                progressBarUtil.hideProgress ();
+                noInternetConnection ();
+            }
+        });
+    }
+
+    private static boolean hasPermissions(Context context, String... permissions) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && context != null && permissions != null) {
+            for (String permission : permissions) {
+                if ( ActivityCompat.checkSelfPermission(context, permission) != PackageManager.PERMISSION_GRANTED) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    @Override
+    public void onRequestPermissionsResult( int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        switch (requestCode) {
+            case REQUEST: {
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    Log.d("TAG","@@@ PERMISSIONS grant");
+                    boolean_permissions = false;
+
+                } else {
+                    Log.d("TAG","@@@ PERMISSIONS Denied");
+
+                    boolean_permissions = false;
+
+                    Toast.makeText(mContext, "Permission Required. So Please allow the permission", Toast.LENGTH_SHORT).show();
+                }
+            }
+            break;
+        }
+    }
+
+    public void presentShowcaseSequence() throws Exception{
+        ShowcaseConfig config = new ShowcaseConfig();
+        config.setDelay(500); // half second between each showcase view
+        MaterialShowcaseSequence sequence = new MaterialShowcaseSequence(this, SHOWCASE_ID_ADMIN);
+        sequence.setOnItemShownListener( ( itemView , position ) -> {
+
+        } );
+
+        sequence.setConfig(config);
+        sequence.addSequenceItem(mQrLayout, "This is a Organization QR code.\nClick on QR code symbol, Scan employee QR code for marking employee's attendance & You can download your Organization QR Code.. ", "GOT IT");
+        sequence.addSequenceItem(
+                new MaterialShowcaseView.Builder(this)
+                        .setSkipText("SKIP")
+                        .setTarget(mShareLayout)
+                        .setDismissText("GOT IT")
+                        .setContentText("This is a Share Icon .Click on this icon, share options will come and select email to Share details about this app with your Organization code to your employees")
+                        .withRectangleShape(true)
+                        .build()
+        );
+
+        sequence.addSequenceItem(
+                new MaterialShowcaseView.Builder(this)
+                        .setSkipText("SKIP")
+                        .setTarget(mProfileImage)
+                        .setDismissText("GOT IT")
+                        .setContentText("Click here to Upload profile picture")
+                        .withRectangleShape()
+                        .build()
+        );
+
+        sequence.start();
+        PreferenceHandler.getInstance( AdminNewMainScreen.this).setMainCheck(true);
+    }
+
+    @Override
+    public void onRFACItemLabelClick(int position, RFACLabelItem item) {
+        rfabHelper.toggleContent();
+        if(position==0){
+            createDepartment();
+        }else if(position==1){
+            Intent branch = new Intent( AdminNewMainScreen.this,CreateEmployeeScreen.class);
+            startActivity(branch);
+        }else if(position==2){
+            Intent task = new Intent( AdminNewMainScreen.this, EmployeeListScreen.class);
+            task.putExtra("Type","Task");
+            startActivity(task);
+        }else if(position==3){
+            Intent branch = new Intent( AdminNewMainScreen.this,CustomerCreation.class);
+            startActivity(branch);
+        }
+    }
+
+    @Override
+    public void onRFACItemIconClick(int position, RFACLabelItem item) {
+        rfabHelper.toggleContent();
+        if(position==0){
+            createDepartment();
+        }else if(position==1){
+            Intent branch = new Intent( AdminNewMainScreen.this,CreateEmployeeScreen.class);
+            startActivity(branch);
+        }else if(position==2){
+            Intent task = new Intent( AdminNewMainScreen.this, EmployeeListScreen.class);
+            task.putExtra("Type","Task");
+            startActivity(task);
+        }else if(position==3){
+            Intent branch = new Intent( AdminNewMainScreen.this,CustomerCreation.class);
+            startActivity(branch);
+        }
+    }
+
+    private void createDepartment(){
+        androidx.appcompat.app.AlertDialog.Builder builder = new androidx.appcompat.app.AlertDialog.Builder( AdminNewMainScreen.this);
+        LayoutInflater inflater = (LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        View views = inflater.inflate(R.layout.custom_alert_box_department, null);
+        builder.setView(views);
+        builder.setOnKeyListener( ( dialog , keyCode , event ) -> keyCode == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_UP );
+
+        final AppCompatTextView mSave = views.findViewById(R.id.save);
+        //final AppCompatTextView cancel = views.findViewById(R.id.cancel);
+        mDesc = views.findViewById(R.id.department_description);
+        mName = views.findViewById(R.id.department_name);
+        alertDialog = builder.create();
+        alertDialog.show();
+        alertDialog.setCanceledOnTouchOutside(true);
+
+        mSave.setOnClickListener( view -> {
+            if(isDepartmentValidated (AdminNewMainScreen.this,mName,mDesc) ) {
+                if ( NetworkUtil.checkInternetConnection ( AdminNewMainScreen.this ) ) {
+                    setDepartmentModel ( );
+                } else {
+                    noInternetConnection ();
+                }
+            }
+        });
+    }
+
+    private void setDepartmentModel ( ) {
+        Departments departments = new Departments();
+        departments.setDepartmentName( Objects.requireNonNull ( mName.getText ( ) ).toString ());
+        departments.setDepartmentDescription(Objects.requireNonNull (mDesc.getText ().toString ()));
+        departments.setOrganizationId(PreferenceHandler.getInstance( AdminNewMainScreen.this).getCompanyId());
+        try {
+            addDepartments(departments,alertDialog);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void addDepartments(final Departments departments,final androidx.appcompat.app.AlertDialog dialogs) {
+        progressBarUtil.showProgress ( "Loading..." );
+        DepartmentApi apiService = Util.getClient().create( DepartmentApi.class);
+        Call<Departments> call = apiService.addDepartments(departments);
+        call.enqueue(new Callback<Departments>() {
+            @Override
+            public void onResponse( @NonNull Call<Departments> call, @NonNull Response<Departments> response) {
+                try {
+                    int statusCode = response.code ();
+                    if (statusCode == 200 || statusCode == 201) {
+                        progressBarUtil.hideProgress ();
+                        Departments s = response.body();
+                        if(s!=null){
+                            ShowToast ( ValidationConst.DEPARTMENT_CREATED_SUCCESSFULLY );
+                            dialogs.dismiss();
+                        }
+
+                    }else {
+                       ShowToast ( ValidationConst.FAILES_DUE_TO+statusCode );
+                    }
+                }
+                catch (Exception ex) {
+                    progressBarUtil.hideProgress ();
+                    ex.printStackTrace();
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<Departments> call, @NonNull Throwable t) {
+                progressBarUtil.hideProgress ();
+                noInternetConnection ();
+                Log.e("TAG", t.toString());
+            }
+        });
+    }
+
+    /*Not in Use*/
 
     private void getCurrentVersion() {
         System.out.println("Google inside");
@@ -1634,7 +1530,7 @@ public class AdminNewMainScreen extends AppCompatActivity implements RapidFloati
             if(currentVersion.equalsIgnoreCase(app_version)){
 
             }else{
-                final AlertDialog.Builder builder = new AlertDialog.Builder( AdminNewMainScreen.this);
+                final androidx.appcompat.app.AlertDialog.Builder builder = new androidx.appcompat.app.AlertDialog.Builder( AdminNewMainScreen.this);
                 builder.setTitle("A New Update is Available");
                 builder.setPositiveButton("Update", new DialogInterface.OnClickListener() {
                     @Override
@@ -1658,9 +1554,6 @@ public class AdminNewMainScreen extends AppCompatActivity implements RapidFloati
                 dialog = builder.show();
             }
         }
-
-       // new GetVersionCode().execute();
-
     }
 
     class GetVersionCode extends AsyncTask<Void, String, String> {
@@ -1697,7 +1590,6 @@ public class AdminNewMainScreen extends AppCompatActivity implements RapidFloati
             } catch (Exception e) {
                 return newVersion;
             }
-
         }
 
         @Override
@@ -1709,7 +1601,6 @@ public class AdminNewMainScreen extends AppCompatActivity implements RapidFloati
                 if (!onlineVersion.equalsIgnoreCase(currentVersion)) {
                     showUpdateDialog();
                 } else {
-                    // Toast.makeText(MainActivity.this, "Check", Toast.LENGTH_SHORT).show();
                     System.out.println("Check");
                 }
             } else {
@@ -1717,15 +1608,13 @@ public class AdminNewMainScreen extends AppCompatActivity implements RapidFloati
             }
         }
 
-
         private void showUpdateDialog() {
-            final AlertDialog.Builder builder = new AlertDialog.Builder( AdminNewMainScreen.this);
+            final androidx.appcompat.app.AlertDialog.Builder builder = new AlertDialog.Builder( AdminNewMainScreen.this);
             builder.setTitle("A New Update is Available");
             builder.setPositiveButton("Update", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
-                    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse
-                            ("https://play.google.com/store/apps/details?id=app.zingo.mysolite")));
+                    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse ("https://play.google.com/store/apps/details?id=app.zingo.mysolite")));
                     dialog.dismiss();
                 }
             });
@@ -1733,184 +1622,58 @@ public class AdminNewMainScreen extends AppCompatActivity implements RapidFloati
             builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
-
-                    //background.start();
-                   // Toast.makeText(AdminNewMainScreen.this, "Check", Toast.LENGTH_SHORT).show();
                 }
             });
 
             builder.setCancelable(false);
             dialog = builder.show();
         }
-
-
-    }
-
-    public void updateProfile(final Employee employee){
-
-
-
-        new ThreadExecuter ().execute( new Runnable() {
-            @Override
-            public void run() {
-
-                final EmployeeApi subCategoryAPI = Util.getClient().create( EmployeeApi.class);
-                Call<Employee> getProf = subCategoryAPI.updateEmployee(employee.getEmployeeId(),employee);
-                //Call<ArrayList<Blogs>> getBlog = blogApi.getBlogs();
-
-                getProf.enqueue(new Callback<Employee>() {
-
-                    @Override
-                    public void onResponse(Call<Employee> call, Response<Employee> response) {
-
-
-                        if (response.code() == 200||response.code()==201||response.code()==204)
-                        {
-
-
-                        }else{
-                           // Toast.makeText(ChangePasswordScreen.this, "Failed due to status code"+response.code(), Toast.LENGTH_SHORT).show();
-                        }
-                    }
-
-                    @Override
-                    public void onFailure(Call<Employee> call, Throwable t) {
-
-
-                        //  Toast.makeText(ChangePasswordScreen.this, "Something went wrong due to "+"Bad Internet Connection", Toast.LENGTH_SHORT).show();
-
-                    }
-                });
-
-            }
-
-        });
-    }
-
-    private static boolean hasPermissions(Context context, String... permissions) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && context != null && permissions != null) {
-            for (String permission : permissions) {
-                if ( ActivityCompat.checkSelfPermission(context, permission) != PackageManager.PERMISSION_GRANTED) {
-                    return false;
-                }
-            }
-        }
-        return true;
-    }
-
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-
-        switch (requestCode) {
-
-
-            case REQUEST: {
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    Log.d("TAG","@@@ PERMISSIONS grant");
-                    boolean_permissions = false;
-
-                } else {
-                    Log.d("TAG","@@@ PERMISSIONS Denied");
-
-                    boolean_permissions = false;
-
-                    Toast.makeText(mContext, "Permission Required. So Please allow the permission", Toast.LENGTH_SHORT).show();
-                }
-            }
-            break;
-        }
     }
 
     public void getBranches(final int id,final int posi) {
-
-
-
-        new ThreadExecuter ().execute( new Runnable() {
+        final OrganizationApi orgApi = Util.getClient().create( OrganizationApi.class);
+        Call<ArrayList< Organization >> getProf = orgApi.getBranchesByHeadOrganizationId(id);
+        getProf.enqueue(new Callback<ArrayList< Organization >>() {
             @Override
-            public void run() {
+            public void onResponse(@NonNull  Call<ArrayList< Organization >> call, @NonNull  Response<ArrayList< Organization >> response) {
+                int statusCode = response.code ();
+                if (statusCode == 200||statusCode == 201||statusCode == 204) {
+                    ArrayList< Organization > branches = response.body();
+                    organizationArrayList = response.body();
+                    ArrayList<String> orgName = new ArrayList<>();
+                    if(branches!=null&&branches.size()!=0){
+                        orgName.add("Select Branch");
+                        for(int i=0;i<branches.size();i++){
+                            orgName.add(branches.get(i).getOrganizationName());
+                        }
 
-                final OrganizationApi orgApi = Util.getClient().create( OrganizationApi.class);
-                Call<ArrayList< Organization >> getProf = orgApi.getBranchesByHeadOrganizationId(id);
-                //Call<ArrayList<Blogs>> getBlog = blogApi.getBlogs();
-
-                getProf.enqueue(new Callback<ArrayList< Organization >>() {
-
-                    @Override
-                    public void onResponse( Call<ArrayList< Organization >> call, Response<ArrayList< Organization >> response) {
-
-
-
-                        if (response.code() == 200||response.code() == 201||response.code() == 204)
-                        {
-                           // mLoader.setVisibility(View.GONE);
-
-                            ArrayList< Organization > branches = response.body();
-                            organizationArrayList = response.body();
-                            ArrayList<String> orgName = new ArrayList<>();
-
-                            if(branches!=null&&branches.size()!=0){
-                               // mLoader.setVisibility(View.GONE);
-                                orgName.add("Select Branch");
-
-                                for(int i=0;i<branches.size();i++){
-
-                                    orgName.add(branches.get(i).getOrganizationName());
-                                }
-
-                                if(organizationArrayList!=null&&organizationArrayList.size()!=0){
-
-                                    organizationName.setVisibility(View.VISIBLE);
-
-                                    ArrayAdapter adapter = new ArrayAdapter<>( AdminNewMainScreen.this, R.layout.spinner_item_selected, orgName);
-                                    adapter.setDropDownViewResource(R.layout.support_simple_spinner_dropdown_item);
-
-                                    // DepartmentSpinnerAdapter arrayAdapter = new DepartmentSpinnerAdapter(EmployeeSignUp.this, departmentData);
-                                    organizationName.setAdapter(adapter);
-
-                                    if(posi!=-1){
-                                        organizationName.setSelection(spinnerPos);
-                                    }else{
-                                        organizationName.setSelection(0);
-                                    }
-
-                                }
-
-
+                        if(organizationArrayList!=null&&organizationArrayList.size()!=0) {
+                            organizationName.setVisibility ( View.VISIBLE );
+                            ArrayAdapter adapter = new ArrayAdapter <> ( AdminNewMainScreen.this , R.layout.spinner_item_selected , orgName );
+                            adapter.setDropDownViewResource ( R.layout.support_simple_spinner_dropdown_item );
+                            organizationName.setAdapter ( adapter );
+                            if ( posi != - 1 ) {
+                                organizationName.setSelection ( spinnerPos );
+                            } else {
+                                organizationName.setSelection ( 0 );
                             }
-
-
-                        }else{
-
-                           // mLoader.setVisibility(View.GONE);
-
-                            Toast.makeText( AdminNewMainScreen.this, "Something went wrong", Toast.LENGTH_SHORT).show();
-
                         }
                     }
 
-                    @Override
-                    public void onFailure( Call<ArrayList< Organization >> call, Throwable t) {
-
-
-                       // mLoader.setVisibility(View.GONE);
-
-                        Toast.makeText( AdminNewMainScreen.this, "Something went wrong", Toast.LENGTH_SHORT).show();
-
-                    }
-                });
-
+                }else{
+                    Toast.makeText( AdminNewMainScreen.this, "Something went wrong", Toast.LENGTH_SHORT).show();
+                }
             }
 
+            @Override
+            public void onFailure( @NonNull  Call<ArrayList< Organization >> call, @NonNull Throwable t) {
+                Toast.makeText( AdminNewMainScreen.this, "Something went wrong", Toast.LENGTH_SHORT).show();
+            }
         });
     }
 
     void presentShowcaseView() {
-
         MaterialShowcaseSequence sequence = new MaterialShowcaseSequence(this, SHOWCASE_ID_ADMIN);
-
-
         ShowcaseTooltip toolTip1 = ShowcaseTooltip.build(this)
                 .corner(30)
                 .textColor(Color.parseColor("#007686"))
@@ -1947,229 +1710,6 @@ public class AdminNewMainScreen extends AppCompatActivity implements RapidFloati
                         .build()
         );
 
-
-
         sequence.start();
-
-
     }
-
-    public void presentShowcaseSequence() throws Exception{
-
-        ShowcaseConfig config = new ShowcaseConfig();
-        config.setDelay(500); // half second between each showcase view
-
-        MaterialShowcaseSequence sequence = new MaterialShowcaseSequence(this, SHOWCASE_ID_ADMIN);
-
-        sequence.setOnItemShownListener(new MaterialShowcaseSequence.OnSequenceItemShownListener() {
-            @Override
-            public void onShow(MaterialShowcaseView itemView, int position) {
-
-            }
-        });
-
-        sequence.setConfig(config);
-
-        sequence.addSequenceItem(mQrLayout, "This is a Organization QR code.\nClick on QR code symbol, Scan employee QR code for marking employee's attendance & You can download your Organization QR Code.. ", "GOT IT");
-
-        sequence.addSequenceItem(
-                new MaterialShowcaseView.Builder(this)
-                        .setSkipText("SKIP")
-                        .setTarget(mShareLayout)
-                        .setDismissText("GOT IT")
-                        .setContentText("This is a Share Icon .Click on this icon, share options will come and select email to Share details about this app with your Organization code to your employees")
-                        .withRectangleShape(true)
-                        .build()
-        );
-
-        sequence.addSequenceItem(
-                new MaterialShowcaseView.Builder(this)
-                        .setSkipText("SKIP")
-                        .setTarget(mProfileImage)
-                        .setDismissText("GOT IT")
-                        .setContentText("Click here to Upload profile picture")
-                        .withRectangleShape()
-                        .build()
-        );
-
-        sequence.start();
-        PreferenceHandler.getInstance( AdminNewMainScreen.this).setMainCheck(true);
-    }
-
-    private void initRFAB() {
-
-    }
-
-    @Override
-    public void onRFACItemLabelClick(int position, RFACLabelItem item) {
-        rfabHelper.toggleContent();
-        if(position==0){
-            departmentAlert();
-        }else if(position==1){
-            Intent branch = new Intent( AdminNewMainScreen.this,CreateEmployeeScreen.class);
-            startActivity(branch);
-        }else if(position==2){
-            Intent task = new Intent( AdminNewMainScreen.this, EmployeeListScreen.class);
-            task.putExtra("Type","Task");
-            startActivity(task);
-        }else if(position==3){
-            Intent branch = new Intent( AdminNewMainScreen.this,CustomerCreation.class);
-            startActivity(branch);
-        }
-    }
-
-    @Override
-    public void onRFACItemIconClick(int position, RFACLabelItem item) {
-        rfabHelper.toggleContent();
-        if(position==0){
-            departmentAlert();
-        }else if(position==1){
-            Intent branch = new Intent( AdminNewMainScreen.this,CreateEmployeeScreen.class);
-            startActivity(branch);
-        }else if(position==2){
-            Intent task = new Intent( AdminNewMainScreen.this, EmployeeListScreen.class);
-            task.putExtra("Type","Task");
-            startActivity(task);
-        }else if(position==3){
-            Intent branch = new Intent( AdminNewMainScreen.this,CustomerCreation.class);
-            startActivity(branch);
-        }
-    }
-
-
-    private void departmentAlert(){
-
-        androidx.appcompat.app.AlertDialog.Builder builder = new androidx.appcompat.app.AlertDialog.Builder( AdminNewMainScreen.this);
-        LayoutInflater inflater = (LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        View views = inflater.inflate(R.layout.custom_alert_box_department, null);
-
-        builder.setView(views);
-        builder.setOnKeyListener(new DialogInterface.OnKeyListener() {
-            @Override
-            public boolean onKey(DialogInterface dialog, int keyCode, KeyEvent event) {
-                // Consumed
-// Not consumed
-                return keyCode == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_UP;
-            }
-        });
-
-        final Button mSave = views.findViewById(R.id.save);
-        final EditText desc = views.findViewById(R.id.department_description);
-        final TextInputEditText mName = views.findViewById(R.id.department_name);
-
-
-        final androidx.appcompat.app.AlertDialog dialog = builder.create();
-        dialog.show();
-        dialog.setCanceledOnTouchOutside(true);
-
-        mSave.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-
-                String name = mName.getText().toString();
-                String descrp = desc.getText().toString();
-
-                if(name.isEmpty()){
-
-                    Toast.makeText( AdminNewMainScreen.this, "Please enter Department Name", Toast.LENGTH_SHORT).show();
-
-                }else if (descrp.isEmpty()){
-
-                    Toast.makeText( AdminNewMainScreen.this, "Please enter Department Description", Toast.LENGTH_SHORT).show();
-                }else{
-
-                    Departments departments = new Departments();
-                    departments.setDepartmentName(name);
-                    departments.setDepartmentDescription(descrp);
-                    departments.setOrganizationId(PreferenceHandler.getInstance( AdminNewMainScreen.this).getCompanyId());
-
-                    try {
-                        addDepartments(departments,dialog);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
-
-
-            }
-        });
-
-    }
-
-
-    public void addDepartments(final Departments departments,final androidx.appcompat.app.AlertDialog dialogs) {
-
-
-        final ProgressDialog dialog = new ProgressDialog( AdminNewMainScreen.this);
-        dialog.setMessage("Saving Details..");
-        dialog.setCancelable(false);
-        dialog.show();
-
-        DepartmentApi apiService = Util.getClient().create( DepartmentApi.class);
-
-        Call<Departments> call = apiService.addDepartments(departments);
-
-        call.enqueue(new Callback<Departments>() {
-            @Override
-            public void onResponse(Call<Departments> call, Response<Departments> response) {
-//                List<RouteDTO.Routes> list = new ArrayList<RouteDTO.Routes>();
-                try
-                {
-                    if(dialog != null && dialog.isShowing())
-                    {
-                        dialog.dismiss();
-                    }
-
-                    int statusCode = response.code();
-                    if (statusCode == 200 || statusCode == 201) {
-
-                        Departments s = response.body();
-
-                        if(s!=null){
-
-                            Toast.makeText( AdminNewMainScreen.this, "Department Creted Successfully ", Toast.LENGTH_SHORT).show();
-
-                            dialogs.dismiss();
-
-
-
-
-                        }
-
-
-
-
-                    }else {
-                        Toast.makeText( AdminNewMainScreen.this, "Failed Due to "+response.message(), Toast.LENGTH_SHORT).show();
-                    }
-                }
-                catch (Exception ex)
-                {
-
-                    if(dialog != null && dialog.isShowing())
-                    {
-                        dialog.dismiss();
-                    }
-                    ex.printStackTrace();
-                }
-//                callGetStartEnd();
-            }
-
-            @Override
-            public void onFailure(Call<Departments> call, Throwable t) {
-
-                if(dialog != null && dialog.isShowing())
-                {
-                    dialog.dismiss();
-                }
-                Toast.makeText( AdminNewMainScreen.this , "Failed due to Bad Internet Connection" , Toast.LENGTH_SHORT ).show( );
-                Log.e("TAG", t.toString());
-            }
-        });
-
-
-
-    }
-
 }

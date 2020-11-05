@@ -1133,48 +1133,32 @@ public class EmployeeEditScreen extends AppCompatActivity {
                             if (progressDialog!=null)
                                 progressDialog.dismiss();
                             ArrayList< Employee > list = response.body();
-
-
                             if (list !=null && list.size()!=0) {
-
                                 employeeList = new ArrayList<>();
-
                                 int value = 0;
 
-
                                 for(int i=0;i<list.size();i++){
-
                                     if(list.get(i).getEmployeeId()!=employees.getEmployeeId()){
-
                                         employeeList.add(list.get(i));
-
                                         if(list.get(i).getEmployeeId()==managerId){
-
                                             value = employeeList.size()-1;
                                         }
-
                                     }
                                 }
 
                                 if(employeeList!=null&&employeeList.size()!=0){
-                                   //
                                     // Collections.sort(employeeList,Employee.compareEmployee);
                                     ManagerSpinnerAdapter arrayAdapter = new ManagerSpinnerAdapter( EmployeeEditScreen.this, employeeList);
                                     mtoReport.setAdapter(arrayAdapter);
                                     mtoReport.setSelection(value);
 
-
                                 }else{
                                  //   Toast.makeText(EmployeeEditScreen.this,"No Employees added",Toast.LENGTH_LONG).show();
-
                                 }
-
-
                                 //}
 
                             }else{
                                // Toast.makeText(EmployeeEditScreen.this,"No Employees added",Toast.LENGTH_LONG).show();
-
                             }
 
                         }else {

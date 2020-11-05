@@ -81,7 +81,7 @@ public class CategoryDetailScreen extends AppCompatActivity {
 
             if(category!=null){
                 collapsingToolbarLayout.setTitle(""+category.getStockCategoryName ());
-                Picasso.with(CategoryDetailScreen.this).load(category.getStockCategoryImage ()).placeholder(R.drawable.no_image).
+                Picasso.get ().load(category.getStockCategoryImage ()).placeholder(R.drawable.no_image).
                         error(R.drawable.no_image).into(collapsingToolbarImageView);
                 mCateDes.setText("About "+category.getStockCategoryName ());
 
@@ -105,7 +105,7 @@ public class CategoryDetailScreen extends AppCompatActivity {
 
             }else{
                 collapsingToolbarLayout.setTitle("Category Detail");
-                Picasso.with(CategoryDetailScreen.this).load(category.getStockCategoryImage ()).placeholder(R.drawable.no_image).
+                Picasso.get ().load(category.getStockCategoryImage ()).placeholder(R.drawable.no_image).
                         error(R.drawable.no_image).into(collapsingToolbarImageView);
             }
 

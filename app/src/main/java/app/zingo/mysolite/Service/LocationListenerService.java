@@ -275,15 +275,9 @@ public class LocationListenerService   extends Service implements LocationListen
         }
     }
     public void addLiveTracking(final LiveTracking liveTracking) {
-
-
-
-
-
+        System.out.println ( "Suree Location Listener Service: "+liveTracking.BatteryPercentage );
         LiveTrackingAPI apiService = Util.getClient().create( LiveTrackingAPI.class);
-
         Call< LiveTracking > call = apiService.addLiveTracking(liveTracking);
-
         call.enqueue(new Callback< LiveTracking >() {
             @Override
             public void onResponse( Call< LiveTracking > call, Response< LiveTracking > response) {

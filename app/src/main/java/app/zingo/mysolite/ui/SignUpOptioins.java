@@ -36,11 +36,9 @@ public class SignUpOptioins extends AppCompatActivity {
             mReseller = findViewById(R.id.join_reseller);
             mWhatsapp = findViewById(R.id.whatsapp_open);
 
-
             mOrganization.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-
                     Intent started = new Intent( SignUpOptioins.this,GetStartedScreen.class);
                     PreferenceHandler.getInstance( SignUpOptioins.this).setSignUpType("Organization");
                     startActivity(started);
@@ -51,7 +49,6 @@ public class SignUpOptioins extends AppCompatActivity {
             mResellerSign.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-
                     Intent started = new Intent( SignUpOptioins.this, ResellerSignUpScree.class);
                     PreferenceHandler.getInstance( SignUpOptioins.this).setSignUpType("Reseller");
                     startActivity(started);
@@ -66,7 +63,6 @@ public class SignUpOptioins extends AppCompatActivity {
                     PreferenceHandler.getInstance( SignUpOptioins.this).setSignUpType("Employee");
                     started.putExtra("Screen","Employee");
                     startActivity(started);
-
                 }
             });
 

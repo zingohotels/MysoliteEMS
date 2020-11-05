@@ -54,6 +54,7 @@ import app.zingo.mysolite.model.LiveTracking;
 import app.zingo.mysolite.model.LiveTrackingAdminData;
 import app.zingo.mysolite.ui.Admin.EmployeeLiveMappingScreen;
 import app.zingo.mysolite.ui.Employee.EmployeeListScreen;
+import app.zingo.mysolite.utils.BaseActivity;
 import app.zingo.mysolite.utils.PreferenceHandler;
 import app.zingo.mysolite.utils.ThreadExecuter;
 import app.zingo.mysolite.utils.TrackGPS;
@@ -65,10 +66,9 @@ import okhttp3.Headers;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-
 import static android.text.TextUtils.isEmpty;
 
-public class AllEmployeeLiveLocation extends AppCompatActivity {
+public class AllEmployeeLiveLocation extends BaseActivity {
     MapView mapView;
     LinearLayout mlocation;
     LinearLayout scrollableLay,mMapShow;
@@ -238,10 +238,10 @@ public class AllEmployeeLiveLocation extends AppCompatActivity {
                                 markerList.clear();
                             }
                             for (Employee e:employees) {
-
                                 LiveTracking lv = new LiveTracking ();
                                 lv.setEmployeeId(e.getEmployeeId());
                                 lv.setTrackingDate(new SimpleDateFormat("MM/dd/yyyy",Locale.US).format(date));
+                                lv.setBatteryPercentage (String.valueOf ( getBatteryPercentage() ));
                                 getLiveLocation(lv,e);
                             }
                         }else{
@@ -464,6 +464,9 @@ public class AllEmployeeLiveLocation extends AppCompatActivity {
     }
 
     public void onAddField(final  ArrayList<LiveTrackingAdminData> liveTrackingArrayList) {
+        Gson gson = new Gson ();
+        String json = gson.toJson ( liveTrackingArrayList );
+        System.out.println ( "Suree " +"LiveLocations "+json);
         mlocation.removeAllViews();
         LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View rowView = inflater.inflate(R.layout.bottom_location_places, null);
@@ -541,6 +544,7 @@ public class AllEmployeeLiveLocation extends AppCompatActivity {
                                         LiveTracking lv = new LiveTracking ();
                                         lv.setEmployeeId(e.getEmployeeId());
                                         lv.setTrackingDate(new SimpleDateFormat("MM/dd/yyyy").format(fdate));
+                                        lv.setBatteryPercentage (String.valueOf ( getBatteryPercentage() ));
                                         getLiveLocation(lv,e);
                                     }
                                 }else{
@@ -591,6 +595,7 @@ public class AllEmployeeLiveLocation extends AppCompatActivity {
                         lv.setEmployeeId(e.getEmployeeId());
                         //lv.setOrganizationId(e.getEmployeeId());
                         lv.setTrackingDate(dateActivity);
+                        lv.setBatteryPercentage (String.valueOf ( getBatteryPercentage() ));
                         getLiveLocations(lv,e,listLives,1);
                     }
                 }

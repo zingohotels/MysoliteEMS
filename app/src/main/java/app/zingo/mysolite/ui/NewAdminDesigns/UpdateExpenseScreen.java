@@ -148,7 +148,7 @@ public class UpdateExpenseScreen extends AppCompatActivity {
                         View v = vi.inflate(R.layout.gallery_layout, null);
                         ImageView blogs = v.findViewById(R.id.blog_images);
 
-                        Picasso.with( UpdateExpenseScreen.this).load(expenses.getImageUrl()).placeholder(R.drawable.no_image).
+                        Picasso.get ().load(expenses.getImageUrl()).placeholder(R.drawable.no_image).
                                 error(R.drawable.no_image).into(blogs);
 
 

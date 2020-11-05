@@ -20,13 +20,18 @@ import android.widget.Toast;
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesRepairableException;
 import com.google.android.gms.common.api.Status;
-import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.ui.PlaceAutocomplete;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.libraries.places.api.Places;
+import com.google.android.libraries.places.api.model.Place;
+import com.google.android.libraries.places.widget.Autocomplete;
+import com.google.android.libraries.places.widget.AutocompleteActivity;
+import com.google.android.libraries.places.widget.model.AutocompleteActivityMode;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -34,6 +39,7 @@ import app.zingo.mysolite.Custom.MyEditText;
 import app.zingo.mysolite.Custom.MyTextView;
 import app.zingo.mysolite.model.ResellerProfiles;
 import app.zingo.mysolite.ui.LandingScreen;
+import app.zingo.mysolite.utils.Constants;
 import app.zingo.mysolite.utils.PreferenceHandler;
 import app.zingo.mysolite.utils.ThreadExecuter;
 import app.zingo.mysolite.utils.Util;
@@ -44,17 +50,12 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class ResellerSignUpScree extends AppCompatActivity {
-
     MyEditText mName,mUserName,mEmail,mMobile,mPassword,mConfirm;
     MyTextView mCity,mCountry;
-
     RadioButton mMale,mFemale,mOthers;
     MyTextView mCreate;
-
     CheckBox mShowPwd;
-
     public static final int PLACE_AUTOCOMPLETE_REQUEST_CODE = 1;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,7 +68,11 @@ public class ResellerSignUpScree extends AppCompatActivity {
             getSupportActionBar().setHomeButtonEnabled(true);
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             setTitle("Reseller Signup");
-
+            try{
+                Places.initialize(getApplicationContext(), Constants.locationApiKey);
+            }catch ( Exception e ){
+                e.printStackTrace ();
+            }
 
             mName = findViewById(R.id.reseller_name);
             mUserName = findViewById(R.id.reseller_user_name);
@@ -121,15 +126,14 @@ public class ResellerSignUpScree extends AppCompatActivity {
                 @Override
                 public void onClick(View v) {
                     try {
-                        Intent intent = new PlaceAutocomplete.IntentBuilder(PlaceAutocomplete.MODE_OVERLAY/*MODE_FULLSCREEN*/)
-                                        .build( ResellerSignUpScree.this);
+                        /* Intent intent = new PlaceAutocomplete.IntentBuilder(PlaceAutocomplete.MODE_OVERLAY*//*MODE_FULLSCREEN*//*).build( ResellerSignUpScree.this);
+                        startActivityForResult(intent, PLACE_AUTOCOMPLETE_REQUEST_CODE);*/
+                        List< com.google.android.libraries.places.api.model.Place.Field> fields = Arrays.asList( com.google.android.libraries.places.api.model.Place.Field.ID, com.google.android.libraries.places.api.model.Place.Field.LAT_LNG, com.google.android.libraries.places.api.model.Place.Field.NAME, com.google.android.libraries.places.api.model.Place.Field.ADDRESS);
+                        Intent intent = new Autocomplete.IntentBuilder( AutocompleteActivityMode.FULLSCREEN, fields).build(getApplicationContext());
                         startActivityForResult(intent, PLACE_AUTOCOMPLETE_REQUEST_CODE);
-                    } catch (GooglePlayServicesRepairableException e) {
+                    } catch (Exception e) {
                         e.printStackTrace();
                         // TODO: Handle the error.
-                    } catch (GooglePlayServicesNotAvailableException e) {
-                        // TODO: Handle the error.
-                        e.printStackTrace();
                     }
                 }
             });
@@ -153,14 +157,12 @@ public class ResellerSignUpScree extends AppCompatActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-//        super.onActivityResult(requestCode, resultCode, data);
+        super.onActivityResult(requestCode, resultCode, data);
         try{
             if (requestCode == PLACE_AUTOCOMPLETE_REQUEST_CODE) {
                 if (resultCode == RESULT_OK) {
-                    Place place = PlaceAutocomplete.getPlace(this, data);
+                    Place place = Autocomplete.getPlaceFromIntent (data);
                     //System.out.println(place.getLatLng());
-
-
                     LatLng latLang = place.getLatLng();
                     double lat  = latLang.latitude;
                     double longi  = latLang.longitude;
@@ -181,8 +183,8 @@ public class ResellerSignUpScree extends AppCompatActivity {
                     }
 
 
-                } else if (resultCode == PlaceAutocomplete.RESULT_ERROR) {
-                    Status status = PlaceAutocomplete.getStatus(this, data);
+                } else if (resultCode == AutocompleteActivity.RESULT_ERROR) {
+                    Status status = Autocomplete.getStatusFromIntent (data);
                     // TODO: Handle the error.
                     Log.i("CreateCity", status.getStatusMessage());
 
@@ -196,6 +198,7 @@ public class ResellerSignUpScree extends AppCompatActivity {
 
 
     }
+
 
     public void validate(){
         String name = mName.getText().toString();
